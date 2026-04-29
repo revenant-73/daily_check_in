@@ -14,6 +14,22 @@ A private, mobile-first web application for athletes to set daily practice goals
 - **Data Fetching**: TanStack Query (React Query)
 - **Charts**: Recharts
 
+## Design Philosophy
+
+### 📱 Player View: Mobile-First & "High-Speed"
+- **Primary Goal**: Submitting a check-in in under 30 seconds at the start of practice.
+- **Constraints**: 
+    - Must be fully operable with one hand (thumb-reachability).
+    - High-contrast UI for outdoor/sunlight visibility.
+    - Minimal typing; prioritize sliders and selection.
+
+### 💻 Coach/Admin View: Data-Dense & Desktop-Optimized
+- **Primary Goal**: Quick analysis of team readiness and identifying players in need of attention.
+- **Constraints**:
+    - Mobile-friendly (PWA ready) for quick checks on the field.
+    - Dashboard layout optimized for wide screens (Laptops/Tablets).
+    - Uses interactive charts and sortable data tables for deep dives.
+
 ---
 
 ## Component Definitions

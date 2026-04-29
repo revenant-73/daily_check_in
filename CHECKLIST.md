@@ -31,14 +31,15 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 ---
 
 ## 🏃 Milestone 2: Player Experience (The "Check-In")
-*Building the core features athletes use every day at practice.*
+*Building the core features athletes use every day at practice. Goal: Mobile-first & thumb-friendly.*
 
 ### 🎫 Ticket #201: Daily Entry Form
 - **Goal**: A fast, mobile-friendly way to submit goals.
 - **Actions**:
-    - [ ] Create a text input for the "Daily Practice Goal".
-    - [ ] Build 3 sliders (Mental, Physical, Emotional) rated 1-10.
-    - [ ] Add a "Submit" button with a success confirmation.
+    - [x] Create a text input for the "Daily Practice Goal".
+    - [x] Build 3 sliders (Mental, Physical, Emotional) rated 1-10.
+    - [x] Add a "Submit" button with a success confirmation.
+    - [ ] **Mobile Audit**: Ensure sliders have large touch targets and the submit button is easily clickable with one hand.
 
 ### 🎫 Ticket #202: Personal History View
 - **Goal**: Let athletes see their own growth over the season.
@@ -49,19 +50,21 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 ---
 
 ## 📋 Milestone 3: Coach Dashboard (The "Command Center")
-*Tools for coaches to see how the team is doing before practice starts.*
+*Tools for coaches to see how the team is doing before practice starts. Goal: Data-dense desktop view, responsive mobile view.*
 
 ### 🎫 Ticket #301: Team Attendance/Submission Tracker
 - **Goal**: See who has (and hasn't) checked in yet today.
 - **Actions**:
     - [ ] Build a dashboard showing a list of players.
     - [ ] Add "Checked In" vs. "Pending" status badges.
+    - [ ] **Responsive Design**: List layout for mobile, multi-column grid for desktop.
 
 ### 🎫 Ticket #302: Team Readiness Insights
 - **Goal**: Visualize how the team feels today.
 - **Actions**:
     - [ ] Create charts showing the *average* team mental/physical state.
     - [ ] List all individual player goals for the coach to scan.
+    - [ ] **Desktop Optimization**: Use full screen width for side-by-side charts and data tables.
 
 ---
 

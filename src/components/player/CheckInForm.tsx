@@ -34,28 +34,28 @@ export function CheckInForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 sm:p-8 rounded-2xl border border-zinc-200 shadow-sm">
+    <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 sm:p-10 rounded-2xl border border-zinc-200 shadow-sm max-w-lg mx-auto">
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-zinc-900">Daily Check-In</h1>
-        <p className="text-sm text-zinc-500">Set your intent and track your readiness for today.</p>
+        <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Daily Check-In</h1>
+        <p className="text-base text-zinc-500">Set your intent for today's practice.</p>
       </div>
 
-      <div className="space-y-4">
-        <label htmlFor="goal" className="block text-sm font-semibold text-zinc-900">
-          What is your small, achievable goal for today?
+      <div className="space-y-4 pt-2">
+        <label htmlFor="goal" className="block text-base font-bold text-zinc-900">
+          What is your small, achievable goal?
         </label>
         <input
           id="goal"
           type="text"
           required
-          placeholder="e.g., Focus on my footwork during drills"
+          placeholder="e.g., Focus on my footwork"
           value={goal}
           onChange={(e) => setGoal(e.target.value)}
-          className="w-full p-4 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all placeholder:text-zinc-400"
+          className="w-full p-5 rounded-2xl border-2 border-zinc-100 bg-zinc-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all placeholder:text-zinc-400 text-lg"
         />
       </div>
 
-      <div className="space-y-10">
+      <div className="space-y-12 py-4">
         <Slider 
           label="Mental Readiness" 
           value={mental} 
@@ -75,7 +75,7 @@ export function CheckInForm() {
 
       <button
         type="submit"
-        className="w-full py-4 bg-zinc-900 text-white rounded-xl font-bold text-lg hover:bg-zinc-800 active:scale-[0.98] transition-all shadow-lg shadow-zinc-200"
+        className="w-full py-5 bg-zinc-900 text-white rounded-2xl font-bold text-xl hover:bg-zinc-800 active:scale-[0.97] transition-all shadow-xl shadow-zinc-200 mt-4"
       >
         Submit Check-In
       </button>

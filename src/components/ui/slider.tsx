@@ -22,7 +22,7 @@ export function Slider({ label, value, className, ...props }: SliderProps) {
         min="1"
         max="10"
         value={value}
-        className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900"
+        className="w-full h-3 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900 md:h-2"
         {...props}
       />
       <div className="flex justify-between text-[10px] text-zinc-400 px-1">
