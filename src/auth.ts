@@ -3,6 +3,27 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/lib/db";
 import Credentials from "next-auth/providers/credentials";
 
+declare module "next-auth" {
+  interface User {
+    role?: string;
+  }
+  interface Session {
+    user: {
+      id: string;
+      role: string;
+    } & DefaultSession["user"];
+  }
+}
+
+import { DefaultSession } from "next-auth";
+import { JWT } from "next-auth/jwt";
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role?: string;
+  }
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db),
   providers: [
@@ -22,19 +43,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, user, token }) {
+    async session({ session, token }) {
       if (session.user) {
-        // @ts-ignore
-        session.user.role = token.role ?? "player";
-        // @ts-ignore
-        session.user.id = token.sub;
+        session.user.role = (token.role as string) ?? "player";
+        session.user.id = token.sub as string;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        // @ts-ignore
-        token.role = user.role;
+        token.role = (user as any).role;
       }
       return token;
     },
