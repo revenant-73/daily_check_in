@@ -38,21 +38,21 @@ export default function PromoPage() {
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-600 text-xs font-black uppercase tracking-widest mb-8">
             <Zap className="w-3.5 h-3.5 fill-zinc-900 text-zinc-900" />
-            Performance Readiness Platform
+            Athlete Growth & Connection Platform
           </div>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">
-            KNOW YOUR TEAM <br />
-            <span className="text-zinc-400">BEFORE THE WHISTLE BLOWS.</span>
+            CONNECT WITH YOUR TEAM <br />
+            <span className="text-zinc-400">BEFORE THEY STEP ON THE COURT.</span>
           </h1>
           <p className="text-xl md:text-2xl text-zinc-500 max-w-2xl mx-auto mb-12 font-medium leading-relaxed">
-            The elite toolkit for modern coaches to track athlete readiness, set daily intents, and build a culture of high performance.
+            The intentional toolkit for coaches to foster growth, set daily purposes, and build a culture of bravery and joy.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               href="/login" 
               className="px-10 py-5 bg-zinc-900 text-white rounded-2xl font-black text-lg hover:shadow-2xl hover:shadow-zinc-200 transition-all flex items-center justify-center gap-2 group"
             >
-              Get Started for Free
+              Start Your Season
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -70,8 +70,8 @@ export default function PromoPage() {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
             { label: "Check-In Speed", value: "< 30 Sec" },
-            { label: "Readiness Metrics", value: "Mental & Physical" },
-            { label: "Season Tracking", value: "Unlimited" },
+            { label: "Wellbeing Metrics", value: "Mental & Physical" },
+            { label: "Growth Tracking", value: "Unlimited" },
             { label: "Player Privacy", value: "Encrypted" },
           ].map((stat, i) => (
             <div key={i} className="text-center">
@@ -87,25 +87,25 @@ export default function PromoPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
             <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">
-              Actionable Data <br />
+              Meaningful Connection <br />
               <span className="text-zinc-400">For Every Practice.</span>
             </h2>
             <div className="space-y-6">
               {[
                 { 
                   icon: <BarChart3 className="w-6 h-6" />, 
-                  title: "Readiness Insights", 
-                  desc: "Instantly see team-wide mental and physical readiness averages to adjust practice intensity on the fly." 
+                  title: "Athlete Wellbeing", 
+                  desc: "Understand team-wide wellbeing to lead with empathy and adjust practice to meet your athletes where they are." 
                 },
                 { 
                   icon: <ClipboardList className="w-6 h-6" />, 
-                  title: "Daily Intent Setting", 
-                  desc: "Require players to set one achievable goal before they step on the field, driving focus and accountability." 
+                  title: "Play with Purpose", 
+                  desc: "Encourage athletes to set an intention for growth before they step on the court, driving ownership and purpose." 
                 },
                 { 
                   icon: <HeartPulse className="w-6 h-6" />, 
-                  title: "Identify Red Flags", 
-                  desc: "Monitor trends to spot players struggling with burnout, stress, or recovery before it impacts performance." 
+                  title: "Support through Challenge", 
+                  desc: "Monitor trends to identify when athletes need extra support, fostering resilience through the struggle." 
                 }
               ].map((item, i) => (
                 <div key={i} className="flex gap-4">
@@ -159,18 +159,18 @@ export default function PromoPage() {
           </div>
           <div className="order-1 lg:order-2 space-y-8">
             <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">
-              Standardize <br />
-              <span className="text-zinc-500">Athlete Care.</span>
+              Culture of <br />
+              <span className="text-zinc-500">Connection.</span>
             </h2>
             <p className="text-lg text-zinc-400 font-medium">
-              Give your athletic department the tools to monitor program health. Identify which teams are thriving and which need more resources.
+              Foster a department-wide culture of care. Understand how your programs are growing and identify where athletes need more support.
             </p>
             <ul className="space-y-4">
               {[
-                "Department-wide compliance tracking",
-                "Longitudinal performance analytics",
-                "Simplified coach-to-athlete communication",
-                "Centralized team and roster management"
+                "Program-wide wellbeing trends",
+                "Longitudinal growth & culture insights",
+                "Authentic coach-to-athlete connection",
+                "Simplified team and roster management"
               ].map((text, i) => (
                 <li key={i} className="flex items-center gap-3 font-bold text-sm">
                   <ShieldCheck className="w-5 h-5 text-white" />
@@ -192,17 +192,17 @@ export default function PromoPage() {
           {[
             {
               title: "Mobile First",
-              desc: "Designed to be used on the sidelines and in the locker room. Fast, thumb-friendly inputs.",
+              desc: "Designed for the dynamic environment of the gym. Quick, authentic inputs for athletes on the go.",
               icon: <Zap className="w-6 h-6" />
             },
             {
-              title: "Performance Trends",
-              desc: "See how athlete readiness fluctuates across the season with automated trend reporting.",
+              title: "Growth over Perfection",
+              desc: "Embrace mistakes as fuel. See how athlete wellbeing and growth fluctuate across the season.",
               icon: <TrendingUp className="w-6 h-6" />
             },
             {
-              title: "Athlete Reviews",
-              desc: "Capture post-practice reflections to close the loop on daily growth and development.",
+              title: "Joyful Reflection",
+              desc: "Capture post-practice reflections to celebrate growth, find joy in the struggle, and close the loop on daily development.",
               icon: <CheckCircle2 className="w-6 h-6" />
             }
           ].map((feature, i) => (
@@ -222,14 +222,14 @@ export default function PromoPage() {
         <div className="max-w-4xl mx-auto space-y-12">
           <h2 className="text-5xl md:text-7xl font-black tracking-tighter">
             READY TO <br />
-            <span className="text-zinc-300">DOMINATE?</span>
+            <span className="text-zinc-300">PLAY BRAVE?</span>
           </h2>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link 
               href="/login" 
               className="px-12 py-6 bg-zinc-900 text-white rounded-[2rem] font-black text-xl hover:scale-105 transition-all active:scale-95 shadow-2xl shadow-zinc-200"
             >
-              Get Started for Free
+              Start Your Season
             </Link>
             <Link 
               href="mailto:demo@example.com" 
@@ -251,7 +251,7 @@ export default function PromoPage() {
             <span className="font-black text-sm tracking-tight uppercase">Daily Check-In</span>
           </div>
           <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">
-            Built for elite programs • {new Date().getFullYear()}
+            Built for intentional programs • {new Date().getFullYear()}
           </p>
           <div className="flex gap-6">
             <Link href="#" className="text-xs font-black uppercase tracking-widest hover:text-primary transition-colors">Privacy</Link>
