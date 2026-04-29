@@ -113,11 +113,37 @@ export default function LoginPage() {
           )}
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground py-2 rounded-md font-semibold hover:opacity-90 transition-opacity"
+            className="w-full bg-zinc-900 text-white py-3 rounded-xl font-bold hover:bg-zinc-800 transition-colors"
           >
             {isLogin ? "Sign In" : "Sign Up"}
           </button>
         </form>
+
+        {isLogin && (
+          <div className="space-y-3 pt-4 border-t border-zinc-100">
+            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 text-center">Demo Access</p>
+            <div className="grid grid-cols-3 gap-2">
+              <button 
+                onClick={() => signIn("credentials", { email: "player@example.com", password: "password123", callbackUrl: "/dashboard" })}
+                className="text-[10px] font-bold py-2 px-1 bg-zinc-50 border border-zinc-200 rounded-lg hover:bg-zinc-100"
+              >
+                Player
+              </button>
+              <button 
+                onClick={() => signIn("credentials", { email: "coach@example.com", password: "password123", callbackUrl: "/coach/dashboard" })}
+                className="text-[10px] font-bold py-2 px-1 bg-zinc-50 border border-zinc-200 rounded-lg hover:bg-zinc-100"
+              >
+                Coach
+              </button>
+              <button 
+                onClick={() => signIn("credentials", { email: "admin@example.com", password: "password123", callbackUrl: "/admin" })}
+                className="text-[10px] font-bold py-2 px-1 bg-zinc-50 border border-zinc-200 rounded-lg hover:bg-zinc-100"
+              >
+                Admin
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="text-center mt-4">
           <button
