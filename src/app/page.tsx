@@ -36,17 +36,17 @@ export default function Home() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link 
-            href="/DOCS.md" 
+            href="/login" 
             className="group px-8 py-4 bg-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
           >
             Get Started
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link 
-            href="/CHECKLIST.md" 
+            href="/promo" 
             className="px-8 py-4 border border-border text-foreground rounded-xl font-bold hover:bg-muted transition-all flex items-center justify-center"
           >
-            View Roadmap
+            Coach&apos;s Info
           </Link>
         </div>
       </main>

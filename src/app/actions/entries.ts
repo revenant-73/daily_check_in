@@ -1,0 +1,89 @@
+"use server";
+
+import { db } from "@/lib/db";
+import { checkIns, reviews, users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
+
+export async function submitCheckIn(data: {
+  goal: string;
+  mentalRating: number;
+  physicalRating: number;
+  emotionalRating: number;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, session.user.id),
+  });
+
+  if (!user?.teamId) throw new Error("No team assigned");
+
+  await db.insert(checkIns).values({
+    playerId: session.user.id,
+    teamId: user.teamId,
+    ...data,
+  });
+
+  revalidatePath("/dashboard");
+}
+
+export async function submitReview(data: {
+  rating: number;
+  notes: string;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, session.user.id),
+  });
+
+  if (!user?.teamId) throw new Error("No team assigned");
+
+  await db.insert(reviews).values({
+    playerId: session.user.id,
+    teamId: user.teamId,
+    ...data,
+  });
+
+  revalidatePath("/dashboard");
+}
+
+export async function getPlayerEntries() {
+  const session = await auth();
+  if (!session?.user?.id) return { checkIns: [], reviews: [] };
+
+  const playerCheckIns = await db.select().from(checkIns).where(eq(checkIns.playerId, session.user.id));
+  const playerReviews = await db.select().from(reviews).where(eq(reviews.playerId, session.user.id));
+
+  return {
+    checkIns: playerCheckIns,
+    reviews: playerReviews,
+  };
+}
+
+export async function getReadinessTrends() {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  // Simple fetch all and filter/process for trend
+  // In a larger app, we'd use a more complex SQL query with grouping
+  const recentCheckIns = await db.select()
+    .from(checkIns)
+    .where(eq(checkIns.playerId, session.user.id))
+    .orderBy(checkIns.createdAt);
+
+  return recentCheckIns.map(ci => ({
+    date: ci.createdAt,
+    mental: ci.mentalRating,
+    physical: ci.physicalRating,
+    emotional: ci.emotionalRating,
+    average: (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3
+  })).slice(-7); // Last 7 entries
+}

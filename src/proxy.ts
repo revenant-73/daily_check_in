@@ -16,7 +16,7 @@ export default auth((req) => {
 
   // Role-based protection
   if (isLoggedIn) {
-    const role = (req.auth?.user as any)?.role;
+    const role = req.auth?.user?.role;
     
     if (nextUrl.pathname.startsWith("/admin") && role !== "admin") {
       return NextResponse.redirect(new URL("/", nextUrl));

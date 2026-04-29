@@ -1,7 +1,10 @@
 import NextAuth from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import Credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 
 declare module "next-auth" {
   interface User {
@@ -16,7 +19,6 @@ declare module "next-auth" {
 }
 
 import { DefaultSession } from "next-auth";
-import { JWT } from "next-auth/jwt";
 
 declare module "next-auth/jwt" {
   interface JWT {
@@ -33,12 +35,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // This is a placeholder for actual credential validation logic
-        // In a real app, you would verify the password here
-        if (credentials?.email === "admin@example.com") {
-          return { id: "1", name: "Admin User", email: "admin@example.com", role: "admin" };
-        }
-        return null;
+        if (!credentials?.email || !credentials?.password) return null;
+
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, credentials.email as string),
+        });
+
+        if (!user || !user.password) return null;
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        );
+
+        if (!isPasswordValid) return null;
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
       },
     }),
   ],
@@ -52,7 +69,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
+        token.role = user.role;
       }
       return token;
     },

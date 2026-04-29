@@ -19,6 +19,7 @@ export const users = sqliteTable("users", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
   email: text("email").notNull().unique(),
+  password: text("password"),
   role: text("role", { enum: ["admin", "coach", "player"] }).default("player").notNull(),
   teamId: text("team_id").references(() => teams.id),
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
@@ -32,5 +33,14 @@ export const checkIns = sqliteTable("check_ins", {
   mentalRating: integer("mental_rating").notNull(),
   physicalRating: integer("physical_rating").notNull(),
   emotionalRating: integer("emotional_rating").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
+});
+
+export const reviews = sqliteTable("reviews", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  playerId: text("player_id").notNull().references(() => users.id),
+  teamId: text("team_id").notNull().references(() => teams.id),
+  rating: integer("rating").notNull(), // 1-5 how practice went
+  notes: text("notes"),
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
 });

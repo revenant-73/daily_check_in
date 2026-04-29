@@ -4,17 +4,33 @@ import React, { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { CheckCircle2 } from "lucide-react";
 
+import { submitCheckIn } from "@/app/actions/entries";
+
 export function CheckInForm() {
   const [goal, setGoal] = useState("");
   const [mental, setMental] = useState(5);
   const [physical, setPhysical] = useState(5);
   const [emotional, setEmotional] = useState(5);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic for submission will go here
-    setSubmitted(true);
+    setLoading(true);
+    try {
+      await submitCheckIn({
+        goal,
+        mentalRating: mental,
+        physicalRating: physical,
+        emotionalRating: emotional,
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to submit check-in");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -37,7 +53,7 @@ export function CheckInForm() {
     <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 sm:p-10 rounded-2xl border border-zinc-200 shadow-sm max-w-lg mx-auto">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Daily Check-In</h1>
-        <p className="text-base text-zinc-500">Set your intent for today's practice.</p>
+        <p className="text-base text-zinc-500">Set your intent for today&apos;s practice.</p>
       </div>
 
       <div className="space-y-4 pt-2">
@@ -75,9 +91,10 @@ export function CheckInForm() {
 
       <button
         type="submit"
-        className="w-full py-5 bg-zinc-900 text-white rounded-2xl font-bold text-xl hover:bg-zinc-800 active:scale-[0.97] transition-all shadow-xl shadow-zinc-200 mt-4"
+        disabled={loading}
+        className="w-full py-5 bg-zinc-900 text-white rounded-2xl font-bold text-xl hover:bg-zinc-800 active:scale-[0.97] transition-all shadow-xl shadow-zinc-200 mt-4 disabled:opacity-50"
       >
-        Submit Check-In
+        {loading ? "Submitting..." : "Submit Check-In"}
       </button>
     </form>
   );
