@@ -12,21 +12,21 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 - **Actions**:
     - [x] Initialize Next.js with TypeScript and Tailwind CSS.
     - [x] Create project folder structure (`/components`, `/lib`, `/hooks`).
-    - [ ] Install core dependencies: `lucide-react`, `zod`, `clsx`.
+    - [x] Install core dependencies: `lucide-react`, `zod`, `clsx`.
 
 ### 🎫 Ticket #102: Database Layer (Turso & Drizzle)
 - **Goal**: Connect the app to a "brain" (the database) that never sleeps.
 - **Actions**:
-    - [ ] Install `drizzle-orm`, `@libsql/client`, and `drizzle-kit`.
-    - [ ] Create **Schema Definitions** in `src/lib/db/schema.ts` (Tables for Users, Teams, and Check-ins).
-    - [ ] Configure `drizzle.config.ts` for database migrations.
+    - [x] Install `drizzle-orm`, `@libsql/client`, and `drizzle-kit`.
+    - [x] Create **Schema Definitions** in `src/lib/db/schema.ts` (Tables for Users, Teams, and Check-ins).
+    - [x] Configure `drizzle.config.ts` for database migrations.
 
 ### 🎫 Ticket #103: Identity & Access (Auth.js)
 - **Goal**: Let users sign in and keep their data private.
 - **Actions**:
-    - [ ] Install `next-auth` (Auth.js) and the Drizzle adapter.
-    - [ ] Set up "Roles" (Admin vs. Coach vs. Player).
-    - [ ] Create a basic Login page.
+    - [x] Install `next-auth` (Auth.js) and the Drizzle adapter.
+    - [x] Set up "Roles" (Admin vs. Coach vs. Player).
+    - [x] Create a basic Login page.
 
 ---
 
@@ -39,13 +39,13 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
     - [x] Create a text input for the "Daily Practice Goal".
     - [x] Build 3 sliders (Mental, Physical, Emotional) rated 1-10.
     - [x] Add a "Submit" button with a success confirmation.
-    - [ ] **Mobile Audit**: Ensure sliders have large touch targets and the submit button is easily clickable with one hand.
+    - [x] **Mobile Audit**: Ensure sliders have large touch targets and the submit button is easily clickable with one hand.
 
 ### 🎫 Ticket #202: Personal History View
 - **Goal**: Let athletes see their own growth over the season.
 - **Actions**:
-    - [ ] Create a list view showing past goals.
-    - [ ] Build a small "Readiness Graph" showing rating trends over the last 7 days.
+    - [x] Create a list view showing past goals.
+    - [x] Build a small "Readiness Graph" showing rating trends over the last 7 days.
 
 ---
 
@@ -55,16 +55,16 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 ### 🎫 Ticket #301: Team Attendance/Submission Tracker
 - **Goal**: See who has (and hasn't) checked in yet today.
 - **Actions**:
-    - [ ] Build a dashboard showing a list of players.
-    - [ ] Add "Checked In" vs. "Pending" status badges.
-    - [ ] **Responsive Design**: List layout for mobile, multi-column grid for desktop.
+    - [x] Build a dashboard showing a list of players.
+    - [x] Add "Checked In" vs. "Pending" status badges.
+    - [x] **Responsive Design**: List layout for mobile, multi-column grid for desktop.
 
 ### 🎫 Ticket #302: Team Readiness Insights
 - **Goal**: Visualize how the team feels today.
 - **Actions**:
-    - [ ] Create charts showing the *average* team mental/physical state.
-    - [ ] List all individual player goals for the coach to scan.
-    - [ ] **Desktop Optimization**: Use full screen width for side-by-side charts and data tables.
+    - [x] Create charts showing the *average* team mental/physical state.
+    - [x] List all individual player goals for the coach to scan.
+    - [x] **Desktop Optimization**: Use full screen width for side-by-side charts and data tables.
 
 ---
 
@@ -74,8 +74,8 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 ### 🎫 Ticket #401: Team & Roster Management
 - **Goal**: Add new teams and manage who coaches them.
 - **Actions**:
-    - [ ] Build an interface to create a new "Team".
-    - [ ] Generate unique Invite Codes/QR Links for players to join.
+    - [x] Build an interface to create a new "Team".
+    - [x] Generate unique Invite Codes/QR Links for players to join.
 
 ---
 
@@ -85,14 +85,14 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 ### 🎫 Ticket #501: Mobile UI/UX Audit
 - **Goal**: Ensure it works perfectly on phones.
 - **Actions**:
-    - [ ] Test thumb-reachability for sliders.
-    - [ ] Optimize font sizes for outdoor sunlight visibility.
+    - [x] Test thumb-reachability for sliders.
+    - [x] Optimize font sizes for outdoor sunlight visibility.
 
 ### 🎫 Ticket #502: Production Launch
 - **Goal**: Make the app live.
 - **Actions**:
-    - [ ] Deploy to Vercel.
-    - [ ] Connect production Turso database.
+    - [x] Deploy to Vercel.
+    - [x] Connect production Turso database.
 
 ---
 
