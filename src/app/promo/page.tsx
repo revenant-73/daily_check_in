@@ -42,7 +42,7 @@ export default function PromoPage() {
           </div>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 leading-[0.9]">
             KNOW YOUR TEAM <br />
-            <span className="text-zinc-400">BEFORE WHISTLE BLOWS.</span>
+            <span className="text-zinc-400">BEFORE THE WHISTLE BLOWS.</span>
           </h1>
           <p className="text-xl md:text-2xl text-zinc-500 max-w-2xl mx-auto mb-12 font-medium leading-relaxed">
             The elite toolkit for modern coaches to track athlete readiness, set daily intents, and build a culture of high performance.
