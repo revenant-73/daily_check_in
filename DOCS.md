@@ -16,6 +16,12 @@ A private, mobile-first web application for athletes to set daily practice goals
 
 ## Design Philosophy
 
+### 🏐 Core Values
+- **Growth Over Perfection**: Embracing mistakes as fuel for improvement.
+- **Play with Purpose**: Every action and intent is rooted in connection and movement.
+- **Connection Before Correction**: Building trust through safe relationships and empathy.
+- **Play Brave, Play Free**: Fostering resilience and joy in the struggle.
+
 ### 📱 Player View: Mobile-First & "High-Speed"
 - **Primary Goal**: Submitting a check-in in under 30 seconds at the start of practice.
 - **Constraints**: 

@@ -93,3 +93,15 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 - **Actions**:
     - [ ] Deploy to Vercel.
     - [ ] Connect production Turso database.
+
+---
+
+## ✨ Milestone 6: Philosophy & Branding
+*Aligning the platform with core coaching values and philosophy.*
+
+### 🎫 Ticket #601: Philosophy Alignment
+- **Goal**: Reflect TVVC and Century Volleyball philosophies in the app's messaging.
+- **Actions**:
+    - [x] Refactor Promo page to focus on Growth, Connection, and Bravery.
+    - [x] Shift messaging from "elite performance" to "athlete wellbeing".
+    - [x] Update calls-to-action to "Start Your Season" and "Play Brave".
