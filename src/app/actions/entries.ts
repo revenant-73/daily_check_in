@@ -77,7 +77,8 @@ export async function getReadinessTrends() {
   const recentCheckIns = await db.select()
     .from(checkIns)
     .where(eq(checkIns.playerId, session.user.id))
-    .orderBy(desc(checkIns.createdAt));
+    .orderBy(desc(checkIns.createdAt))
+    .limit(7);
 
   return recentCheckIns.map(ci => ({
     date: ci.createdAt,
@@ -85,5 +86,5 @@ export async function getReadinessTrends() {
     physical: ci.physicalRating,
     emotional: ci.emotionalRating,
     average: (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3
-  })).slice(-7); // Last 7 entries
+  })).reverse(); // Last 7 entries in chronological order
 }

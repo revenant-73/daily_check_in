@@ -16,10 +16,12 @@ export async function joinTeam(teamId: string) {
     throw new Error("Unauthorized");
   }
 
-  // When selecting a team manually from the list, default to player role
-  // if they don't already have a higher role
+  const user = await db.select().from(users).where(eq(users.id, session.user.id)).get();
+  // Only set role to player if they don't already have one, or preserve higher roles
+  const newRole = (user?.role === "admin" || user?.role === "coach") ? user.role : "player";
+
   await db.update(users)
-    .set({ teamId, role: "player" })
+    .set({ teamId, role: newRole })
     .where(eq(users.id, session.user.id));
 
   revalidatePath("/dashboard");
@@ -59,16 +61,28 @@ export async function joinTeamByCode(inviteCode: string) {
 }
 
 export async function createTeam(name: string, orgId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
   const coachInviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
   const playerInviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
   
-  await db.insert(teams).values({
+  const [newTeam] = await db.insert(teams).values({
     name,
     orgId,
     coachInviteCode,
     playerInviteCode,
-  });
+  }).returning();
+
+  // Automatically assign creator as coach
+  await db.update(users)
+    .set({ 
+      teamId: newTeam.id, 
+      role: "coach" 
+    })
+    .where(eq(users.id, session.user.id));
   
   revalidatePath("/onboarding");
   revalidatePath("/admin");
+  revalidatePath("/dashboard");
 }

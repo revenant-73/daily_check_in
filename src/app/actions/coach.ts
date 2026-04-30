@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { checkIns, reviews, users, teams } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 
 export async function getTeamData() {
@@ -11,21 +11,15 @@ export async function getTeamData() {
     throw new Error("Unauthorized");
   }
 
-  const coach = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id),
-  });
+  const coach = await db.select().from(users).where(eq(users.id, session.user.id)).get();
 
   if (!coach?.teamId) {
     return null;
   }
 
-  const team = await db.query.teams.findFirst({
-    where: eq(teams.id, coach.teamId),
-  });
+  const team = await db.select().from(teams).where(eq(teams.id, coach.teamId)).get();
 
-  const teamPlayers = await db.query.users.findMany({
-    where: eq(users.teamId, coach.teamId),
-  });
+  const teamPlayers = await db.select().from(users).where(eq(users.teamId, coach.teamId));
 
   if (teamPlayers.length === 0) {
     return {
@@ -38,15 +32,9 @@ export async function getTeamData() {
 
   const playerIds = teamPlayers.map(p => p.id);
 
-  const allCheckIns = await db.query.checkIns.findMany({
-    where: (checkIns, { inArray }) => inArray(checkIns.playerId, playerIds),
-    orderBy: [desc(checkIns.createdAt)],
-  });
+  const allCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt));
 
-  const allReviews = await db.query.reviews.findMany({
-    where: (reviews, { inArray }) => inArray(reviews.playerId, playerIds),
-    orderBy: [desc(reviews.createdAt)],
-  });
+  const allReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds)).orderBy(desc(reviews.createdAt));
 
   // Calculate today's attendance
   const today = new Date();
@@ -78,24 +66,17 @@ export async function getTeamReadinessTrends() {
     throw new Error("Unauthorized");
   }
 
-  const coach = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id),
-  });
+  const coach = await db.select().from(users).where(eq(users.id, session.user.id)).get();
 
   if (!coach?.teamId) return [];
 
-  const teamPlayers = await db.query.users.findMany({
-    where: eq(users.teamId, coach.teamId),
-  });
+  const teamPlayers = await db.select().from(users).where(eq(users.teamId, coach.teamId));
   
   if (teamPlayers.length === 0) return [];
 
   const playerIds = teamPlayers.map(p => p.id);
 
-  const checkInsData = await db.query.checkIns.findMany({
-    where: (checkIns, { inArray }) => inArray(checkIns.playerId, playerIds),
-    orderBy: [desc(checkIns.createdAt)],
-  });
+  const checkInsData = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt));
 
   // Group by date and calculate average
   const trends: Record<string, { total: number, count: number }> = {};
@@ -122,29 +103,17 @@ export async function getPlayerData(playerId: string) {
     throw new Error("Unauthorized");
   }
 
-  const coach = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id),
-  });
+  const coach = await db.select().from(users).where(eq(users.id, session.user.id)).get();
 
-  const player = await db.query.users.findFirst({
-    where: eq(users.id, playerId),
-  });
+  const player = await db.select().from(users).where(eq(users.id, playerId)).get();
 
   if (!coach?.teamId || !player || player.teamId !== coach.teamId) {
     throw new Error("Unauthorized or Player not found");
   }
 
-  const playerCheckIns = await db.query.checkIns.findMany({
-    where: eq(checkIns.playerId, playerId),
-    orderBy: [desc(checkIns.createdAt)],
-    limit: 10,
-  });
+  const playerCheckIns = await db.select().from(checkIns).where(eq(checkIns.playerId, playerId)).orderBy(desc(checkIns.createdAt)).limit(10);
 
-  const playerReviews = await db.query.reviews.findMany({
-    where: eq(reviews.playerId, playerId),
-    orderBy: [desc(reviews.createdAt)],
-    limit: 10,
-  });
+  const playerReviews = await db.select().from(reviews).where(eq(reviews.playerId, playerId)).orderBy(desc(reviews.createdAt)).limit(10);
 
   const trends = playerCheckIns.map(ci => ({
     date: ci.createdAt,

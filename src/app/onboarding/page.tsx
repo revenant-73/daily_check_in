@@ -15,29 +15,32 @@ export default async function OnboardingPage() {
     redirect("/login");
   }
 
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id),
-  });
+  const dbUser = await db.select().from(users).where(eq(users.id, session.user.id)).get();
 
-  if (user?.teamId) {
+  if (dbUser?.teamId) {
     redirect("/dashboard");
   }
 
-  const allOrganizations = await db.query.organizations.findMany({
-    with: {
-      teams: true,
-    },
-  });
+  const orgs = await db.select().from(organizations);
+  const allTeams = await db.select().from(teams);
+
+  const orgsWithTeams = orgs.map(org => ({
+    ...org,
+    teams: allTeams.filter(t => t.orgId === org.id)
+  }));
 
   async function handleCreate(formData: FormData) {
     "use server";
     const name = formData.get("name") as string;
-    let org = await db.query.organizations.findFirst();
-    if (!org) {
+    // Default to the first organization or create a default one
+    const org = await db.select().from(organizations).limit(1).get();
+    let orgId = org?.id;
+    if (!orgId) {
       const result = await db.insert(organizations).values({ name: "Default Org" }).returning();
-      org = result[0];
+      orgId = result[0].id;
     }
-    await createTeam(name, org.id);
+    await createTeam(name, orgId);
+    redirect("/dashboard");
   }
 
   async function handleJoin(teamId: string) {
@@ -97,7 +100,7 @@ export default async function OnboardingPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-6 pr-2 custom-scrollbar">
-            {allOrganizations.map((org) => (
+            {orgsWithTeams.map((org) => (
               <div key={org.id} className="space-y-3">
                 <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2">
                   {org.name}
@@ -120,7 +123,7 @@ export default async function OnboardingPage() {
                 </div>
               </div>
             ))}
-            {allOrganizations.length === 0 && (
+            {orgsWithTeams.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-center space-y-2">
                 <p className="text-sm text-muted-foreground">No organizations found.</p>
               </div>

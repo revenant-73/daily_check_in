@@ -22,16 +22,11 @@ export default async function PlayerDashboard(props: {
     redirect("/coach/dashboard");
   }
 
-  // Alternative fetch if relations are not set up in schema
-  const dbUser = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id),
-  });
+  const dbUser = await db.select().from(users).where(eq(users.id, session.user.id)).get();
   
   if (!dbUser?.teamId) redirect("/onboarding");
   
-  const team = await db.query.teams.findFirst({
-    where: eq(teams.id, dbUser.teamId),
-  });
+  const team = await db.select().from(teams).where(eq(teams.id, dbUser.teamId)).get();
 
   const { checkIns, reviews } = await getPlayerEntries();
   const trends = await getReadinessTrends();
