@@ -12,8 +12,8 @@ export function Slider({ label, value, className, ...props }: SliderProps) {
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex justify-between items-center">
-        <label className="text-base font-bold text-zinc-900">{label}</label>
-        <span className="text-lg font-black text-zinc-900 bg-zinc-100 px-3 py-1 rounded-xl min-w-[3rem] text-center">
+        <label className="text-base font-bold text-foreground">{label}</label>
+        <span className="text-lg font-black text-foreground bg-muted px-3 py-1 rounded-xl min-w-[3rem] text-center">
           {value}
         </span>
       </div>
@@ -23,11 +23,11 @@ export function Slider({ label, value, className, ...props }: SliderProps) {
           min="1"
           max="10"
           value={value}
-          className="w-full h-4 bg-zinc-200 rounded-full appearance-none cursor-pointer accent-zinc-900"
+          className="w-full h-4 bg-muted rounded-full appearance-none cursor-pointer accent-primary"
           {...props}
         />
       </div>
-      <div className="flex justify-between text-xs font-bold text-zinc-400 px-1 uppercase tracking-widest">
+      <div className="flex justify-between text-xs font-bold text-muted-foreground px-1 uppercase tracking-widest">
         <span>Low</span>
         <span>High</span>
       </div>

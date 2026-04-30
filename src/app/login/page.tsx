@@ -54,10 +54,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 dark">
       <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-2xl shadow-lg border border-border">
         <div className="text-center">
-          <h1 className="text-3xl font-bold">{isLogin ? "Welcome Back" : "Create Account"}</h1>
+          <h1 className="text-3xl font-bold text-foreground">{isLogin ? "Welcome Back" : "Create Account"}</h1>
           <p className="text-muted-foreground mt-2">
             {isLogin ? "Sign in to your account" : "Join a team and start tracking"}
           </p>
@@ -72,40 +72,40 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium mb-1">Full Name</label>
+              <label className="block text-sm font-medium mb-1 text-foreground">Full Name</label>
               <input
                 name="name"
                 type="text"
                 required
-                className="w-full p-2 rounded-md border border-input bg-background"
+                className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
                 placeholder="John Doe"
               />
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1 text-foreground">Email</label>
             <input
               name="email"
               type="email"
               required
-              className="w-full p-2 rounded-md border border-input bg-background"
+              className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
               placeholder="you@example.com"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <label className="block text-sm font-medium mb-1 text-foreground">Password</label>
             <input
               name="password"
               type="password"
               required
-              className="w-full p-2 rounded-md border border-input bg-background"
+              className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
               placeholder="••••••••"
             />
           </div>
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium mb-1">I am a...</label>
-              <select name="role" className="w-full p-2 rounded-md border border-input bg-background">
+              <label className="block text-sm font-medium mb-1 text-foreground">I am a...</label>
+              <select name="role" className="w-full p-2 rounded-md border border-border bg-muted text-foreground">
                 <option value="player">Player</option>
                 <option value="coach">Coach</option>
               </select>
@@ -113,31 +113,31 @@ export default function LoginPage() {
           )}
           <button
             type="submit"
-            className="w-full bg-zinc-900 text-white py-3 rounded-xl font-bold hover:bg-zinc-800 transition-colors"
+            className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-bold hover:opacity-90 transition-colors"
           >
             {isLogin ? "Sign In" : "Sign Up"}
           </button>
         </form>
 
         {isLogin && (
-          <div className="space-y-3 pt-4 border-t border-zinc-100">
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 text-center">Demo Access</p>
+          <div className="space-y-3 pt-4 border-t border-border">
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Demo Access</p>
             <div className="grid grid-cols-3 gap-2">
               <button 
                 onClick={() => signIn("credentials", { email: "player@example.com", password: "password123", callbackUrl: "/dashboard" })}
-                className="text-[10px] font-black py-2 px-1 bg-zinc-900 text-white border border-zinc-900 rounded-lg hover:bg-zinc-800 transition-colors"
+                className="text-[10px] font-black py-2 px-1 bg-primary text-primary-foreground border border-primary rounded-lg hover:opacity-90 transition-colors"
               >
                 Player
               </button>
               <button 
                 onClick={() => signIn("credentials", { email: "coach@example.com", password: "password123", callbackUrl: "/coach/dashboard" })}
-                className="text-[10px] font-black py-2 px-1 bg-zinc-900 text-white border border-zinc-900 rounded-lg hover:bg-zinc-800 transition-colors"
+                className="text-[10px] font-black py-2 px-1 bg-primary text-primary-foreground border border-primary rounded-lg hover:opacity-90 transition-colors"
               >
                 Coach
               </button>
               <button 
                 onClick={() => signIn("credentials", { email: "admin@example.com", password: "password123", callbackUrl: "/admin" })}
-                className="text-[10px] font-black py-2 px-1 bg-zinc-900 text-white border border-zinc-900 rounded-lg hover:bg-zinc-800 transition-colors"
+                className="text-[10px] font-black py-2 px-1 bg-primary text-primary-foreground border border-primary rounded-lg hover:opacity-90 transition-colors"
               >
                 Admin
               </button>

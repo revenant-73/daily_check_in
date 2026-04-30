@@ -21,21 +21,21 @@ export default async function PlayerDetailedView({
   const { player, checkIns, reviews, trends } = data;
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col">
-      <header className="bg-white border-b border-zinc-200 p-4 sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-foreground flex flex-col dark">
+      <header className="bg-card border-b border-border p-4 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
           <Link 
             href="/coach/dashboard" 
-            className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 transition-colors font-bold text-sm"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors font-bold text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
           <div className="flex gap-4 items-center">
-            <span className="text-sm font-medium text-zinc-600 hidden sm:inline">Coach {session.user.name}</span>
+            <span className="text-sm font-medium text-muted-foreground hidden sm:inline">Coach {session.user.name}</span>
             <Link 
               href="/api/auth/signout"
-              className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors"
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <LogOut className="w-5 h-5" />
             </Link>
@@ -44,12 +44,12 @@ export default async function PlayerDetailedView({
       </header>
 
       <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-8 space-y-8">
-        <div className="bg-white p-8 rounded-3xl border border-zinc-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="bg-card p-8 rounded-3xl border border-border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-black text-zinc-900">{player.name}</h1>
-            <p className="text-zinc-500 font-medium">{player.email}</p>
+            <h1 className="text-3xl font-black text-foreground">{player.name}</h1>
+            <p className="text-muted-foreground font-medium">{player.email}</p>
           </div>
-          <div className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-black uppercase tracking-widest">
+          <div className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-black uppercase tracking-widest">
             Player Profile
           </div>
         </div>
@@ -59,23 +59,23 @@ export default async function PlayerDetailedView({
             <ReadinessGraph data={trends} />
             
             <section className="space-y-4">
-              <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                 <Calendar className="w-5 h-5" /> Recent Check-Ins
               </h2>
               <div className="space-y-3">
                 {checkIns.map((ci) => (
-                  <div key={ci.id} className="p-5 bg-white rounded-2xl border border-zinc-200 shadow-sm">
+                  <div key={ci.id} className="p-5 bg-card rounded-2xl border border-border shadow-sm">
                     <div className="flex justify-between items-start mb-3">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                         {new Date(ci.createdAt!).toLocaleDateString()}
                       </p>
                       <div className="flex gap-1">
-                        <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold">M:{ci.mentalRating}</span>
-                        <span className="px-1.5 py-0.5 bg-green-50 text-green-600 rounded text-[10px] font-bold">P:{ci.physicalRating}</span>
-                        <span className="px-1.5 py-0.5 bg-purple-50 text-purple-600 rounded text-[10px] font-bold">E:{ci.emotionalRating}</span>
+                        <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded text-[10px] font-bold">M:{ci.mentalRating}</span>
+                        <span className="px-1.5 py-0.5 bg-green-500/10 text-green-500 rounded text-[10px] font-bold">P:{ci.physicalRating}</span>
+                        <span className="px-1.5 py-0.5 bg-purple-500/10 text-purple-500 rounded text-[10px] font-bold">E:{ci.emotionalRating}</span>
                       </div>
                     </div>
-                    <p className="font-bold text-zinc-800">&quot;{ci.goal}&quot;</p>
+                    <p className="font-bold text-foreground">&quot;{ci.goal}&quot;</p>
                   </div>
                 ))}
               </div>
@@ -83,31 +83,31 @@ export default async function PlayerDetailedView({
           </div>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
               <Star className="w-5 h-5" /> Recent Reviews
             </h2>
             <div className="space-y-3">
               {reviews.map((r) => (
-                <div key={r.id} className="p-5 bg-white rounded-2xl border border-zinc-200 shadow-sm">
+                <div key={r.id} className="p-5 bg-card rounded-2xl border border-border shadow-sm">
                   <div className="flex justify-between items-start mb-3">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                       {new Date(r.createdAt!).toLocaleDateString()}
                     </p>
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <StarIcon key={i} className={`w-3 h-3 ${i < r.rating ? "fill-yellow-400 text-yellow-400" : "text-zinc-200"}`} />
+                        <StarIcon key={i} className={`w-3 h-3 ${i < r.rating ? "fill-yellow-400 text-yellow-400" : "text-border"}`} />
                       ))}
                     </div>
                   </div>
                   {r.notes ? (
-                    <p className="text-zinc-600 italic">&quot;{r.notes}&quot;</p>
+                    <p className="text-muted-foreground italic">&quot;{r.notes}&quot;</p>
                   ) : (
-                    <p className="text-zinc-400 text-xs italic">No notes provided</p>
+                    <p className="text-muted-foreground/50 text-xs italic">No notes provided</p>
                   )}
                 </div>
               ))}
               {reviews.length === 0 && (
-                <p className="text-center py-8 text-zinc-400 text-sm italic bg-white rounded-2xl border border-dashed border-zinc-200">
+                <p className="text-center py-8 text-muted-foreground text-sm italic bg-card rounded-2xl border border-dashed border-border">
                   No reviews recorded yet
                 </p>
               )}

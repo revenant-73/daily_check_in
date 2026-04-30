@@ -13,7 +13,7 @@ interface TrendData {
 export function ReadinessGraph({ data }: { data: TrendData[] }) {
   if (data.length === 0) {
     return (
-      <div className="h-48 flex items-center justify-center bg-zinc-50 rounded-2xl border border-dashed border-zinc-200 text-zinc-400 text-sm">
+      <div className="h-48 flex items-center justify-center bg-muted/50 rounded-2xl border border-dashed border-border text-muted-foreground text-sm">
         Not enough data for trends yet
       </div>
     );
@@ -31,8 +31,8 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
   }).join(" ");
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
-      <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">7-Day Readiness Trend</h3>
+    <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
+      <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">7-Day Readiness Trend</h3>
       <div className="relative h-[150px] w-full">
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
           {/* Grid lines */}
@@ -45,8 +45,9 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
                 y1={y} 
                 x2={width - padding} 
                 y2={y} 
-                stroke="#f4f4f5" 
+                stroke="currentColor" 
                 strokeWidth="1" 
+                className="text-border/50"
               />
             );
           })}
@@ -54,12 +55,12 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
           {/* Trend Line */}
           <polyline
             fill="none"
-            stroke="#18181b"
+            stroke="currentColor"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
             points={points}
-            className="drop-shadow-sm"
+            className="text-foreground drop-shadow-sm"
           />
           
           {/* Data Points */}
@@ -72,17 +73,18 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
                 cx={x}
                 cy={y}
                 r="4"
-                fill="white"
-                stroke="#18181b"
+                fill="currentColor"
+                stroke="currentColor"
                 strokeWidth="2"
+                className="text-card stroke-foreground"
               />
             );
           })}
         </svg>
       </div>
       <div className="flex justify-between mt-2 px-4">
-        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Older</span>
-        <span className="text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Today</span>
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Older</span>
+        <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Today</span>
       </div>
     </div>
   );

@@ -96,6 +96,13 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
     - [x] **Bug Fix**: Fix "undefined URL" error by ensuring all server actions use `"use server"`.
     - [x] **Security**: Added `AUTH_SECRET` for production authentication.
 
+### 🎫 Ticket #503: Demo & Testing
+- **Goal**: Facilitate easy testing for stakeholders.
+- **Actions**:
+    - [x] Create a database seeding script for demo accounts.
+    - [x] Add high-contrast "One-Click" Demo Login buttons for all roles.
+    - [x] Seed production/local database with Player, Coach, and Admin test users.
+
 ---
 
 ## ✨ Milestone 6: Philosophy & Branding
