@@ -25,7 +25,8 @@ async function seed() {
   const [team] = await db.insert(schema.teams).values({
     name: "Demo Varsity",
     orgId: org.id,
-    inviteCode: "DEMO123",
+    coachInviteCode: "COACH1",
+    playerInviteCode: "PLAYER1",
   }).returning();
 
   const hashedPassword = await bcrypt.hash("password123", 10);

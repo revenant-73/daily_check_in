@@ -47,7 +47,7 @@ export default async function CoachDashboard() {
               <div className="flex items-center gap-2">
                 <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{team?.name}</p>
                 <span className="text-[10px] text-border font-bold">•</span>
-                <p className="text-[10px] font-bold text-foreground">Invite Code: <span className="font-mono text-primary select-all">{team?.inviteCode}</span></p>
+                <p className="text-[10px] font-bold text-foreground">Player Invite Code: <span className="font-mono text-primary select-all">{team?.playerInviteCode}</span></p>
               </div>
             </div>
           </div>
