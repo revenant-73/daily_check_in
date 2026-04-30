@@ -125,19 +125,19 @@ export default function LoginPage() {
             <div className="grid grid-cols-3 gap-2">
               <button 
                 onClick={() => signIn("credentials", { email: "player@example.com", password: "password123", callbackUrl: "/dashboard" })}
-                className="text-[10px] font-bold py-2 px-1 bg-zinc-50 border border-zinc-200 rounded-lg hover:bg-zinc-100"
+                className="text-[10px] font-black py-2 px-1 bg-zinc-900 text-white border border-zinc-900 rounded-lg hover:bg-zinc-800 transition-colors"
               >
                 Player
               </button>
               <button 
                 onClick={() => signIn("credentials", { email: "coach@example.com", password: "password123", callbackUrl: "/coach/dashboard" })}
-                className="text-[10px] font-bold py-2 px-1 bg-zinc-50 border border-zinc-200 rounded-lg hover:bg-zinc-100"
+                className="text-[10px] font-black py-2 px-1 bg-zinc-900 text-white border border-zinc-900 rounded-lg hover:bg-zinc-800 transition-colors"
               >
                 Coach
               </button>
               <button 
                 onClick={() => signIn("credentials", { email: "admin@example.com", password: "password123", callbackUrl: "/admin" })}
-                className="text-[10px] font-bold py-2 px-1 bg-zinc-50 border border-zinc-200 rounded-lg hover:bg-zinc-100"
+                className="text-[10px] font-black py-2 px-1 bg-zinc-900 text-white border border-zinc-900 rounded-lg hover:bg-zinc-800 transition-colors"
               >
                 Admin
               </button>
