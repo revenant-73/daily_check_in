@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Features
+
+- **Multi-Organization Support**: Manage multiple schools or clubs within one system.
+- **Team Management**: Create Varsity, JV, and developmental teams under a single organization.
+- **Role-Based Onboarding**: 
+  - **Invite Codes**: Separate codes for coaches and players for automatic role and team assignment.
+  - **Team Discovery**: Players can select their team from a categorized list.
+- **Daily Check-ins**: Mobile-optimized interface for athletes to report readiness.
+- **Admin Dashboard**: Comprehensive control center for managing orgs, teams, and users.
+
 ## Getting Started
 
 First, run the development server:
