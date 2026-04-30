@@ -27,6 +27,15 @@ export async function getTeamData() {
     where: eq(users.teamId, coach.teamId),
   });
 
+  if (teamPlayers.length === 0) {
+    return {
+      team,
+      players: [],
+      checkIns: [],
+      reviews: [],
+    };
+  }
+
   const playerIds = teamPlayers.map(p => p.id);
 
   const allCheckIns = await db.query.checkIns.findMany({
@@ -78,6 +87,9 @@ export async function getTeamReadinessTrends() {
   const teamPlayers = await db.query.users.findMany({
     where: eq(users.teamId, coach.teamId),
   });
+  
+  if (teamPlayers.length === 0) return [];
+
   const playerIds = teamPlayers.map(p => p.id);
 
   const checkInsData = await db.query.checkIns.findMany({

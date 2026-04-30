@@ -14,7 +14,7 @@ import { Logo } from "@/components/ui/Logo";
 export default async function PlayerDashboard({
   searchParams,
 }: {
-  searchParams: { view?: string };
+  searchParams: Promise<{ view?: string }>;
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
