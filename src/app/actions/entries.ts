@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { checkIns, reviews, users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -77,7 +77,7 @@ export async function getReadinessTrends() {
   const recentCheckIns = await db.select()
     .from(checkIns)
     .where(eq(checkIns.playerId, session.user.id))
-    .orderBy(checkIns.createdAt);
+    .orderBy(desc(checkIns.createdAt));
 
   return recentCheckIns.map(ci => ({
     date: ci.createdAt,

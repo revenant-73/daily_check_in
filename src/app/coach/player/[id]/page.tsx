@@ -5,17 +5,15 @@ import { ReadinessGraph } from "@/components/player/ReadinessGraph";
 import { LogOut, ArrowLeft, Star, Calendar } from "lucide-react";
 import Link from "next/link";
 
-export default async function PlayerDetailedView({
-  params,
-}: {
+export default async function PlayerDetailedView(props: {
   params: Promise<{ id: string }>;
 }) {
+  const params = await props.params;
+  const { id } = params;
   const session = await auth();
   if (!session?.user || session.user.role !== "coach") {
     redirect("/login");
   }
-
-  const { id } = await params;
   const data = await getPlayerData(id);
 
   const { player, checkIns, reviews, trends } = data;

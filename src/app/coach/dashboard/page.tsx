@@ -7,7 +7,12 @@ import { LogOut, Users, Activity, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
-export default async function CoachDashboard() {
+export default async function CoachDashboard(props: {
+  params: Promise<{ [key: string]: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const session = await auth();
   if (!session?.user || session.user.role !== "coach") {
     redirect("/login");
