@@ -109,7 +109,14 @@ export default async function AdminDashboard() {
                   <div key={team.id} className="p-3 bg-muted/50 rounded-lg flex justify-between items-center border border-border">
                     <div>
                       <span className="font-bold text-foreground">{team.name}</span>
-                      <p className="text-[10px] text-muted-foreground">Code: <span className="font-mono font-bold text-primary">{team.inviteCode}</span></p>
+                      <div className="flex gap-4 mt-1">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">
+                          Coach: <span className="font-mono text-blue-500">{team.coachInviteCode}</span>
+                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">
+                          Player: <span className="font-mono text-green-500">{team.playerInviteCode}</span>
+                        </p>
+                      </div>
                     </div>
                     <span className="text-xs text-muted-foreground">
                       {orgs.find(o => o.id === team.orgId)?.name}
