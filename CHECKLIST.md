@@ -93,6 +93,8 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 - **Actions**:
     - [x] Deploy to Vercel.
     - [x] Connect production Turso database.
+    - [x] **Bug Fix**: Fix "undefined URL" error by ensuring all server actions use `"use server"`.
+    - [x] **Security**: Added `AUTH_SECRET` for production authentication.
 
 ---
 
