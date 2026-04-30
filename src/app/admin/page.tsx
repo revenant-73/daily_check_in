@@ -4,6 +4,7 @@ import { getAdminData, createOrganization, updateUserRole, assignToTeam } from "
 import { createTeam } from "@/app/actions/teams";
 import { LogOut, Shield, Users, Building2, Plus, UserPlus } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/ui/Logo";
 
 export default async function AdminDashboard() {
   const session = await auth();
@@ -30,9 +31,13 @@ export default async function AdminDashboard() {
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
       <header className="bg-card border-b border-border p-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Shield className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">Admin Control Center</h1>
+          <div className="flex items-center gap-6">
+            <Logo href="/admin" />
+            <div className="hidden md:block h-8 w-px bg-border" />
+            <div className="hidden md:block">
+              <h1 className="text-sm font-bold text-foreground">Admin Control Center</h1>
+              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">System Administration</p>
+            </div>
           </div>
           <div className="flex gap-4 items-center">
             <span className="text-sm font-medium text-muted-foreground">{session.user.name}</span>

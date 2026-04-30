@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { signUp } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
+import { Logo } from "@/components/ui/Logo";
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -56,7 +57,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 dark">
       <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-2xl shadow-lg border border-border">
-        <div className="text-center">
+        <div className="flex flex-col items-center text-center">
+          <Logo className="mb-6 scale-110" />
           <h1 className="text-3xl font-bold text-foreground">{isLogin ? "Welcome Back" : "Create Account"}</h1>
           <p className="text-muted-foreground mt-2">
             {isLogin ? "Sign in to your account" : "Join a team and start tracking"}

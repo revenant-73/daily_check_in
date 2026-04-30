@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { JoinByCodeForm } from "@/components/player/JoinByCodeForm";
 import { LogOut, Plus } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/ui/Logo";
 
 export default async function OnboardingPage() {
   const session = await auth();
@@ -35,7 +36,8 @@ export default async function OnboardingPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 space-y-12 dark">
-      <header className="fixed top-0 left-0 right-0 p-6 flex justify-end">
+      <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center">
+        <Logo />
         <Link 
           href="/api/auth/signout"
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground font-bold transition-colors"

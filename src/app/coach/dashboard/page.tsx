@@ -5,6 +5,7 @@ import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { AttendanceList } from "@/components/coach/AttendanceList";
 import { LogOut, Users, Activity, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/ui/Logo";
 
 export default async function CoachDashboard() {
   const session = await auth();
@@ -38,12 +39,16 @@ export default async function CoachDashboard() {
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
       <header className="bg-card border-b border-border p-4 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Coach Dashboard</h1>
-            <div className="flex items-center gap-2">
-              <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">{team?.name}</p>
-              <span className="text-[10px] text-border font-bold">•</span>
-              <p className="text-xs font-bold text-foreground">Invite Code: <span className="font-mono text-primary select-all">{team?.inviteCode}</span></p>
+          <div className="flex items-center gap-6">
+            <Logo href="/coach/dashboard" />
+            <div className="hidden md:block h-8 w-px bg-border" />
+            <div className="hidden md:block">
+              <h1 className="text-sm font-bold text-foreground">Coach Dashboard</h1>
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{team?.name}</p>
+                <span className="text-[10px] text-border font-bold">•</span>
+                <p className="text-[10px] font-bold text-foreground">Invite Code: <span className="font-mono text-primary select-all">{team?.inviteCode}</span></p>
+              </div>
             </div>
           </div>
           <div className="flex gap-4 items-center">
