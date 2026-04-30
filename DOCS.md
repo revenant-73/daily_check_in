@@ -38,6 +38,22 @@ A private, mobile-first web application for athletes to set daily practice goals
 
 ---
 
+## Onboarding & Team Joining
+
+The application supports a flexible onboarding flow to ensure every user is correctly assigned to their organization and team:
+
+1. **Invite Codes**: 
+    - Each team generates two unique 6-character codes: one for **Coaches** and one for **Players**.
+    - Entering a coach code automatically assigns the user the `coach` role.
+    - Entering a player code assigns the `player` role.
+2. **Manual Selection**:
+    - Players can browse a list of organizations (e.g., "Century High School") and select their specific team (e.g., "Varsity", "JV").
+    - Manual selection defaults the user to the `player` role.
+3. **Admin Assignment**:
+    - System administrators can manually override roles and team assignments through the Admin Control Center.
+
+---
+
 ## Component Definitions
 
 ### 1. Common Components (Shared)
@@ -77,7 +93,9 @@ A private, mobile-first web application for athletes to set daily practice goals
 - `id` (text/uuid, PK)
 - `orgId` (text, FK -> organizations)
 - `name` (text)
-- `inviteCode` (text, Unique)
+- `coachInviteCode` (text, Unique)
+- `playerInviteCode` (text, Unique)
+- `createdAt` (integer/timestamp)
 
 ### `users` (Managed via Auth.js)
 - `id` (text, PK)
