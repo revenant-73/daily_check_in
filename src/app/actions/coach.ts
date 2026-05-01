@@ -89,7 +89,8 @@ export async function getTeamReadinessTrends() {
     const trends: Record<string, { total: number, count: number }> = {};
     
     checkInsData.forEach(ci => {
-      const date = ci.createdAt ? new Date(ci.createdAt).toLocaleDateString() : "unknown";
+      if (!ci.createdAt) return;
+      const date = new Date(ci.createdAt).toLocaleDateString();
       const avg = (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3;
       if (!trends[date]) {
         trends[date] = { total: 0, count: 0 };

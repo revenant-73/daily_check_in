@@ -11,10 +11,11 @@ import Link from "next/link";
 import { ClipboardList, History, LogOut, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 
-export default async function PlayerDashboard(props: {
-  searchParams: Promise<{ view?: string }>;
+export default async function PlayerDashboard({
+  searchParams,
+}: {
+  searchParams: { view?: string };
 }) {
-  const searchParams = await props.searchParams;
   const session = await auth();
   if (!session?.user) redirect("/login");
 

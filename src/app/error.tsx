@@ -24,13 +24,15 @@ export default function Error({
           </p>
         </div>
         
-        {error.message && (
-          <div className="p-4 bg-muted rounded-lg text-left overflow-auto max-h-40 font-mono text-sm border border-border">
-            <p className="font-bold text-red-400">Error: {error.message}</p>
-            {error.digest && <p className="text-xs text-muted-foreground mt-1">Digest: {error.digest}</p>}
-            {error.stack && <pre className="mt-2 text-[10px] whitespace-pre-wrap">{error.stack}</pre>}
+        <div className="p-4 bg-muted rounded-lg text-left overflow-auto max-h-60 font-mono text-sm border border-border">
+          <p className="font-bold text-red-400">Error: {error.message || "No error message provided by Next.js"}</p>
+          {error.digest && <p className="text-xs text-muted-foreground mt-1">Digest: {error.digest}</p>}
+          <div className="mt-4 text-[10px] text-muted-foreground">
+            <p>Note: If the message is omitted, this might be a production build error mask.</p>
+            <p>Check the server console for the log prefixed with [ERROR].</p>
           </div>
-        )}
+          {error.stack && <pre className="mt-2 text-[10px] whitespace-pre-wrap opacity-50">{error.stack}</pre>}
+        </div>
 
         <div className="flex gap-4 justify-center">
           <button
