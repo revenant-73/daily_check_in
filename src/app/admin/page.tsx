@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { getAdminData, createOrganization, deleteOrganization, deleteTeam, updateUserRole, assignToTeam, getTeamDataForAdmin } from "@/app/actions/admin";
+import { getAdminData, createOrganization, deleteOrganization, deleteTeam, deleteUser, updateUserRole, assignToTeam, getTeamDataForAdmin } from "@/app/actions/admin";
 import { createTeam } from "@/app/actions/teams";
 import { LogOut, Shield, Users, Building2, Plus, UserPlus, Activity, TrendingUp, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -10,6 +10,8 @@ import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { AttendanceList } from "@/components/coach/AttendanceList";
 import { TeamsComparison } from "@/components/admin/TeamsComparison";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { PlayerManagementList } from "@/components/admin/PlayerManagementList";
+import { ActionButton } from "@/components/admin/ActionButton";
 import { organizations as orgSchema, teams as teamSchema, users as userSchema } from "@/lib/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 
@@ -52,6 +54,8 @@ export default async function AdminDashboard(props: {
     console.error("Error fetching admin data:", error);
     throw error;
   }
+
+  const unassignedUsers = users.filter(u => !u.teamId);
 
   async function handleCreateOrg(formData: FormData) {
     "use server";
@@ -162,7 +166,7 @@ export default async function AdminDashboard(props: {
                   <TeamReadinessGraph data={selectedTeamData.trends} />
                 </div>
                 <div className="lg:col-span-1">
-                  <AttendanceList players={selectedTeamData.players} />
+                  <PlayerManagementList players={selectedTeamData.players} />
                 </div>
               </div>
 
@@ -339,66 +343,78 @@ export default async function AdminDashboard(props: {
 
         {/* User Management */}
         <section className="space-y-6">
-          <h2 className="text-2xl font-bold flex items-center gap-2 text-foreground">
-            <UserPlus className="w-6 h-6" /> User Management & Assignments
-          </h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold flex items-center gap-2 text-foreground">
+              <UserPlus className="w-6 h-6" /> Unassigned Users
+            </h2>
+            <span className="text-xs font-bold text-muted-foreground bg-muted/50 border border-border px-3 py-1 rounded-full uppercase tracking-wider">
+              {unassignedUsers.length} waiting for assignment
+            </span>
+          </div>
           <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-muted/50 text-xs font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
                   <th className="p-4">Name/Email</th>
-                  <th className="p-4">Current Role</th>
-                  <th className="p-4">Assigned Team</th>
-                  <th className="p-4">Actions</th>
+                  <th className="p-4">Role Control</th>
+                  <th className="p-4">Assign Team</th>
+                  <th className="p-4 text-right">Danger Zone</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {users.map(user => (
+                {unassignedUsers.map(user => (
                   <tr key={user.id} className="hover:bg-muted/30 transition-colors">
                     <td className="p-4">
-                      <p className="font-bold text-foreground">{user.name}</p>
+                      <p className="font-bold text-foreground">{user.name || "Unnamed User"}</p>
                       <p className="text-xs text-muted-foreground">{user.email}</p>
                     </td>
                     <td className="p-4">
-                      <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
-                        user.role === 'admin' ? 'bg-red-500/10 text-red-500' : 
-                        user.role === 'coach' ? 'bg-blue-500/10 text-blue-500' : 'bg-green-500/10 text-green-500'
-                      }`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="p-4 text-sm text-muted-foreground">
-                      {teams.find(t => t.id === user.teamId)?.name || "Unassigned"}
+                      <form action={async (fd) => {
+                        "use server";
+                        const role = fd.get("role") as "admin" | "coach" | "player";
+                        await updateUserRole(user.id, role);
+                      }}>
+                        <AutoSubmitSelect name="role" defaultValue={user.role} className="text-xs p-1.5 border border-border rounded bg-muted text-foreground">
+                          <option value="player">Player</option>
+                          <option value="coach">Coach</option>
+                          <option value="admin">Admin</option>
+                        </AutoSubmitSelect>
+                      </form>
                     </td>
                     <td className="p-4">
-                      <div className="flex gap-2">
-                        <form action={async (fd) => {
-                          "use server";
-                          const role = fd.get("role") as "admin" | "coach" | "player";
-                          await updateUserRole(user.id, role);
-                        }}>
-                          <AutoSubmitSelect name="role" defaultValue={user.role} className="text-xs p-1 border border-border rounded bg-muted text-foreground">
-                            <option value="player">Make Player</option>
-                            <option value="coach">Make Coach</option>
-                            <option value="admin">Make Admin</option>
-                          </AutoSubmitSelect>
-                        </form>
-                        <form action={async (fd) => {
-                          "use server";
-                          const teamId = fd.get("teamId") as string;
-                          await assignToTeam(user.id, teamId === "none" ? null : teamId);
-                        }}>
-                          <AutoSubmitSelect name="teamId" defaultValue={user.teamId || "none"} className="text-xs p-1 border border-border rounded bg-muted text-foreground">
-                            <option value="none">No Team</option>
-                            {teams.map(t => (
-                              <option key={t.id} value={t.id}>{t.name}</option>
-                            ))}
-                          </AutoSubmitSelect>
-                        </form>
-                      </div>
+                      <form action={async (fd) => {
+                        "use server";
+                        const teamId = fd.get("teamId") as string;
+                        await assignToTeam(user.id, teamId === "none" ? null : teamId);
+                      }}>
+                        <AutoSubmitSelect name="teamId" defaultValue={user.teamId || "none"} className="text-xs p-1.5 border border-border rounded bg-muted text-foreground">
+                          <option value="none">Choose Team...</option>
+                          {teams.map(t => (
+                            <option key={t.id} value={t.id}>{t.name}</option>
+                          ))}
+                        </AutoSubmitSelect>
+                      </form>
+                    </td>
+                    <td className="p-4 text-right">
+                      <ActionButton 
+                        id={user.id}
+                        action={deleteUser}
+                        confirmMessage={`Are you sure you want to PERMANENTLY delete user ${user.name || user.email}?`}
+                        icon={<Trash2 className="w-4 h-4" />}
+                        className="text-muted-foreground hover:text-destructive ml-auto"
+                        label="Delete User"
+                      />
                     </td>
                   </tr>
                 ))}
+                {unassignedUsers.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="p-12 text-center text-muted-foreground italic">
+                      <Users className="w-12 h-12 mx-auto mb-4 opacity-10" />
+                      All users are currently assigned to teams.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

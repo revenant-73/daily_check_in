@@ -174,3 +174,11 @@ export async function assignToTeam(userId: string, teamId: string | null) {
   await db.update(users).set({ teamId }).where(eq(users.id, userId));
   revalidatePath("/admin");
 }
+
+export async function deleteUser(userId: string) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
+
+  await db.delete(users).where(eq(users.id, userId));
+  revalidatePath("/admin");
+}
