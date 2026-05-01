@@ -143,6 +143,22 @@ export async function createOrganization(name: string) {
   revalidatePath("/admin");
 }
 
+export async function deleteOrganization(orgId: string) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
+
+  await db.delete(organizations).where(eq(organizations.id, orgId));
+  revalidatePath("/admin");
+}
+
+export async function deleteTeam(teamId: string) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
+
+  await db.delete(teams).where(eq(teams.id, teamId));
+  revalidatePath("/admin");
+}
+
 export async function updateUserRole(userId: string, role: "admin" | "coach" | "player") {
   const session = await auth();
   if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");

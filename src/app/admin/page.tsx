@@ -1,14 +1,15 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { getAdminData, createOrganization, updateUserRole, assignToTeam, getTeamDataForAdmin } from "@/app/actions/admin";
+import { getAdminData, createOrganization, deleteOrganization, deleteTeam, updateUserRole, assignToTeam, getTeamDataForAdmin } from "@/app/actions/admin";
 import { createTeam } from "@/app/actions/teams";
-import { LogOut, Shield, Users, Building2, Plus, UserPlus, Activity, TrendingUp, Star } from "lucide-react";
+import { LogOut, Shield, Users, Building2, Plus, UserPlus, Activity, TrendingUp, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { AutoSubmitSelect } from "@/components/ui/AutoSubmitSelect";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { AttendanceList } from "@/components/coach/AttendanceList";
 import { TeamsComparison } from "@/components/admin/TeamsComparison";
+import { DeleteButton } from "@/components/admin/DeleteButton";
 import { organizations as orgSchema, teams as teamSchema, users as userSchema } from "@/lib/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 
@@ -256,8 +257,15 @@ export default async function AdminDashboard(props: {
               <div className="space-y-2">
                 {organizations.map(org => (
                   <div key={org.id} className="p-3 bg-muted/50 rounded-lg flex justify-between items-center border border-border">
-                    <span className="font-bold text-foreground">{org.name}</span>
-                    <span className="text-[10px] text-muted-foreground font-mono">{org.id}</span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-foreground">{org.name}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">{org.id}</span>
+                    </div>
+                    <DeleteButton 
+                      id={org.id} 
+                      onDelete={deleteOrganization} 
+                      confirmMessage={`Are you sure you want to delete "${org.name}"?`}
+                    />
                   </div>
                 ))}
               </div>
@@ -302,9 +310,16 @@ export default async function AdminDashboard(props: {
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {organizations.find(o => o.id === team.orgId)?.name}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {organizations.find(o => o.id === team.orgId)?.name}
+                      </span>
+                      <DeleteButton 
+                        id={team.id} 
+                        onDelete={deleteTeam} 
+                        confirmMessage={`Are you sure you want to delete team "${team.name}"?`}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
