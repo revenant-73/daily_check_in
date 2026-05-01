@@ -7,44 +7,41 @@ import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
 export default async function AdminDashboard() {
-  const session = await auth();
-  if (!session?.user || session.user.role !== "admin") {
-    redirect("/login");
-  }
-
-  let organizations: any[] = [];
-  let teams: any[] = [];
-  let users: any[] = [];
-
   try {
+    const session = await auth();
+    if (!session?.user || session.user.role !== "admin") {
+      redirect("/login");
+    }
+
+    let organizations: any[] = [];
+    let teams: any[] = [];
+    let users: any[] = [];
+
     const data = await getAdminData();
     organizations = data.organizations;
     teams = data.teams;
     users = data.users;
-  } catch (error) {
-    console.error("Error fetching admin data:", error);
-    throw error; // Re-throw to be caught by error.tsx but now we have a log
-  }
 
-  const orgs = organizations;
-  const allTeams = teams;
-  const allUsers = users;
+    const orgs = organizations;
+    const allTeams = teams;
+    const allUsers = users;
 
-  async function handleCreateOrg(formData: FormData) {
-    "use server";
-    const name = formData.get("name") as string;
-    await createOrganization(name);
-  }
+    async function handleCreateOrg(formData: FormData) {
+      "use server";
+      const name = formData.get("name") as string;
+      await createOrganization(name);
+    }
 
-  async function handleCreateTeam(formData: FormData) {
-    "use server";
-    const name = formData.get("name") as string;
-    const orgId = formData.get("orgId") as string;
-    await createTeam(name, orgId);
-  }
+    async function handleCreateTeam(formData: FormData) {
+      "use server";
+      const name = formData.get("name") as string;
+      const orgId = formData.get("orgId") as string;
+      await createTeam(name, orgId);
+    }
 
-  return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col dark">
+    return (
+      <div className="min-h-screen bg-background text-foreground flex flex-col dark">
+        {/* ... existing return content ... */}
       <header className="bg-card border-b border-border p-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
@@ -212,5 +209,17 @@ export default async function AdminDashboard() {
         </section>
       </main>
     </div>
-  );
+    );
+  } catch (error: any) {
+    return (
+      <div className="p-8 bg-red-50 text-red-900 font-mono text-sm min-h-screen">
+        <h1 className="text-xl font-bold mb-4 text-red-600">CRITICAL RENDER ERROR</h1>
+        <p className="mb-2"><strong>Message:</strong> {error.message || "No error message"}</p>
+        <p><strong>Stack Trace:</strong></p>
+        <pre className="mt-2 p-4 bg-red-100/50 rounded-lg overflow-auto border border-red-200 text-[10px] leading-relaxed">
+          {error.stack || "No stack trace available"}
+        </pre>
+      </div>
+    );
+  }
 }
