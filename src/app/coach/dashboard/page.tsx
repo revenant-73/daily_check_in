@@ -7,7 +7,12 @@ import { LogOut, Users, Activity, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
-export default async function CoachDashboard() {
+export default async function CoachDashboard(props: {
+  params: Promise<{ [key: string]: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const session = await auth();
   if (!session?.user || session.user.role !== "coach") {
     redirect("/login");
@@ -166,7 +171,7 @@ export default async function CoachDashboard() {
                      </div>
                      {r.notes && <p className="text-sm text-muted-foreground italic">&quot;{r.notes}&quot;</p>}
                      <p className="text-[10px] text-muted-foreground mt-2 uppercase font-bold tracking-widest">
-                       {new Date(r.createdAt!).toLocaleDateString()}
+                       {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "N/A"}
                      </p>
                    </div>
                  );

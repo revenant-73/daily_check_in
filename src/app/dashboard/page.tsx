@@ -11,11 +11,10 @@ import Link from "next/link";
 import { ClipboardList, History, LogOut, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 
-export default async function PlayerDashboard({
-  searchParams,
-}: {
-  searchParams: { view?: string };
+export default async function PlayerDashboard(props: {
+  searchParams: Promise<{ view?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const session = await auth();
   if (!session?.user) redirect("/login");
 
@@ -116,7 +115,7 @@ export default async function PlayerDashboard({
                   <div key={ci.id} className="p-4 flex justify-between items-center">
                     <div>
                       <p className="font-bold text-foreground">{ci.goal}</p>
-                      <p className="text-xs text-muted-foreground">{new Date(ci.createdAt!).toLocaleDateString()}</p>
+                      <p className="text-xs text-muted-foreground">{ci.createdAt ? new Date(ci.createdAt).toLocaleDateString() : "N/A"}</p>
                     </div>
                     <div className="flex gap-1">
                       <div className="w-2 h-2 rounded-full bg-blue-400" title={`Mental: ${ci.mentalRating}`}></div>
@@ -166,7 +165,7 @@ export default async function PlayerDashboard({
                     <div key={ci.id} className="p-6 bg-card rounded-2xl border border-border shadow-sm">
                       <div className="flex justify-between items-start mb-2">
                         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                          {new Date(ci.createdAt!).toLocaleDateString()}
+                          {ci.createdAt ? new Date(ci.createdAt).toLocaleDateString() : "N/A"}
                         </p>
                       </div>
                       <h3 className="font-bold text-foreground text-lg mb-4">{ci.goal}</h3>
@@ -186,7 +185,7 @@ export default async function PlayerDashboard({
                     <div key={r.id} className="p-6 bg-card rounded-2xl border border-border shadow-sm">
                        <div className="flex justify-between items-start mb-2">
                         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                          {new Date(r.createdAt!).toLocaleDateString()}
+                          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "N/A"}
                         </p>
                         <div className="flex">
                           {Array.from({ length: 5 }).map((_, i) => (
