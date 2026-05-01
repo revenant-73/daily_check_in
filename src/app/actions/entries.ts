@@ -68,8 +68,8 @@ export async function getPlayerEntries() {
     const session = await auth();
     if (!session?.user?.id) return { checkIns: [], reviews: [] };
 
-    const playerCheckIns = await db.select().from(checkIns).where(eq(checkIns.playerId, session.user.id));
-    const playerReviews = await db.select().from(reviews).where(eq(reviews.playerId, session.user.id));
+    const playerCheckIns = await db.select().from(checkIns).where(eq(checkIns.playerId, session.user.id)).all();
+    const playerReviews = await db.select().from(reviews).where(eq(reviews.playerId, session.user.id)).all();
 
     return {
       checkIns: playerCheckIns,
@@ -95,7 +95,8 @@ export async function getReadinessTrends() {
       .from(checkIns)
       .where(eq(checkIns.playerId, session.user.id))
       .orderBy(desc(checkIns.createdAt))
-      .limit(7);
+      .limit(7)
+      .all();
 
     return recentCheckIns.map(ci => ({
       date: ci.createdAt,

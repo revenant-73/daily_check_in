@@ -14,9 +14,9 @@ export async function getAdminData() {
       throw new Error("Unauthorized");
     }
 
-    const allOrganizations = await db.select().from(organizations);
-    const allTeams = await db.select().from(teams);
-    const allUsers = await db.select().from(users);
+    const allOrganizations = await db.select().from(organizations).all();
+    const allTeams = await db.select().from(teams).all();
+    const allUsers = await db.select().from(users).all();
 
     return {
       organizations: allOrganizations,
