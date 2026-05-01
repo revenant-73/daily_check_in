@@ -8,11 +8,16 @@ import { Logo } from "@/components/ui/Logo";
 import { AutoSubmitSelect } from "@/components/ui/AutoSubmitSelect";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { AttendanceList } from "@/components/coach/AttendanceList";
+import { TeamsComparison } from "@/components/admin/TeamsComparison";
 import { organizations as orgSchema, teams as teamSchema, users as userSchema } from "@/lib/db/schema";
 import { InferSelectModel } from "drizzle-orm";
 
 type Organization = InferSelectModel<typeof orgSchema>;
-type Team = InferSelectModel<typeof teamSchema>;
+type Team = InferSelectModel<typeof teamSchema> & {
+  avgReadiness?: number;
+  avgPerformance?: number;
+  playerCount?: number;
+};
 type User = InferSelectModel<typeof userSchema>;
 
 export default async function AdminDashboard(props: {
@@ -112,6 +117,8 @@ export default async function AdminDashboard(props: {
               </AutoSubmitSelect>
             </form>
           </div>
+
+          <TeamsComparison teams={teams as any[]} />
 
           {selectedTeamData ? (
             <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">

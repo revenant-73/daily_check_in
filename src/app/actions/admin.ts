@@ -18,9 +18,41 @@ export async function getAdminData() {
     const allTeams = await db.select().from(teams);
     const allUsers = await db.select().from(users);
 
+    const teamsWithStats = await Promise.all(allTeams.map(async (team) => {
+      const teamPlayers = allUsers.filter(u => u.teamId === team.id);
+      if (teamPlayers.length === 0) {
+        return {
+          ...team,
+          avgReadiness: 0,
+          avgPerformance: 0,
+          playerCount: 0
+        };
+      }
+
+      const playerIds = teamPlayers.map(p => p.id);
+      
+      const teamCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds));
+      const teamReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds));
+
+      const avgReadiness = teamCheckIns.length > 0
+        ? teamCheckIns.reduce((acc, ci) => acc + (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3, 0) / teamCheckIns.length
+        : 0;
+
+      const avgPerformance = teamReviews.length > 0
+        ? teamReviews.reduce((acc, r) => acc + r.rating, 0) / teamReviews.length
+        : 0;
+
+      return {
+        ...team,
+        avgReadiness,
+        avgPerformance,
+        playerCount: teamPlayers.length
+      };
+    }));
+
     return {
       organizations: allOrganizations,
-      teams: allTeams,
+      teams: teamsWithStats,
       users: allUsers,
     };
   } catch (error) {
