@@ -5,6 +5,7 @@ import { createTeam } from "@/app/actions/teams";
 import { LogOut, Shield, Users, Building2, Plus, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
+import { AutoSubmitSelect } from "@/components/ui/AutoSubmitSelect";
 
 export default async function AdminDashboard(props: {
   params: Promise<{ [key: string]: string }>;
@@ -48,9 +49,8 @@ export default async function AdminDashboard(props: {
     await createTeam(name, orgId);
   }
 
-  try {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col dark">
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col dark">
         {/* ... existing header ... */}
         <header className="bg-card border-b border-border p-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -191,23 +191,23 @@ export default async function AdminDashboard(props: {
                           const role = fd.get("role") as "admin" | "coach" | "player";
                           await updateUserRole(user.id, role);
                         }}>
-                          <select name="role" defaultValue={user.role} className="text-xs p-1 border border-border rounded bg-muted text-foreground" onChange={(e) => e.target.form?.requestSubmit()}>
+                          <AutoSubmitSelect name="role" defaultValue={user.role} className="text-xs p-1 border border-border rounded bg-muted text-foreground">
                             <option value="player">Make Player</option>
                             <option value="coach">Make Coach</option>
                             <option value="admin">Make Admin</option>
-                          </select>
+                          </AutoSubmitSelect>
                         </form>
                         <form action={async (fd) => {
                           "use server";
                           const teamId = fd.get("teamId") as string;
                           await assignToTeam(user.id, teamId === "none" ? null : teamId);
                         }}>
-                          <select name="teamId" defaultValue={user.teamId || "none"} className="text-xs p-1 border border-border rounded bg-muted text-foreground" onChange={(e) => e.target.form?.requestSubmit()}>
+                          <AutoSubmitSelect name="teamId" defaultValue={user.teamId || "none"} className="text-xs p-1 border border-border rounded bg-muted text-foreground">
                             <option value="none">No Team</option>
                             {allTeams.map(t => (
                               <option key={t.id} value={t.id}>{t.name}</option>
                             ))}
-                          </select>
+                          </AutoSubmitSelect>
                         </form>
                       </div>
                     </td>
@@ -219,17 +219,5 @@ export default async function AdminDashboard(props: {
         </section>
       </main>
     </div>
-    );
-  } catch (error: any) {
-    return (
-      <div className="p-8 bg-red-50 text-red-900 font-mono text-sm min-h-screen">
-        <h1 className="text-xl font-bold mb-4 text-red-600">ADMIN RENDER ERROR</h1>
-        <p className="mb-2"><strong>Message:</strong> {error.message || "No error message"}</p>
-        <p><strong>Stack Trace:</strong></p>
-        <pre className="mt-2 p-4 bg-red-100/50 rounded-lg overflow-auto border border-red-200 text-[10px] leading-relaxed">
-          {error.stack || "No stack trace available"}
-        </pre>
-      </div>
-    );
-  }
+  );
 }
