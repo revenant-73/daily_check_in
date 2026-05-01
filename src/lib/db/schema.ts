@@ -11,6 +11,7 @@ export const teams = sqliteTable("teams", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   orgId: text("org_id").notNull().references(() => organizations.id),
   name: text("name").notNull(),
+  inviteCode: text("invite_code").unique().notNull(), // Legacy field required by DB
   coachInviteCode: text("coach_invite_code").unique().notNull(),
   playerInviteCode: text("player_invite_code").unique().notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),

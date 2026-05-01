@@ -25,6 +25,7 @@ async function seed() {
   const [team] = await db.insert(schema.teams).values({
     name: "Demo Varsity",
     orgId: org.id,
+    inviteCode: "DEMO1",
     coachInviteCode: "COACH1",
     playerInviteCode: "PLAYER1",
   }).returning();

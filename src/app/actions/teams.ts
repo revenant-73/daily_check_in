@@ -19,6 +19,7 @@ async function generateUniqueInviteCode() {
     code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const existing = await db.query.teams.findFirst({
       where: or(
+        eq(teams.inviteCode, code),
         eq(teams.coachInviteCode, code),
         eq(teams.playerInviteCode, code)
       ),
@@ -100,6 +101,7 @@ export async function createTeam(name: string, orgId: string) {
     const [newTeam] = await db.insert(teams).values({
       name,
       orgId,
+      inviteCode: playerInviteCode, // Populate legacy field
       coachInviteCode,
       playerInviteCode,
     }).returning();
