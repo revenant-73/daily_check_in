@@ -74,13 +74,17 @@ export async function createTeam(name: string, orgId: string) {
     playerInviteCode,
   }).returning();
 
-  // Automatically assign creator as coach
-  await db.update(users)
-    .set({ 
-      teamId: newTeam.id, 
-      role: "coach" 
-    })
-    .where(eq(users.id, session.user.id));
+  // Automatically assign creator as coach IF they are not already an admin
+  const user = await db.select().from(users).where(eq(users.id, session.user.id)).get();
+  
+  if (user && user.role !== "admin") {
+    await db.update(users)
+      .set({ 
+        teamId: newTeam.id, 
+        role: "coach" 
+      })
+      .where(eq(users.id, session.user.id));
+  }
   
   revalidatePath("/onboarding");
   revalidatePath("/admin");
