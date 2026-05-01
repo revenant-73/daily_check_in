@@ -76,6 +76,15 @@ export default async function CoachDashboard(props: {
       </header>
 
       <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-8 space-y-8">
+        <header className="space-y-2">
+          <h2 className="text-3xl font-black text-foreground">
+            Hi {session.user.name?.split(' ')[0]},
+          </h2>
+          <p className="text-muted-foreground">
+            Here&apos;s the current data for <span className="text-primary font-bold">{team?.name}</span>
+          </p>
+        </header>
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
             <div className="flex items-center gap-3 text-blue-500 mb-2">

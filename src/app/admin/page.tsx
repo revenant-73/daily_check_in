@@ -56,14 +56,24 @@ export default async function AdminDashboard(props: {
   async function handleCreateOrg(formData: FormData) {
     "use server";
     const name = formData.get("name") as string;
-    await createOrganization(name);
+    try {
+      await createOrganization(name);
+    } catch (error) {
+      console.error("Admin Page: Error creating organization:", error);
+    }
   }
 
   async function handleCreateTeam(formData: FormData) {
     "use server";
     const name = formData.get("name") as string;
     const orgId = formData.get("orgId") as string;
-    await createTeam(name, orgId);
+    console.log("Admin Page: Attempting to create team:", { name, orgId });
+    try {
+      await createTeam(name, orgId);
+      console.log("Admin Page: Team creation call finished");
+    } catch (error) {
+      console.error("Admin Page: Error creating team:", error);
+    }
   }
 
   const avgMental = (selectedTeamData?.checkIns?.length ?? 0) > 0 
