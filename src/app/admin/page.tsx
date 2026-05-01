@@ -17,7 +17,23 @@ export default async function AdminDashboard(props: {
     redirect("/login");
   }
 
-  const { organizations: orgs, teams: allTeams, users: allUsers } = await getAdminData();
+  let organizations: any[] = [];
+  let teams: any[] = [];
+  let users: any[] = [];
+
+  try {
+    const data = await getAdminData();
+    organizations = data.organizations;
+    teams = data.teams;
+    users = data.users;
+  } catch (error) {
+    console.error("Error fetching admin data:", error);
+    throw error; // Re-throw to be caught by error.tsx but now we have a log
+  }
+
+  const orgs = organizations;
+  const allTeams = teams;
+  const allUsers = users;
 
   async function handleCreateOrg(formData: FormData) {
     "use server";

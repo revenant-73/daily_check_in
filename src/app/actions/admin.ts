@@ -5,22 +5,28 @@ import { organizations, teams, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { logError } from "@/lib/logger";
 
 export async function getAdminData() {
-  const session = await auth();
-  if (!session?.user || session.user.role !== "admin") {
-    throw new Error("Unauthorized");
+  try {
+    const session = await auth();
+    if (!session?.user || session.user.role !== "admin") {
+      throw new Error("Unauthorized");
+    }
+
+    const allOrganizations = await db.select().from(organizations);
+    const allTeams = await db.select().from(teams);
+    const allUsers = await db.select().from(users);
+
+    return {
+      organizations: allOrganizations,
+      teams: allTeams,
+      users: allUsers,
+    };
+  } catch (error) {
+    logError("getAdminData", error);
+    throw error;
   }
-
-  const allOrganizations = await db.select().from(organizations);
-  const allTeams = await db.select().from(teams);
-  const allUsers = await db.select().from(users);
-
-  return {
-    organizations: allOrganizations,
-    teams: allTeams,
-    users: allUsers,
-  };
 }
 
 export async function createOrganization(name: string) {

@@ -18,8 +18,15 @@ export default async function CoachDashboard(props: {
     redirect("/login");
   }
 
-  const data = await getTeamData();
-  const trends = await getTeamReadinessTrends();
+  let data;
+  let trends: any[] = [];
+  try {
+    data = await getTeamData();
+    trends = await getTeamReadinessTrends();
+  } catch (error) {
+    console.error("Error fetching coach dashboard data:", error);
+    throw error;
+  }
 
   if (!data) {
     return (

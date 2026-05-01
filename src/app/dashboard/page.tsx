@@ -28,8 +28,19 @@ export default async function PlayerDashboard(props: {
   
   const team = await db.select().from(teams).where(eq(teams.id, dbUser.teamId)).get();
 
-  const { checkIns, reviews } = await getPlayerEntries();
-  const trends = await getReadinessTrends();
+  let checkIns: any[] = [];
+  let reviews: any[] = [];
+  let trends: any[] = [];
+
+  try {
+    const entries = await getPlayerEntries();
+    checkIns = entries.checkIns;
+    reviews = entries.reviews;
+    trends = await getReadinessTrends();
+  } catch (error) {
+    console.error("Error fetching player dashboard data:", error);
+    throw error;
+  }
   const view = searchParams.view || "home";
 
   return (
