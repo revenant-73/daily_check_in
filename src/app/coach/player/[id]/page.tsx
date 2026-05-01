@@ -11,7 +11,7 @@ export default async function PlayerDetailedView(props: {
   const params = await props.params;
   const { id } = params;
   const session = await auth();
-  if (!session?.user || session.user.role !== "coach") {
+  if (!session?.user || (session.user.role !== "coach" && session.user.role !== "admin")) {
     redirect("/login");
   }
   const data = await getPlayerData(id);
@@ -23,14 +23,14 @@ export default async function PlayerDetailedView(props: {
       <header className="bg-card border-b border-border p-4 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
           <Link 
-            href="/coach/dashboard" 
+            href={session.user.role === "admin" ? "/admin" : "/coach/dashboard"} 
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors font-bold text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
           <div className="flex gap-4 items-center">
-            <span className="text-sm font-medium text-muted-foreground hidden sm:inline">Coach {session.user.name}</span>
+            <span className="text-sm font-medium text-muted-foreground hidden sm:inline">{session.user.role === "admin" ? "Admin" : "Coach"} {session.user.name}</span>
             <Link 
               href="/api/auth/signout"
               className="p-2 text-muted-foreground hover:text-foreground transition-colors"

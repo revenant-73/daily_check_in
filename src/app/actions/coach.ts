@@ -111,16 +111,22 @@ export async function getTeamReadinessTrends() {
 
 export async function getPlayerData(playerId: string) {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "coach") {
+  if (!session?.user?.id || (session.user.role !== "coach" && session.user.role !== "admin")) {
     throw new Error("Unauthorized");
   }
 
-  const coach = await db.select().from(users).where(eq(users.id, session.user.id)).get();
-
+  const user = await db.select().from(users).where(eq(users.id, session.user.id)).get();
   const player = await db.select().from(users).where(eq(users.id, playerId)).get();
 
-  if (!coach?.teamId || !player || player.teamId !== coach.teamId) {
-    throw new Error("Unauthorized or Player not found");
+  if (!player) {
+    throw new Error("Player not found");
+  }
+
+  // If coach, verify player is in their team
+  if (session.user.role === "coach") {
+    if (!user?.teamId || player.teamId !== user.teamId) {
+      throw new Error("Unauthorized");
+    }
   }
 
   const playerCheckIns = await db.select().from(checkIns).where(eq(checkIns.playerId, playerId)).orderBy(desc(checkIns.createdAt)).limit(10).all();

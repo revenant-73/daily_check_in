@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { organizations, teams, users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { organizations, teams, users, checkIns, reviews } from "@/lib/db/schema";
+import { eq, desc, inArray } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { logError } from "@/lib/logger";
@@ -25,6 +25,80 @@ export async function getAdminData() {
     };
   } catch (error) {
     logError("getAdminData", error);
+    throw error;
+  }
+}
+
+export async function getTeamDataForAdmin(teamId: string) {
+  try {
+    const session = await auth();
+    if (!session?.user || session.user.role !== "admin") {
+      throw new Error("Unauthorized");
+    }
+
+    const team = await db.select().from(teams).where(eq(teams.id, teamId)).get();
+    if (!team) return null;
+
+    const teamPlayers = await db.select().from(users).where(eq(users.teamId, teamId));
+
+    if (teamPlayers.length === 0) {
+      return {
+        team,
+        players: [],
+        checkIns: [],
+        reviews: [],
+        trends: []
+      };
+    }
+
+    const playerIds = teamPlayers.map(p => p.id);
+
+    const allCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt));
+    const allReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds)).orderBy(desc(reviews.createdAt));
+
+    // Calculate trends
+    const trendMap: Record<string, { total: number, count: number }> = {};
+    allCheckIns.forEach(ci => {
+      if (!ci.createdAt) return;
+      const date = new Date(ci.createdAt).toLocaleDateString();
+      const avg = (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3;
+      if (!trendMap[date]) {
+        trendMap[date] = { total: 0, count: 0 };
+      }
+      trendMap[date].total += avg;
+      trendMap[date].count += 1;
+    });
+
+    const trends = Object.entries(trendMap).map(([date, data]) => ({
+      date,
+      average: data.total / data.count,
+    })).slice(0, 7).reverse();
+
+    // Calculate today's status
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const playersWithStatus = teamPlayers.map(player => {
+      const hasCheckedInToday = allCheckIns.some(ci => 
+        ci.playerId === player.id && 
+        ci.createdAt && 
+        new Date(ci.createdAt) >= today
+      );
+      return {
+        ...player,
+        hasCheckedInToday
+      };
+    });
+
+    return {
+      team,
+      players: playersWithStatus,
+      checkIns: allCheckIns,
+      reviews: allReviews,
+      trends
+    };
+  } catch (error) {
+    logError("getTeamDataForAdmin", error);
     throw error;
   }
 }
