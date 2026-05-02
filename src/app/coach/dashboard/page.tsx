@@ -45,6 +45,7 @@ export default async function CoachDashboard(props: {
   // Simple stats
   const avgMental = checkIns.length > 0 ? (checkIns.reduce((acc, ci) => acc + ci.mentalRating, 0) / checkIns.length).toFixed(1) : "N/A";
   const avgPhysical = checkIns.length > 0 ? (checkIns.reduce((acc, ci) => acc + ci.physicalRating, 0) / checkIns.length).toFixed(1) : "N/A";
+  const avgEmotional = checkIns.length > 0 ? (checkIns.reduce((acc, ci) => acc + ci.emotionalRating, 0) / checkIns.length).toFixed(1) : "N/A";
   const avgPerformance = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "N/A";
 
   return (
@@ -87,7 +88,7 @@ export default async function CoachDashboard(props: {
           <AttendanceList players={players} inviteCode={team?.playerInviteCode || undefined} variant="condensed" />
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
             <div className="flex items-center gap-2 text-blue-500 mb-1">
               <Activity className="w-4 h-4" />
@@ -101,6 +102,13 @@ export default async function CoachDashboard(props: {
               <h3 className="font-bold text-muted-foreground text-[10px] uppercase tracking-wider">Avg Physical</h3>
             </div>
             <p className="text-2xl font-black text-foreground">{avgPhysical}</p>
+          </div>
+          <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
+            <div className="flex items-center gap-2 text-purple-500 mb-1">
+              <Activity className="w-4 h-4" />
+              <h3 className="font-bold text-muted-foreground text-[10px] uppercase tracking-wider">Avg Emotional</h3>
+            </div>
+            <p className="text-2xl font-black text-foreground">{avgEmotional}</p>
           </div>
           <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
             <div className="flex items-center gap-2 text-yellow-500 mb-1">
