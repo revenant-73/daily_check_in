@@ -1,11 +1,11 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { getTeamDataForAdmin, getAdminData, assignToTeam } from "@/app/actions/admin";
-import { LogOut, Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus } from "lucide-react";
+import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus } from "lucide-react";
 import Link from "next/link";
-import { Logo } from "@/components/ui/Logo";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { ActionButton } from "@/components/admin/ActionButton";
+import { Header } from "@/components/layout/Header";
 
 export default async function TeamView(props: { params: Promise<{ teamId: string }> }) {
   const params = await props.params;
@@ -38,31 +38,37 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
-      <header className="bg-card border-b border-border p-4 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <Logo href="/admin" />
-            <div className="hidden md:block h-8 w-px bg-border" />
-            <nav className="flex items-center gap-2 text-sm font-medium">
-              <Link href="/admin" className="text-muted-foreground hover:text-foreground transition-colors">Admin</Link>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              {organization && (
-                <>
-                  <Link href={`/admin/org/${organization.id}`} className="text-muted-foreground hover:text-foreground transition-colors">{organization.name}</Link>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </>
-              )}
-              <span className="text-foreground">{team.name}</span>
-            </nav>
-          </div>
-          <div className="flex gap-4 items-center">
-            <span className="text-sm font-medium text-muted-foreground">{session.user.name}</span>
-            <Link href="/api/auth/signout" className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-              <LogOut className="w-5 h-5" />
-            </Link>
-          </div>
+      <Header 
+        userName={session.user.name} 
+        role="Admin" 
+        href="/admin"
+      />
+      <div className="bg-card border-b border-border py-2 px-4 sticky top-[73px] z-10 md:hidden">
+        <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest overflow-x-auto whitespace-nowrap scrollbar-hide">
+          <Link href="/admin" className="text-muted-foreground">Admin</Link>
+          <ChevronRight className="w-3 h-3 text-muted-foreground" />
+          {organization && (
+            <>
+              <Link href={`/admin/org/${organization.id}`} className="text-muted-foreground">{organization.name}</Link>
+              <ChevronRight className="w-3 h-3 text-muted-foreground" />
+            </>
+          )}
+          <span className="text-primary">{team.name}</span>
+        </nav>
+      </div>
+      <div className="hidden md:block bg-card border-b border-border py-1 px-4 sticky top-[73px] z-10">
+        <div className="max-w-7xl mx-auto flex items-center gap-2 text-[10px] font-black uppercase tracking-widest overflow-x-auto whitespace-nowrap scrollbar-hide">
+          <Link href="/admin" className="text-muted-foreground hover:text-foreground transition-colors">Admin</Link>
+          <ChevronRight className="w-3 h-3 text-muted-foreground" />
+          {organization && (
+            <>
+              <Link href={`/admin/org/${organization.id}`} className="text-muted-foreground hover:text-foreground transition-colors">{organization.name}</Link>
+              <ChevronRight className="w-3 h-3 text-muted-foreground" />
+            </>
+          )}
+          <span className="text-primary">{team.name}</span>
         </div>
-      </header>
+      </div>
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8">
         <div className="space-y-2">

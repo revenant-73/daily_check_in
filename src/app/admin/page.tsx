@@ -2,10 +2,10 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getAdminData, createOrganization, deleteOrganization, deleteTeam, deleteUser, updateUserRole, assignToTeam } from "@/app/actions/admin";
 import { createTeam } from "@/app/actions/teams";
-import { LogOut, Shield, Users, Building2, Plus, UserPlus, Trash2, ChevronRight, UserCheck } from "lucide-react";
+import { Shield, Users, Building2, Plus, UserPlus, Trash2, ChevronRight, UserCheck } from "lucide-react";
 import Link from "next/link";
-import { Logo } from "@/components/ui/Logo";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { Header } from "@/components/layout/Header";
 
 export default async function AdminDashboard() {
   const session = await auth();
@@ -44,24 +44,11 @@ export default async function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
-      <header className="bg-card border-b border-border p-4 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <Logo href="/admin" />
-            <div className="hidden md:block h-8 w-px bg-border" />
-            <div className="hidden md:block">
-              <h1 className="text-sm font-bold text-foreground">Admin Control Center</h1>
-              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">System Administration</p>
-            </div>
-          </div>
-          <div className="flex gap-4 items-center">
-            <span className="text-sm font-medium text-muted-foreground">{session.user.name}</span>
-            <Link href="/api/auth/signout" className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-              <LogOut className="w-5 h-5" />
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header 
+        userName={session.user.name} 
+        role="Admin" 
+        href="/admin"
+      />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
