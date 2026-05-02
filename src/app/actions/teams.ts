@@ -130,7 +130,7 @@ export async function createTeam(name: string, orgId: string) {
     }
     
     revalidatePath("/onboarding");
-    revalidatePath("/admin");
+    revalidatePath("/admin", "layout");
     revalidatePath("/dashboard");
     console.log("[createTeam] Paths revalidated");
   } catch (error) {

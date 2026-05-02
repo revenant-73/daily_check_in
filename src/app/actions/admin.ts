@@ -140,7 +140,7 @@ export async function createOrganization(name: string) {
   if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
 
   await db.insert(organizations).values({ name });
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function deleteOrganization(orgId: string) {
@@ -148,7 +148,7 @@ export async function deleteOrganization(orgId: string) {
   if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
 
   await db.delete(organizations).where(eq(organizations.id, orgId));
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function deleteTeam(teamId: string) {
@@ -156,7 +156,7 @@ export async function deleteTeam(teamId: string) {
   if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
 
   await db.delete(teams).where(eq(teams.id, teamId));
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function updateUserRole(userId: string, role: "admin" | "coach" | "player") {
@@ -164,7 +164,7 @@ export async function updateUserRole(userId: string, role: "admin" | "coach" | "
   if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
 
   await db.update(users).set({ role }).where(eq(users.id, userId));
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function assignToTeam(userId: string, teamId: string | null) {
@@ -172,7 +172,7 @@ export async function assignToTeam(userId: string, teamId: string | null) {
   if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
 
   await db.update(users).set({ teamId }).where(eq(users.id, userId));
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function deleteUser(userId: string) {
@@ -180,5 +180,5 @@ export async function deleteUser(userId: string) {
   if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
 
   await db.delete(users).where(eq(users.id, userId));
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
