@@ -113,3 +113,28 @@ The application supports a flexible onboarding flow to ensure every user is corr
 - `physicalRating` (integer, 1-10)
 - `emotionalRating` (integer, 1-10)
 - `createdAt` (integer/timestamp, Default: now())
+
+---
+
+## Future Enhancements & Roadmap
+
+### 🏃 Player Engagement
+- **Goal Templates**: Pre-set goal suggestions to minimize typing during fast transitions.
+- **Consistency Streaks**: Visual rewards for consecutive check-ins to build habits.
+- **Offline Support (PWA)**: Ensure check-ins work in low-connectivity gym environments.
+
+### 📋 Coaching Intelligence
+- **Low-Readiness Alerts**: Automated flagging of athletes reporting scores < 4.
+- **"High-Five" Feedback**: Quick emoji/text reactions from coaches to athlete goals.
+- **Trend Delta (Δ)**: Comparison of current averages vs. previous week's performance.
+- **Data Export**: CSV downloads for attendance and readiness reporting.
+
+### 🛠️ Administrative Efficiency
+- **Bulk Roster Import**: CSV upload for quick team onboarding.
+- **Invite QR Codes**: Scannable links for immediate team joining.
+- **Global User Management**: Searchable directory for role and team overrides.
+
+### 🎨 Technical & UI/UX
+- **Dynamic Theming**: Full support for system-aware light/dark modes.
+- **Skeleton Loading**: Improved perceived performance during data fetching.
+- **Accessibility Audit**: Enhancing touch targets and contrast for outdoor visibility.

@@ -105,6 +105,37 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 
 ---
 
+## 🚀 Milestone 7: Enhancements & Optimization
+*Polishing the experience for all users based on initial audit.*
+
+### 🎫 Ticket #701: Coaching Intelligence (Alerts & Delta)
+- **Goal**: Surface critical data and trends.
+- **Actions**:
+    - [x] **Low-Readiness Alerts**: Highlight players with scores < 4 on the dashboard.
+    - [x] **Trend Delta (Δ)**: Display week-over-week changes for team averages.
+    - [x] **High-Five Feedback**: Add a "reaction" button for coaches to acknowledge player goals.
+
+### 🎫 Ticket #702: Player Engagement (Speed & Habits)
+- **Goal**: Make check-ins faster and more rewarding.
+- **Actions**:
+    - [x] **Goal Templates**: Implement a "Quick Select" for common practice goals.
+    - [ ] **Streaks**: Display check-in consistency on the player dashboard.
+
+### 🎫 Ticket #703: Admin & Data Management
+- **Goal**: Steamline onboarding and data access.
+- **Actions**:
+    - [ ] **Bulk Roster Import**: Implement CSV upload for players.
+    - [ ] **Invite QR Codes**: Generate scannable links for team joining.
+    - [ ] **Data Export**: Add CSV export for team readiness data.
+
+### 🎫 Ticket #704: UI/UX & Performance
+- **Goal**: Professionalize the interface and feel.
+- **Actions**:
+    - [ ] **Dynamic Theming**: Implement `next-themes` for system light/dark mode.
+    - [ ] **Skeleton Loaders**: Add loading states for dashboard charts and tables.
+
+---
+
 ## ✨ Milestone 6: Philosophy & Branding
 *Aligning the platform with core coaching values and philosophy.*
 

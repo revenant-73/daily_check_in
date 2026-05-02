@@ -46,3 +46,11 @@ export const reviews = sqliteTable("reviews", {
   notes: text("notes"),
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
 });
+
+export const reactions = sqliteTable("reactions", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  checkInId: text("check_in_id").notNull().references(() => checkIns.id, { onDelete: 'cascade' }),
+  coachId: text("coach_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // 'high-five', 'fire', 'muscle', etc.
+  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
+});

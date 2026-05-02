@@ -2,9 +2,18 @@
 
 import React, { useState } from "react";
 import { Slider } from "@/components/ui/slider";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Target } from "lucide-react";
 
 import { submitCheckIn } from "@/app/actions/entries";
+
+const QUICK_GOALS = [
+  "Focus on footwork",
+  "Stay aggressive",
+  "Positive communication",
+  "Clean contacts",
+  "High energy",
+  "Better discipline"
+];
 
 export function CheckInForm() {
   const [goal, setGoal] = useState("");
@@ -69,6 +78,22 @@ export function CheckInForm() {
           onChange={(e) => setGoal(e.target.value)}
           className="w-full p-5 rounded-2xl border-2 border-border bg-muted focus:bg-card focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-muted-foreground text-foreground text-lg"
         />
+        <div className="flex flex-wrap gap-2 pt-1">
+          {QUICK_GOALS.map((qg) => (
+            <button
+              key={qg}
+              type="button"
+              onClick={() => setGoal(qg)}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                goal === qg 
+                  ? 'bg-primary border-primary text-primary-foreground scale-105 shadow-md shadow-primary/20' 
+                  : 'bg-muted border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+              }`}
+            >
+              {qg}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="space-y-12 py-4">

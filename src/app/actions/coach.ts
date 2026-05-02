@@ -1,10 +1,45 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { checkIns, reviews, users, teams } from "@/lib/db/schema";
-import { eq, desc, inArray, sql } from "drizzle-orm";
+import { checkIns, reviews, users, teams, reactions } from "@/lib/db/schema";
+import { eq, desc, inArray, sql, and } from "drizzle-orm";
 import { auth } from "@/auth";
 import { logError } from "@/lib/logger";
+import { revalidatePath } from "next/cache";
+
+export async function addReaction(checkInId: string, type: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id || session.user.role !== "coach") {
+      throw new Error("Unauthorized");
+    }
+
+    // Check if already reacted with same type
+    const existing = await db.select().from(reactions).where(
+      and(
+        eq(reactions.checkInId, checkInId),
+        eq(reactions.coachId, session.user.id),
+        eq(reactions.type, type)
+      )
+    ).get();
+
+    if (existing) {
+      // Remove reaction if already exists (toggle)
+      await db.delete(reactions).where(eq(reactions.id, existing.id));
+    } else {
+      await db.insert(reactions).values({
+        checkInId,
+        coachId: session.user.id,
+        type,
+      });
+    }
+
+    revalidatePath("/coach/dashboard");
+  } catch (error) {
+    logError("addReaction", error);
+    throw error;
+  }
+}
 
 export async function getTeamData() {
   try {
@@ -36,6 +71,8 @@ export async function getTeamData() {
 
     const allCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt)).all();
 
+    const allReactions = await db.select().from(reactions).where(inArray(reactions.checkInId, allCheckIns.map(ci => ci.id))).all();
+
     const allReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds)).orderBy(desc(reviews.createdAt)).all();
 
     // Calculate today's attendance
@@ -43,22 +80,44 @@ export async function getTeamData() {
     today.setHours(0, 0, 0, 0);
 
     const playersWithStatus = teamPlayers.map(player => {
-      const hasCheckedInToday = allCheckIns.some(ci => 
-        ci.playerId === player.id && 
-        ci.createdAt && 
-        new Date(ci.createdAt) >= today
-      );
+      const playerCheckIns = allCheckIns.filter(ci => ci.playerId === player.id);
+      const latestCheckIn = playerCheckIns[0];
+      const hasCheckedInToday = latestCheckIn && latestCheckIn.createdAt && new Date(latestCheckIn.createdAt) >= today;
+      
+      const latestReadiness = latestCheckIn ? (latestCheckIn.mentalRating + latestCheckIn.physicalRating + latestCheckIn.emotionalRating) / 3 : null;
+
       return {
         ...player,
-        hasCheckedInToday
+        hasCheckedInToday,
+        latestReadiness
       };
     });
+
+    // Calculate previous averages (excluding today) for Delta
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    lastWeek.setHours(0, 0, 0, 0);
+
+    const prevCheckIns = allCheckIns.filter(ci => 
+      ci.createdAt && 
+      new Date(ci.createdAt) >= lastWeek && 
+      new Date(ci.createdAt) < today
+    );
+
+    const prevAvg = prevCheckIns.length > 0 ? {
+      mental: prevCheckIns.reduce((acc, ci) => acc + ci.mentalRating, 0) / prevCheckIns.length,
+      physical: prevCheckIns.reduce((acc, ci) => acc + ci.physicalRating, 0) / prevCheckIns.length,
+      emotional: prevCheckIns.reduce((acc, ci) => acc + ci.emotionalRating, 0) / prevCheckIns.length,
+    } : null;
 
     return {
       team,
       players: playersWithStatus,
-      checkIns: allCheckIns,
+      checkIns: allCheckIns.filter(ci => ci.createdAt && new Date(ci.createdAt) >= today),
+      allCheckIns,
       reviews: allReviews,
+      reactions: allReactions,
+      prevAvg
     };
   } catch (error) {
     logError("getTeamData", error);
