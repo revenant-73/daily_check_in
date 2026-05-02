@@ -75,77 +75,96 @@ export default async function CoachDashboard(props: {
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-8 space-y-8">
-        <header className="space-y-2">
-          <h2 className="text-3xl font-black text-foreground">
-            Hi {session.user.name?.split(' ')[0]},
-          </h2>
-          <p className="text-muted-foreground">
-            Here&apos;s the current data for <span className="text-primary font-bold">{team?.name}</span>
-          </p>
+      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
+        <header className="space-y-4">
+          <div className="flex justify-between items-end">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black text-foreground">
+                Hi Coach {session.user.name?.split(' ')[0]},
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Current data for <span className="text-primary font-bold">{team?.name}</span>
+              </p>
+            </div>
+          </div>
+          
+          <AttendanceList players={players} variant="condensed" />
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
-            <div className="flex items-center gap-3 text-blue-500 mb-2">
-              <Activity className="w-5 h-5" />
-              <h3 className="font-bold text-muted-foreground text-xs uppercase tracking-wider">Avg Mental Readiness</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
+            <div className="flex items-center gap-2 text-blue-500 mb-1">
+              <Activity className="w-4 h-4" />
+              <h3 className="font-bold text-muted-foreground text-[10px] uppercase tracking-wider">Avg Mental</h3>
             </div>
-            <p className="text-3xl font-black text-foreground">{avgMental}</p>
+            <p className="text-2xl font-black text-foreground">{avgMental}</p>
           </div>
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
-            <div className="flex items-center gap-3 text-green-500 mb-2">
-              <TrendingUp className="w-5 h-5" />
-              <h3 className="font-bold text-muted-foreground text-xs uppercase tracking-wider">Avg Physical Readiness</h3>
+          <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
+            <div className="flex items-center gap-2 text-green-500 mb-1">
+              <TrendingUp className="w-4 h-4" />
+              <h3 className="font-bold text-muted-foreground text-[10px] uppercase tracking-wider">Avg Physical</h3>
             </div>
-            <p className="text-3xl font-black text-foreground">{avgPhysical}</p>
+            <p className="text-2xl font-black text-foreground">{avgPhysical}</p>
           </div>
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
-            <div className="flex items-center gap-3 text-yellow-500 mb-2">
-              <Users className="w-5 h-5" />
-              <h3 className="font-bold text-muted-foreground text-xs uppercase tracking-wider">Avg Performance</h3>
+          <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
+            <div className="flex items-center gap-2 text-yellow-500 mb-1">
+              <Users className="w-4 h-4" />
+              <h3 className="font-bold text-muted-foreground text-[10px] uppercase tracking-wider">Avg Performance</h3>
             </div>
-            <p className="text-3xl font-black text-foreground">{avgPerformance}</p>
+            <p className="text-2xl font-black text-foreground">{avgPerformance}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <TeamReadinessGraph data={trends} />
           </div>
-          <div className="lg:col-span-1">
-            <AttendanceList players={players} />
+          <div className="lg:col-span-1 space-y-4">
+            <h3 className="text-lg font-bold text-foreground">Quick Actions</h3>
+            <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
+              <p className="text-xs text-muted-foreground mb-3 font-bold uppercase tracking-widest">Team Stats</p>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total Players</span>
+                  <span className="font-bold">{players.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Checked In Today</span>
+                  <span className="font-bold text-green-500">{players.filter(p => p.hasCheckedInToday).length}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-foreground">Recent Player Check-Ins</h2>
-            <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-foreground">Recent Check-Ins</h2>
+            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-muted/50 text-xs font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
-                    <th className="p-4">Player</th>
-                    <th className="p-4">Goal</th>
-                    <th className="p-4">Readiness (M/P/E)</th>
+                  <tr className="bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
+                    <th className="p-3">Player</th>
+                    <th className="p-3">Goal</th>
+                    <th className="p-3">Readiness</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {checkIns.map((ci) => {
+                  {checkIns.slice(0, 8).map((ci) => {
                     const player = players.find(p => p.id === ci.playerId);
                     return (
                       <tr key={ci.id} className="hover:bg-muted/50 transition-colors group">
-                        <td className="p-4">
-                          <Link href={`/coach/player/${ci.playerId}`} className="font-bold text-foreground hover:text-primary transition-colors">
-                            {player?.name || "Unknown"}
+                        <td className="p-3">
+                          <Link href={`/coach/player/${ci.playerId}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors">
+                            {player?.name?.split(' ')[0] || "Unknown"}
                           </Link>
                         </td>
-                        <td className="p-4 text-muted-foreground">{ci.goal}</td>
-                        <td className="p-4">
+                        <td className="p-3 text-xs text-muted-foreground truncate max-w-[150px]">{ci.goal}</td>
+                        <td className="p-3">
                           <div className="flex gap-1">
-                             <span className="px-2 py-1 bg-blue-500/10 text-blue-500 rounded text-xs font-bold">{ci.mentalRating}</span>
-                             <span className="px-2 py-1 bg-green-500/10 text-green-500 rounded text-xs font-bold">{ci.physicalRating}</span>
-                             <span className="px-2 py-1 bg-purple-500/10 text-purple-500 rounded text-xs font-bold">{ci.emotionalRating}</span>
+                             <span className="w-5 h-5 flex items-center justify-center bg-blue-500/10 text-blue-500 rounded text-[10px] font-bold" title="Mental">{ci.mentalRating}</span>
+                             <span className="w-5 h-5 flex items-center justify-center bg-green-500/10 text-green-500 rounded text-[10px] font-bold" title="Physical">{ci.physicalRating}</span>
+                             <span className="w-5 h-5 flex items-center justify-center bg-purple-500/10 text-purple-500 rounded text-[10px] font-bold" title="Emotional">{ci.emotionalRating}</span>
                           </div>
                         </td>
                       </tr>
@@ -153,7 +172,7 @@ export default async function CoachDashboard(props: {
                   })}
                   {checkIns.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="p-8 text-center text-muted-foreground">No check-ins today</td>
+                      <td colSpan={3} className="p-6 text-center text-xs text-muted-foreground">No check-ins today</td>
                     </tr>
                   )}
                 </tbody>
@@ -161,32 +180,32 @@ export default async function CoachDashboard(props: {
             </div>
           </section>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-foreground">Recent Performance Reviews</h2>
-             <div className="space-y-4">
-               {reviews.map((r) => {
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-foreground">Recent Reviews</h2>
+             <div className="grid grid-cols-1 gap-3">
+               {reviews.slice(0, 4).map((r) => {
                  const player = players.find(p => p.id === r.playerId);
                  return (
-                   <div key={r.id} className="p-6 bg-card rounded-2xl border border-border shadow-sm">
-                     <div className="flex justify-between items-start mb-2">
-                       <Link href={`/coach/player/${r.playerId}`} className="font-bold text-foreground hover:text-primary transition-colors">
-                        {player?.name || "Unknown"}
+                   <div key={r.id} className="p-4 bg-card rounded-xl border border-border shadow-sm">
+                     <div className="flex justify-between items-center mb-1">
+                       <Link href={`/coach/player/${r.playerId}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors">
+                        {player?.name?.split(' ')[0] || "Unknown"}
                        </Link>
                        <div className="flex gap-0.5">
                          {Array.from({ length: 5 }).map((_, i) => (
-                           <Star key={i} className={`w-3 h-3 ${i < r.rating ? "fill-yellow-400 text-yellow-400" : "text-border"}`} />
+                           <Star key={i} className={`w-2.5 h-2.5 ${i < r.rating ? "fill-yellow-400 text-yellow-400" : "text-border"}`} />
                          ))}
                        </div>
                      </div>
-                     {r.notes && <p className="text-sm text-muted-foreground italic">&quot;{r.notes}&quot;</p>}
-                     <p className="text-[10px] text-muted-foreground mt-2 uppercase font-bold tracking-widest">
+                     {r.notes && <p className="text-xs text-muted-foreground line-clamp-2 italic">&quot;{r.notes}&quot;</p>}
+                     <p className="text-[9px] text-muted-foreground mt-1 uppercase font-bold tracking-widest text-right">
                        {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "N/A"}
                      </p>
                    </div>
                  );
                })}
                 {reviews.length === 0 && (
-                  <div className="p-8 text-center text-muted-foreground bg-card rounded-2xl border border-border shadow-sm">
+                  <div className="p-6 text-center text-xs text-muted-foreground bg-card rounded-xl border border-border shadow-sm">
                     No reviews yet
                   </div>
                 )}
