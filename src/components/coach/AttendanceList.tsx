@@ -8,12 +8,12 @@ interface PlayerWithStatus {
   id: string;
   name: string | null;
   email: string;
-  hasCheckedInToday: boolean;
+  hasCheckedInToday: boolean | null;
   latestReadiness: number | null;
 }
 
 export function AttendanceList({ players, inviteCode, variant = "default" }: { players: PlayerWithStatus[], inviteCode?: string, variant?: "default" | "condensed" }) {
-  const checkedInCount = players.filter(p => p.hasCheckedInToday).length;
+  const checkedInCount = players.filter(p => !!p.hasCheckedInToday).length;
 
   if (variant === "condensed") {
     return (
@@ -30,7 +30,8 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
           
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 flex-1">
             {players.map((player) => {
-              const isLowReadiness = player.hasCheckedInToday && player.latestReadiness !== null && player.latestReadiness < 4;
+              const isCheckedIn = !!player.hasCheckedInToday;
+              const isLowReadiness = isCheckedIn && player.latestReadiness !== null && player.latestReadiness < 4;
               return (
                 <Link 
                   key={player.id} 
@@ -40,14 +41,14 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                     isLowReadiness 
                       ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse' 
-                      : player.hasCheckedInToday 
+                      : isCheckedIn 
                         ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' 
                         : 'bg-amber-500/40'
                   }`} />
                   <span className={`text-xs font-bold ${
                     isLowReadiness 
                       ? 'text-red-500' 
-                      : player.hasCheckedInToday 
+                      : isCheckedIn 
                         ? 'text-foreground' 
                         : 'text-muted-foreground'
                   }`}>
@@ -84,7 +85,8 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
       </div>
       <div className="divide-y divide-border max-h-[400px] overflow-y-auto">
         {players.map((player) => {
-          const isLowReadiness = player.hasCheckedInToday && player.latestReadiness !== null && player.latestReadiness < 4;
+          const isCheckedIn = !!player.hasCheckedInToday;
+          const isLowReadiness = isCheckedIn && player.latestReadiness !== null && player.latestReadiness < 4;
           return (
             <Link 
               key={player.id} 
@@ -112,7 +114,7 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
                     <AlertTriangle className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-black uppercase tracking-wider">Low Readiness</span>
                   </div>
-                ) : player.hasCheckedInToday ? (
+                ) : isCheckedIn ? (
                   <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-black uppercase tracking-wider">Checked In</span>
