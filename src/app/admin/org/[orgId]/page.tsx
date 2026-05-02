@@ -21,7 +21,7 @@ export default async function OrganizationView(props: { params: Promise<{ orgId:
     organization = data.organizations.find((o: any) => o.id === params.orgId);
     if (!organization) notFound();
     
-    teams = data.teams.filter((t: any) => t.organizationId === params.orgId);
+    teams = data.teams.filter((t: any) => t.orgId === params.orgId);
   } catch (error) {
     console.error("Error fetching org data:", error);
     throw error;

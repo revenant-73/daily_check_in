@@ -21,7 +21,7 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
 
   // We need organization name for breadcrumbs
   const adminData = await getAdminData();
-  const organization = adminData.organizations.find((o: any) => o.id === team.organizationId);
+  const organization = adminData.organizations.find((o: any) => o.id === team.orgId);
 
   const avgMental = checkIns.length > 0 
     ? (checkIns.reduce((acc: any, ci: any) => acc + ci.mentalRating, 0) / checkIns.length).toFixed(1) 

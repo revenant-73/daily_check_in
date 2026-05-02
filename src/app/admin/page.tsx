@@ -94,7 +94,7 @@ export default async function AdminDashboard() {
                   >
                     <div className="flex flex-col">
                       <span className="font-bold text-foreground group-hover:text-primary transition-colors">{org.name}</span>
-                      <span className="text-[10px] text-muted-foreground font-mono">{teams.filter(t => t.organizationId === org.id).length} Teams</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">{teams.filter(t => t.orgId === org.id).length} Teams</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <DeleteButton 
