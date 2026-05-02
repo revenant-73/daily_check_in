@@ -2,10 +2,11 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getAdminData, createOrganization, deleteOrganization, deleteTeam, deleteUser, updateUserRole, assignToTeam } from "@/app/actions/admin";
 import { createTeam } from "@/app/actions/teams";
-import { LogOut, Shield, Users, Building2, Plus, UserPlus, Trash2, ChevronRight } from "lucide-react";
+import { LogOut, Shield, Users, Building2, Plus, UserPlus, Trash2, ChevronRight, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { ActionButton } from "@/components/admin/ActionButton";
 
 export default async function AdminDashboard() {
   const session = await auth();
@@ -148,20 +149,25 @@ export default async function AdminDashboard() {
                         <p className="text-xs text-muted-foreground">{user.email} • {user.role}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <select 
-                          className="p-1.5 border border-border rounded bg-muted text-xs text-foreground"
-                          onChange={async (e) => {
-                            "use server";
-                            // This would need a client component for direct interactivity, 
-                            // but we'll keep it simple for now or use a form.
-                          }}
-                          defaultValue={user.teamId || ""}
-                        >
-                          <option value="">Assign to team...</option>
-                          {teams.map(t => (
-                            <option key={t.id} value={t.id}>{t.name}</option>
-                          ))}
-                        </select>
+                        <form action={async (formData: FormData) => {
+                          "use server";
+                          const teamId = formData.get("teamId") as string;
+                          if (teamId) await assignToTeam(user.id, teamId);
+                        }} className="flex gap-2">
+                          <select 
+                            name="teamId"
+                            className="p-1.5 border border-border rounded bg-muted text-xs text-foreground"
+                            required
+                          >
+                            <option value="">Assign to team...</option>
+                            {teams.map(t => (
+                              <option key={t.id} value={t.id}>{t.name}</option>
+                            ))}
+                          </select>
+                          <button className="p-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground rounded transition-colors">
+                            <UserCheck className="w-4 h-4" />
+                          </button>
+                        </form>
                         <DeleteButton id={user.id} onDelete={deleteUser} />
                       </div>
                     </div>

@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { getTeamDataForAdmin, getAdminData, assignToTeam } from "@/app/actions/admin";
-import { LogOut, Users, Activity, TrendingUp, Star, ChevronRight, ChevronLeft, UserMinus } from "lucide-react";
+import { LogOut, Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
