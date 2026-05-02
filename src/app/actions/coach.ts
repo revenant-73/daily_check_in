@@ -75,14 +75,14 @@ export async function getTeamData() {
 
     const allReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds)).orderBy(desc(reviews.createdAt)).all();
 
-    // Calculate today's attendance
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Calculate today's attendance (last 24 hours to be safe with timezones)
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
     const playersWithStatus = teamPlayers.map(player => {
       const playerCheckIns = allCheckIns.filter(ci => ci.playerId === player.id);
       const latestCheckIn = playerCheckIns[0];
-      const hasCheckedInToday = latestCheckIn && latestCheckIn.createdAt && new Date(latestCheckIn.createdAt) >= today;
+      const hasCheckedInToday = latestCheckIn && latestCheckIn.createdAt && new Date(latestCheckIn.createdAt) >= twentyFourHoursAgo;
       
       const latestReadiness = latestCheckIn ? (latestCheckIn.mentalRating + latestCheckIn.physicalRating + latestCheckIn.emotionalRating) / 3 : null;
 
@@ -93,15 +93,14 @@ export async function getTeamData() {
       };
     });
 
-    // Calculate previous averages (excluding today) for Delta
-    const lastWeek = new Date();
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    lastWeek.setHours(0, 0, 0, 0);
+    // Calculate previous averages (last 7 days excluding last 24h) for Delta
+    const eightDaysAgo = new Date();
+    eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
 
     const prevCheckIns = allCheckIns.filter(ci => 
       ci.createdAt && 
-      new Date(ci.createdAt) >= lastWeek && 
-      new Date(ci.createdAt) < today
+      new Date(ci.createdAt) >= eightDaysAgo && 
+      new Date(ci.createdAt) < twentyFourHoursAgo
     );
 
     const prevAvg = prevCheckIns.length > 0 ? {
@@ -113,7 +112,7 @@ export async function getTeamData() {
     return {
       team,
       players: playersWithStatus,
-      checkIns: allCheckIns.filter(ci => ci.createdAt && new Date(ci.createdAt) >= today),
+      checkIns: allCheckIns.filter(ci => ci.createdAt && new Date(ci.createdAt) >= twentyFourHoursAgo),
       allCheckIns,
       reviews: allReviews,
       reactions: allReactions,

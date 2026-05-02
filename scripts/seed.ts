@@ -19,7 +19,12 @@ async function seed() {
   // 1. Create a Demo Organization
   const [org] = await db.insert(schema.organizations).values({
     name: "Demo Organization",
-  }).returning();
+  })
+  .onConflictDoUpdate({
+    target: schema.organizations.name,
+    set: { name: "Demo Organization" }
+  })
+  .returning();
 
   // 2. Create a Demo Team
   const [team] = await db.insert(schema.teams).values({
@@ -28,12 +33,17 @@ async function seed() {
     inviteCode: "DEMO1",
     coachInviteCode: "COACH1",
     playerInviteCode: "PLAYER1",
-  }).returning();
+  })
+  .onConflictDoUpdate({
+    target: schema.teams.inviteCode,
+    set: { name: "Demo Varsity" }
+  })
+  .returning();
 
   const hashedPassword = await bcrypt.hash("password123", 10);
 
   // 3. Create Demo Users
-  await db.insert(schema.users).values([
+  const [admin, coach, player1, player2] = await db.insert(schema.users).values([
     {
       email: "admin@example.com",
       password: hashedPassword,
@@ -54,9 +64,43 @@ async function seed() {
       role: "player",
       teamId: team.id,
     },
+    {
+      email: "athlete2@example.com",
+      password: hashedPassword,
+      name: "Alex Smith",
+      role: "player",
+      teamId: team.id,
+    },
+  ])
+  .onConflictDoUpdate({
+    target: schema.users.email,
+    set: {
+      teamId: team.id,
+    }
+  })
+  .returning();
+
+  // 4. Create some Check-ins for today
+  await db.insert(schema.checkIns).values([
+    {
+      playerId: player1.id,
+      teamId: team.id,
+      goal: "Master my jump serve",
+      mentalRating: 8,
+      physicalRating: 7,
+      emotionalRating: 9,
+    },
+    {
+      playerId: player2.id,
+      teamId: team.id,
+      goal: "Focus on defensive positioning",
+      mentalRating: 3, // This should trigger the alert!
+      physicalRating: 4,
+      emotionalRating: 5,
+    }
   ]);
 
-  console.log("Database seeded successfully!");
+  console.log("Database seeded successfully with check-ins!");
 }
 
 seed().catch((err) => {

@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 
 export const organizations = sqliteTable("organizations", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  name: text("name").notNull(),
+  name: text("name").notNull().unique(),
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
 });
 
