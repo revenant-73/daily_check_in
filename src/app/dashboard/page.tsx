@@ -10,6 +10,7 @@ import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { ClipboardList, History, LogOut, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { getDailyMotivationalMessage } from "@/lib/utils/messages";
 
 export default async function PlayerDashboard(props: {
   searchParams: Promise<{ view?: string }>;
@@ -42,6 +43,7 @@ export default async function PlayerDashboard(props: {
     throw error;
   }
   const view = searchParams.view || "home";
+  const motivationalMessage = getDailyMotivationalMessage();
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
@@ -67,71 +69,80 @@ export default async function PlayerDashboard(props: {
         </div>
       </header>
 
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-8">
+      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-6">
         {view === "home" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-foreground">Today&apos;s Practice</h2>
-              <div className="grid gap-4">
-                <Link 
-                  href="/dashboard?view=check-in"
-                  className="flex items-center gap-4 p-6 bg-card rounded-2xl border border-border shadow-sm hover:shadow-md transition-all group"
-                >
-                  <div className="w-12 h-12 bg-primary text-primary-foreground rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <ClipboardList className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-foreground">Pre-Practice Check-In</h3>
-                    <p className="text-sm text-muted-foreground">Set your goal and readiness level</p>
-                  </div>
-                </Link>
-                <Link 
-                  href="/dashboard?view=review"
-                  className="flex items-center gap-4 p-6 bg-card rounded-2xl border border-border shadow-sm hover:shadow-md transition-all group"
-                >
-                  <div className="w-12 h-12 bg-card text-foreground border-2 border-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-foreground">Post-Practice Review</h3>
-                    <p className="text-sm text-muted-foreground">Reflect on your performance</p>
-                  </div>
-                </Link>
-              </div>
-
-              <ReadinessGraph data={trends} />
+          <>
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black text-foreground">Hello, {session.user.name?.split(' ')[0] || 'Athlete'}!</h2>
+              <p className="text-muted-foreground italic">&quot;{motivationalMessage}&quot;</p>
             </div>
-
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-foreground">History</h2>
-                <Link href="/dashboard?view=history" className="text-sm font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1">
-                  <History className="w-4 h-4" />
-                  View All
-                </Link>
-              </div>
-              <div className="bg-card rounded-2xl border border-border shadow-sm divide-y divide-border">
-                {checkIns.slice(0, 5).map((ci) => (
-                  <div key={ci.id} className="p-4 flex justify-between items-center">
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-foreground">Today&apos;s Practice</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-3">
+                  <Link 
+                    href="/dashboard?view=check-in"
+                    className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                      <ClipboardList className="w-5 h-5" />
+                    </div>
                     <div>
-                      <p className="font-bold text-foreground">{ci.goal}</p>
-                      <p className="text-xs text-muted-foreground">{ci.createdAt ? new Date(ci.createdAt).toLocaleDateString() : "N/A"}</p>
+                      <h4 className="font-bold text-sm text-foreground">Check-In</h4>
+                      <p className="text-xs text-muted-foreground line-clamp-1">Set your goal</p>
                     </div>
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 rounded-full bg-blue-400" title={`Mental: ${ci.mentalRating}`}></div>
-                      <div className="w-2 h-2 rounded-full bg-green-400" title={`Physical: ${ci.physicalRating}`}></div>
-                      <div className="w-2 h-2 rounded-full bg-purple-400" title={`Emotional: ${ci.emotionalRating}`}></div>
+                  </Link>
+                  <Link 
+                    href="/dashboard?view=review"
+                    className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-card text-foreground border-2 border-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                      <CheckCircle2 className="w-5 h-5" />
                     </div>
-                  </div>
-                ))}
-                {checkIns.length === 0 && (
-                  <div className="p-8 text-center text-muted-foreground">
-                    No entries yet. Start your first check-in!
-                  </div>
-                )}
+                    <div>
+                      <h4 className="font-bold text-sm text-foreground">Review</h4>
+                      <p className="text-xs text-muted-foreground line-clamp-1">Reflect</p>
+                    </div>
+                  </Link>
+                </div>
+
+                <ReadinessGraph data={trends} />
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-foreground">Recent History</h3>
+                  <Link href="/dashboard?view=history" className="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1">
+                    <History className="w-3 h-3" />
+                    View All
+                  </Link>
+                </div>
+                <div className="bg-card rounded-xl border border-border shadow-sm divide-y divide-border overflow-hidden">
+                  {checkIns.slice(0, 4).map((ci) => (
+                    <div key={ci.id} className="p-3 flex justify-between items-center">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-sm text-foreground truncate">{ci.goal}</p>
+                        <p className="text-[10px] text-muted-foreground">{ci.createdAt ? new Date(ci.createdAt).toLocaleDateString() : "N/A"}</p>
+                      </div>
+                      <div className="flex gap-1 ml-4">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400" title={`Mental: ${ci.mentalRating}`}></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-400" title={`Physical: ${ci.physicalRating}`}></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-400" title={`Emotional: ${ci.emotionalRating}`}></div>
+                      </div>
+                    </div>
+                  ))}
+                  {checkIns.length === 0 && (
+                    <div className="p-6 text-center text-xs text-muted-foreground">
+                      No entries yet.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {view === "check-in" && (
