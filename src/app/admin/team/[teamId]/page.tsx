@@ -131,16 +131,15 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
                   </div>
                   <div className="flex items-center gap-2">
                     <ActionButton 
-                      action={async () => {
+                      id={player.id}
+                      action={async (id) => {
                         "use server";
-                        await assignToTeam(player.id, null);
+                        await assignToTeam(id, null);
                       }}
-                      variant="ghost"
-                      className="text-muted-foreground hover:text-red-500 p-2"
-                      title="Unassign Player"
-                    >
-                      <UserMinus className="w-4 h-4" />
-                    </ActionButton>
+                      icon={<UserMinus className="w-4 h-4" />}
+                      className="text-muted-foreground hover:text-red-500"
+                      label=""
+                    />
                     <Link href={`/coach/player/${player.id}`} className="text-primary p-2 hover:bg-primary/10 rounded-lg">
                       <ChevronRight className="w-4 h-4" />
                     </Link>

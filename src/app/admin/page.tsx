@@ -6,7 +6,6 @@ import { LogOut, Shield, Users, Building2, Plus, UserPlus, Trash2, ChevronRight,
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { DeleteButton } from "@/components/admin/DeleteButton";
-import { ActionButton } from "@/components/admin/ActionButton";
 
 export default async function AdminDashboard() {
   const session = await auth();
