@@ -56,11 +56,7 @@ export default async function CoachDashboard(props: {
             <div className="hidden md:block h-8 w-px bg-border" />
             <div className="hidden md:block">
               <h1 className="text-sm font-bold text-foreground">Coach Dashboard</h1>
-              <div className="flex items-center gap-2">
-                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{team?.name}</p>
-                <span className="text-[10px] text-border font-bold">•</span>
-                <p className="text-[10px] font-bold text-foreground">Player Invite Code: <span className="font-mono text-primary select-all">{team?.playerInviteCode}</span></p>
-              </div>
+              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{team?.name}</p>
             </div>
           </div>
           <div className="flex gap-4 items-center">
@@ -88,7 +84,7 @@ export default async function CoachDashboard(props: {
             </div>
           </div>
           
-          <AttendanceList players={players} variant="condensed" />
+          <AttendanceList players={players} inviteCode={team?.playerInviteCode || undefined} variant="condensed" />
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -115,26 +111,8 @@ export default async function CoachDashboard(props: {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <TeamReadinessGraph data={trends} />
-          </div>
-          <div className="lg:col-span-1 space-y-4">
-            <h3 className="text-lg font-bold text-foreground">Quick Actions</h3>
-            <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
-              <p className="text-xs text-muted-foreground mb-3 font-bold uppercase tracking-widest">Team Stats</p>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Total Players</span>
-                  <span className="font-bold">{players.length}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Checked In Today</span>
-                  <span className="font-bold text-green-500">{players.filter(p => p.hasCheckedInToday).length}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-6">
+          <TeamReadinessGraph data={trends} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

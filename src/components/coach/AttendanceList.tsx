@@ -11,14 +11,14 @@ interface PlayerWithStatus {
   hasCheckedInToday: boolean;
 }
 
-export function AttendanceList({ players, variant = "default" }: { players: PlayerWithStatus[], variant?: "default" | "condensed" }) {
+export function AttendanceList({ players, inviteCode, variant = "default" }: { players: PlayerWithStatus[], inviteCode?: string, variant?: "default" | "condensed" }) {
   const checkedInCount = players.filter(p => p.hasCheckedInToday).length;
 
   if (variant === "condensed") {
     return (
       <div className="bg-card rounded-xl border border-border shadow-sm p-4">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <div className="flex items-center gap-2 mr-2">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="flex items-center gap-3 pr-4 border-r border-border">
             <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
               Attendance
             </h3>
@@ -26,20 +26,30 @@ export function AttendanceList({ players, variant = "default" }: { players: Play
               {checkedInCount}/{players.length}
             </span>
           </div>
-          {players.map((player) => (
-            <Link 
-              key={player.id} 
-              href={`/coach/player/${player.id}`}
-              className="flex items-center gap-1.5 group hover:opacity-80 transition-opacity"
-            >
-              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${player.hasCheckedInToday ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-amber-500/40'}`} />
-              <span className={`text-xs font-bold ${player.hasCheckedInToday ? 'text-foreground' : 'text-muted-foreground'}`}>
-                {player.name?.split(' ')[0] || "Unknown"}
-              </span>
-            </Link>
-          ))}
-          {players.length === 0 && (
-            <span className="text-xs text-muted-foreground italic">No players joined yet.</span>
+          
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 flex-1">
+            {players.map((player) => (
+              <Link 
+                key={player.id} 
+                href={`/coach/player/${player.id}`}
+                className="flex items-center gap-1.5 group hover:opacity-80 transition-opacity"
+              >
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${player.hasCheckedInToday ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-amber-500/40'}`} />
+                <span className={`text-xs font-bold ${player.hasCheckedInToday ? 'text-foreground' : 'text-muted-foreground'}`}>
+                  {player.name?.split(' ')[0] || "Unknown"}
+                </span>
+              </Link>
+            ))}
+            {players.length === 0 && (
+              <span className="text-xs text-muted-foreground italic">No players joined yet.</span>
+            )}
+          </div>
+
+          {inviteCode && (
+            <div className="pl-4 border-l border-border hidden sm:block">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Invite Code</p>
+              <code className="text-xs font-mono text-primary font-bold select-all bg-primary/5 px-1.5 py-0.5 rounded">{inviteCode}</code>
+            </div>
           )}
         </div>
       </div>
