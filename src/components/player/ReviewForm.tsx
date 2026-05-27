@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import { CheckCircle2, Star } from "lucide-react";
 import { submitReview } from "@/app/actions/entries";
 
-export function ReviewForm() {
+export function ReviewForm({ goal }: { goal?: string }) {
   const [rating, setRating] = useState(3);
   const [notes, setNotes] = useState("");
+  const [nextSessionNotes, setNextSessionNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +15,7 @@ export function ReviewForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      await submitReview({ rating, notes });
+      await submitReview({ rating, notes, nextSessionNotes });
       setSubmitted(true);
     } catch (err) {
       console.error(err);
@@ -49,7 +50,7 @@ export function ReviewForm() {
 
       <div className="space-y-4">
         <label className="block text-base font-bold text-foreground">
-          Rate your practice performance
+          {goal ? `How did you do on your goal: "${goal}"?` : "Rate your practice performance"}
         </label>
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -75,10 +76,24 @@ export function ReviewForm() {
         </label>
         <textarea
           id="notes"
-          rows={4}
+          rows={3}
           placeholder="What went well? What could be better?"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
+          className="w-full p-5 rounded-2xl border-2 border-border bg-muted focus:bg-card focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-muted-foreground text-foreground text-lg"
+        />
+      </div>
+
+      <div className="space-y-4">
+        <label htmlFor="nextSessionNotes" className="block text-base font-bold text-foreground">
+          Note for your next session
+        </label>
+        <textarea
+          id="nextSessionNotes"
+          rows={3}
+          placeholder="What do you want to remember for next time?"
+          value={nextSessionNotes}
+          onChange={(e) => setNextSessionNotes(e.target.value)}
           className="w-full p-5 rounded-2xl border-2 border-border bg-muted focus:bg-card focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-muted-foreground text-foreground text-lg"
         />
       </div>

@@ -44,6 +44,7 @@ export default async function PlayerDashboard(props: {
   }
   const view = searchParams.view || "home";
   const motivationalMessage = getDailyMotivationalMessage();
+  const latestGoal = checkIns[0]?.goal;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
@@ -143,7 +144,7 @@ export default async function PlayerDashboard(props: {
             <Link href="/dashboard" className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-6 gap-1">
               ← Back to Dashboard
             </Link>
-            <ReviewForm />
+            <ReviewForm goal={latestGoal} />
           </div>
         )}
 

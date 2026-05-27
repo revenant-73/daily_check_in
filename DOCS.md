@@ -64,7 +64,8 @@ The application supports a flexible onboarding flow to ensure every user is corr
 - **`Badge`**: Status indicators for submission completeness.
 
 ### 2. Player Components
-- **`CheckInForm`**: The primary interface for players to enter their goal and ratings.
+- **`CheckInForm`**: Interface for players to enter their goal (via searchable dropdown or text) and readiness ratings.
+- **`ReviewForm`**: Post-practice interface for reflecting on goal performance and setting intent for the next session.
 - **`GoalInput`**: A text input specifically for the "small, achievable goal".
 - **`PlayerHistory`**: A list or grid view of the player's past entries and trends.
 - **`ReadinessSummary`**: A visual summary (e.g., small sparklines) of the player's recent ratings.
@@ -112,6 +113,15 @@ The application supports a flexible onboarding flow to ensure every user is corr
 - `mentalRating` (integer, 1-10)
 - `physicalRating` (integer, 1-10)
 - `emotionalRating` (integer, 1-10)
+- `createdAt` (integer/timestamp, Default: now())
+
+### `reviews` (Post-Practice)
+- `id` (text/uuid, PK)
+- `playerId` (text, FK -> users)
+- `teamId` (text, FK -> teams)
+- `rating` (integer, 1-5, reflection on goal performance)
+- `notes` (text, general reflections)
+- `nextSessionNotes` (text, reminders for next practice)
 - `createdAt` (integer/timestamp, Default: now())
 
 ---

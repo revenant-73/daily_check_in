@@ -39,6 +39,7 @@ export async function submitCheckIn(data: {
 export async function submitReview(data: {
   rating: number;
   notes: string;
+  nextSessionNotes: string;
 }) {
   try {
     const session = await auth();

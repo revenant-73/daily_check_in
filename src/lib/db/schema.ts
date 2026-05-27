@@ -44,6 +44,7 @@ export const reviews = sqliteTable("reviews", {
   teamId: text("team_id").notNull().references(() => teams.id),
   rating: integer("rating").notNull(), // 1-5 how practice went
   notes: text("notes"),
+  nextSessionNotes: text("next_session_notes"),
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
 });
 

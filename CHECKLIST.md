@@ -41,11 +41,12 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
     - [x] Add a "Submit" button with a success confirmation.
     - [x] **Mobile Audit**: Ensure sliders have large touch targets and the submit button is easily clickable with one hand.
 
-### 🎫 Ticket #202: Personal History View
-- **Goal**: Let athletes see their own growth over the season.
+### 🎫 Ticket #203: Goal-Focused Reflection
+- **Goal**: Help athletes reflect on their specific intent.
 - **Actions**:
-    - [x] Create a list view showing past goals.
-    - [x] Build a small "Readiness Graph" showing rating trends over the last 7 days.
+    - [x] **Contextual Rating**: Star rating now asks about performance on the specific daily goal.
+    - [x] **Future Intent**: Added "Note for next session" text area.
+    - [x] **Persistence**: Schema updated to store next session reflections.
 
 ---
 
@@ -118,7 +119,8 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 ### 🎫 Ticket #702: Player Engagement (Speed & Habits)
 - **Goal**: Make check-ins faster and more rewarding.
 - **Actions**:
-    - [x] **Goal Templates**: Implement a "Quick Select" for common practice goals.
+    - [x] **Goal Templates**: Implement a "Quick Select" for common practice goals (65+ curated goals).
+    - [x] **Goal Dropdown**: Added searchable dropdown for easier goal selection.
     - [ ] **Streaks**: Display check-in consistency on the player dashboard.
 
 ### 🎫 Ticket #703: Admin & Data Management
