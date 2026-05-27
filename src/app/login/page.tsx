@@ -8,6 +8,7 @@ import { Logo } from "@/components/ui/Logo";
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [role, setRole] = useState("player");
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -28,6 +29,9 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Invalid email or password");
       } else {
+        // Fetch user info to route correctly
+        // NextAuth doesn't expose role directly in result here usually, 
+        // but we can redirect to /dashboard and let middleware handle it
         router.push("/dashboard");
       }
     } else {
@@ -41,9 +45,11 @@ export default function LoginPage() {
         if (result?.error) {
           setError("Account created but failed to login automatically");
         } else {
-          const role = formData.get("role") as string;
-          if (role === "coach") {
+          const selectedRole = formData.get("role") as string;
+          if (selectedRole === "coach") {
             router.push("/coach/dashboard");
+          } else if (selectedRole === "admin") {
+            router.push("/admin");
           } else {
             router.push("/onboarding");
           }
@@ -105,13 +111,33 @@ export default function LoginPage() {
             />
           </div>
           {!isLogin && (
-            <div>
-              <label className="block text-sm font-medium mb-1 text-foreground">I am a...</label>
-              <select name="role" className="w-full p-2 rounded-md border border-border bg-muted text-foreground">
-                <option value="player">Player</option>
-                <option value="coach">Coach</option>
-              </select>
-            </div>
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-1 text-foreground">I am a...</label>
+                <select 
+                  name="role" 
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
+                >
+                  <option value="player">Player</option>
+                  <option value="coach">Coach</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              {role === "admin" && (
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-foreground">Admin Access Code</label>
+                  <input
+                    name="adminCode"
+                    type="password"
+                    required
+                    className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
+                    placeholder="Enter special code"
+                  />
+                </div>
+              )}
+            </>
           )}
           <button
             type="submit"
@@ -121,35 +147,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {isLogin && (
-          <div className="space-y-3 pt-4 border-t border-border">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Demo Access</p>
-            <div className="grid grid-cols-3 gap-2">
-              <button 
-                onClick={() => signIn("credentials", { email: "player@example.com", password: "password123", callbackUrl: "/dashboard" })}
-                className="text-[10px] font-black py-2 px-1 bg-primary text-primary-foreground border border-primary rounded-lg hover:opacity-90 transition-colors"
-              >
-                Player
-              </button>
-              <button 
-                onClick={() => signIn("credentials", { email: "coach@example.com", password: "password123", callbackUrl: "/coach/dashboard" })}
-                className="text-[10px] font-black py-2 px-1 bg-primary text-primary-foreground border border-primary rounded-lg hover:opacity-90 transition-colors"
-              >
-                Coach
-              </button>
-              <button 
-                onClick={() => signIn("credentials", { email: "admin@example.com", password: "password123", callbackUrl: "/admin" })}
-                className="text-[10px] font-black py-2 px-1 bg-primary text-primary-foreground border border-primary rounded-lg hover:opacity-90 transition-colors"
-              >
-                Admin
-              </button>
-            </div>
-          </div>
-        )}
-
         <div className="text-center mt-4">
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setRole("player"); // Reset role when toggling
+            }}
             className="text-primary hover:underline text-sm"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}

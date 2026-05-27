@@ -9,6 +9,14 @@ export async function signUp(formData: FormData) {
   const password = formData.get("password") as string;
   const name = formData.get("name") as string;
   const role = formData.get("role") as "player" | "coach" | "admin" || "player";
+  const adminCode = formData.get("adminCode") as string;
+
+  if (role === "admin") {
+    const validAdminCode = process.env.ADMIN_SIGNUP_CODE;
+    if (!validAdminCode || adminCode !== validAdminCode) {
+      throw new Error("Invalid admin access code");
+    }
+  }
 
   if (!email || !password) {
     throw new Error("Email and password are required");
