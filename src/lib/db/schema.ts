@@ -32,6 +32,8 @@ export const checkIns = sqliteTable("check_ins", {
   playerId: text("player_id").notNull().references(() => users.id),
   teamId: text("team_id").notNull().references(() => teams.id),
   goal: text("goal").notNull(),
+  pillar: text("pillar"), // Kept for legacy compatibility
+  metadata: text("metadata"), // Flexible JSON storage
   mentalRating: integer("mental_rating").notNull(),
   physicalRating: integer("physical_rating").notNull(),
   emotionalRating: integer("emotional_rating").notNull(),
@@ -44,6 +46,7 @@ export const reviews = sqliteTable("reviews", {
   teamId: text("team_id").notNull().references(() => teams.id),
   rating: integer("rating").notNull(), // 1-5 how practice went
   notes: text("notes"),
+  metadata: text("metadata"), // Flexible JSON storage
   nextSessionNotes: text("next_session_notes"),
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
 });

@@ -6,9 +6,11 @@ import { CheckCircle2 } from "lucide-react";
 
 import { submitCheckIn } from "@/app/actions/entries";
 import { SMALL_ACHIEVABLE_GOALS } from "@/lib/constants/goals";
+import { PILLARS } from "@/lib/constants/pillars";
 
 export function CheckInForm() {
   const [goal, setGoal] = useState("");
+  const [pillar, setPillar] = useState("");
   const [mental, setMental] = useState(5);
   const [physical, setPhysical] = useState(5);
   const [emotional, setEmotional] = useState(5);
@@ -23,6 +25,10 @@ export function CheckInForm() {
     try {
       await submitCheckIn({
         goal,
+        pillar, // Legacy
+        metadata: {
+          pillar, // Also store in metadata for future-proofing
+        },
         mentalRating: mental,
         physicalRating: physical,
         emotionalRating: emotional,
@@ -90,6 +96,29 @@ export function CheckInForm() {
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="space-y-4 pt-2">
+        <label htmlFor="pillar" className="block text-base font-bold text-foreground">
+          Which standard will you focus on today?
+        </label>
+        <select
+          id="pillar"
+          required
+          value={pillar}
+          onChange={(e) => setPillar(e.target.value)}
+          className="w-full p-5 rounded-2xl border-2 border-border bg-muted focus:bg-card focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-foreground text-lg appearance-none"
+        >
+          <option value="" disabled>Select a standard...</option>
+          {PILLARS.map((p) => (
+            <option key={p.name} value={p.name}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-muted-foreground px-2">
+          {pillar && PILLARS.find(p => p.name === pillar)?.description}
+        </p>
       </div>
 
       <div className="space-y-12 py-4">

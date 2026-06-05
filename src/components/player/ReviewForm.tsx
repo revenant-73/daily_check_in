@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import { CheckCircle2, Star } from "lucide-react";
 import { submitReview } from "@/app/actions/entries";
 
-export function ReviewForm({ goal }: { goal?: string }) {
+export function ReviewForm({ goal, pillar }: { goal?: string; pillar?: string }) {
   const [rating, setRating] = useState(3);
+  const [pillarRating, setPillarRating] = useState(3);
   const [notes, setNotes] = useState("");
   const [nextSessionNotes, setNextSessionNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -15,7 +16,15 @@ export function ReviewForm({ goal }: { goal?: string }) {
     e.preventDefault();
     setLoading(true);
     try {
-      await submitReview({ rating, notes, nextSessionNotes });
+      await submitReview({ 
+        rating, 
+        notes, 
+        nextSessionNotes,
+        metadata: {
+          pillarRating,
+          pillarName: pillar
+        }
+      });
       setSubmitted(true);
     } catch (err) {
       console.error(err);
@@ -63,6 +72,28 @@ export function ReviewForm({ goal }: { goal?: string }) {
               <Star
                 className={`w-10 h-10 ${
                   star <= rating ? "fill-yellow-400 text-yellow-400" : "text-border"
+                } transition-colors`}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-4 pt-2">
+        <label className="block text-base font-bold text-foreground">
+          {pillar ? `How did you do on your focus: "${pillar}"?` : "Rate your behavioral focus"}
+        </label>
+        <div className="flex gap-2">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => setPillarRating(star)}
+              className="focus:outline-none"
+            >
+              <Star
+                className={`w-10 h-10 ${
+                  star <= pillarRating ? "fill-primary text-primary" : "text-border"
                 } transition-colors`}
               />
             </button>

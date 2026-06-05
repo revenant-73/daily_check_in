@@ -8,9 +8,10 @@ import { db } from "@/lib/db";
 import { users, teams } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
-import { ClipboardList, History, CheckCircle2 } from "lucide-react";
+import { ClipboardList, History, CheckCircle2, BookOpen } from "lucide-react";
 import { getDailyMotivationalMessage } from "@/lib/utils/messages";
 import { Header } from "@/components/layout/Header";
+import { PILLARS } from "@/lib/constants/pillars";
 
 export default async function PlayerDashboard(props: {
   searchParams: Promise<{ view?: string }>;
@@ -44,7 +45,10 @@ export default async function PlayerDashboard(props: {
   }
   const view = searchParams.view || "home";
   const motivationalMessage = getDailyMotivationalMessage();
-  const latestGoal = checkIns[0]?.goal;
+  const latestEntry = checkIns[0];
+  const latestGoal = latestEntry?.goal;
+  const latestMetadata = latestEntry?.metadata ? JSON.parse(latestEntry.metadata) : {};
+  const latestPillar = latestEntry?.pillar || latestMetadata.pillar;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
@@ -67,31 +71,54 @@ export default async function PlayerDashboard(props: {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold text-foreground">Today&apos;s Practice</h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-3">
-                  <Link 
-                    href="/dashboard?view=check-in"
-                    className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group"
-                  >
-                    <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                      <ClipboardList className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">Check-In</h4>
-                      <p className="text-xs text-muted-foreground line-clamp-1">Set your goal</p>
-                    </div>
-                  </Link>
-                  <Link 
-                    href="/dashboard?view=review"
-                    className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group"
-                  >
-                    <div className="w-10 h-10 bg-card text-foreground border-2 border-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                      <CheckCircle2 className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">Review</h4>
-                      <p className="text-xs text-muted-foreground line-clamp-1">Reflect</p>
-                    </div>
-                  </Link>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 gap-3">
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Before practice</p>
+                    <Link 
+                      href="/dashboard?view=check-in"
+                      className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group w-full"
+                    >
+                      <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                        <ClipboardList className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-foreground">Check-In</h4>
+                        <p className="text-xs text-muted-foreground line-clamp-1">Set your goal</p>
+                      </div>
+                    </Link>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">After practice</p>
+                    <Link 
+                      href="/dashboard?view=review"
+                      className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group w-full"
+                    >
+                      <div className="w-10 h-10 bg-card text-foreground border-2 border-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                        <CheckCircle2 className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-foreground">Review</h4>
+                        <p className="text-xs text-muted-foreground line-clamp-1">Reflect</p>
+                      </div>
+                    </Link>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Learn more</p>
+                    <Link 
+                      href="/dashboard?view=resources"
+                      className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group w-full"
+                    >
+                      <div className="w-10 h-10 bg-card text-foreground border-2 border-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                        <BookOpen className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-foreground">Resources</h4>
+                        <p className="text-xs text-muted-foreground line-clamp-1">Behavior Guide</p>
+                      </div>
+                    </Link>
+                  </div>
                 </div>
 
                 <ReadinessGraph data={trends} />
@@ -144,7 +171,7 @@ export default async function PlayerDashboard(props: {
             <Link href="/dashboard" className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-6 gap-1">
               ← Back to Dashboard
             </Link>
-            <ReviewForm goal={latestGoal} />
+            <ReviewForm goal={latestGoal} pillar={latestPillar} />
           </div>
         )}
 
@@ -165,6 +192,18 @@ export default async function PlayerDashboard(props: {
                         </p>
                       </div>
                       <h3 className="font-bold text-foreground text-lg mb-4">{ci.goal}</h3>
+                      {(() => {
+                        const metadata = ci.metadata ? JSON.parse(ci.metadata) : {};
+                        const displayPillar = ci.pillar || metadata.pillar;
+                        if (!displayPillar) return null;
+                        return (
+                          <div className="mb-4">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2 py-1 rounded">
+                              Focus: {displayPillar}
+                            </span>
+                          </div>
+                        );
+                      })()}
                       <div className="grid grid-cols-3 gap-2 text-center text-xs font-bold uppercase">
                         <div className="p-2 bg-blue-500/10 text-blue-500 rounded-lg">M: {ci.mentalRating}</div>
                         <div className="p-2 bg-green-500/10 text-green-500 rounded-lg">P: {ci.physicalRating}</div>
@@ -194,6 +233,33 @@ export default async function PlayerDashboard(props: {
                   ))}
                 </div>
               </section>
+            </div>
+          </div>
+        )}
+
+        {view === "resources" && (
+          <div className="space-y-8">
+            <Link href="/dashboard" className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-2 gap-1">
+              ← Back to Dashboard
+            </Link>
+            
+            <div className="space-y-4">
+              <h2 className="text-3xl font-black text-foreground">Behavior Guide</h2>
+              <p className="text-muted-foreground">These are the seven standards we focus on to help ourselves, our teammates, and our team get better.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {PILLARS.map((p) => (
+                <div key={p.name} className="p-6 bg-card rounded-2xl border border-border shadow-sm space-y-3">
+                  <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-black">
+                      {PILLARS.indexOf(p) + 1}
+                    </span>
+                    {p.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}

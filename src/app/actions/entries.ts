@@ -9,6 +9,8 @@ import { logError } from "@/lib/logger";
 
 export async function submitCheckIn(data: {
   goal: string;
+  pillar?: string; // Legacy
+  metadata?: Record<string, any>;
   mentalRating: number;
   physicalRating: number;
   emotionalRating: number;
@@ -23,10 +25,13 @@ export async function submitCheckIn(data: {
 
     if (!user?.teamId) throw new Error("No team assigned");
 
+    const { metadata, ...rest } = data;
+
     await db.insert(checkIns).values({
       playerId: session.user.id,
       teamId: user.teamId,
-      ...data,
+      ...rest,
+      metadata: metadata ? JSON.stringify(metadata) : null,
     });
 
     revalidatePath("/dashboard");
@@ -39,6 +44,7 @@ export async function submitCheckIn(data: {
 export async function submitReview(data: {
   rating: number;
   notes: string;
+  metadata?: Record<string, any>;
   nextSessionNotes: string;
 }) {
   try {
@@ -51,10 +57,13 @@ export async function submitReview(data: {
 
     if (!user?.teamId) throw new Error("No team assigned");
 
+    const { metadata, ...rest } = data;
+
     await db.insert(reviews).values({
       playerId: session.user.id,
       teamId: user.teamId,
-      ...data,
+      ...rest,
+      metadata: metadata ? JSON.stringify(metadata) : null,
     });
 
     revalidatePath("/dashboard");

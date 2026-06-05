@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { signUp } from "@/app/actions/auth";
+import { signUp, ensureTestUser } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/ui/Logo";
 
@@ -10,7 +10,32 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState("player");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const handleQuickLogin = async (role: "player" | "coach" | "admin") => {
+    setLoading(true);
+    setError("");
+    try {
+      await ensureTestUser(role);
+      const result = await signIn("credentials", {
+        email: `${role}@example.com`,
+        password: "password123",
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError(`Quick login failed for ${role}`);
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -20,6 +45,7 @@ export default function LoginPage() {
     const password = formData.get("password") as string;
 
     if (isLogin) {
+      setLoading(true);
       const result = await signIn("credentials", {
         email,
         password,
@@ -28,13 +54,12 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError("Invalid email or password");
+        setLoading(false);
       } else {
-        // Fetch user info to route correctly
-        // NextAuth doesn't expose role directly in result here usually, 
-        // but we can redirect to /dashboard and let middleware handle it
         router.push("/dashboard");
       }
     } else {
+      setLoading(true);
       try {
         await signUp(formData);
         const result = await signIn("credentials", {
@@ -44,6 +69,7 @@ export default function LoginPage() {
         });
         if (result?.error) {
           setError("Account created but failed to login automatically");
+          setLoading(false);
         } else {
           const selectedRole = formData.get("role") as string;
           if (selectedRole === "coach") {
@@ -56,6 +82,7 @@ export default function LoginPage() {
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
+        setLoading(false);
       }
     }
   }
@@ -85,7 +112,8 @@ export default function LoginPage() {
                 name="name"
                 type="text"
                 required
-                className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
+                disabled={loading}
+                className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
                 placeholder="John Doe"
               />
             </div>
@@ -96,7 +124,8 @@ export default function LoginPage() {
               name="email"
               type="email"
               required
-              className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
+              disabled={loading}
+              className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
               placeholder="you@example.com"
             />
           </div>
@@ -106,7 +135,8 @@ export default function LoginPage() {
               name="password"
               type="password"
               required
-              className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
+              disabled={loading}
+              className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
               placeholder="••••••••"
             />
           </div>
@@ -117,8 +147,9 @@ export default function LoginPage() {
                 <select 
                   name="role" 
                   value={role}
+                  disabled={loading}
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
+                  className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
                 >
                   <option value="player">Player</option>
                   <option value="coach">Coach</option>
@@ -132,7 +163,8 @@ export default function LoginPage() {
                     name="adminCode"
                     type="password"
                     required
-                    className="w-full p-2 rounded-md border border-border bg-muted text-foreground"
+                    disabled={loading}
+                    className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
                     placeholder="Enter special code"
                   />
                 </div>
@@ -141,11 +173,44 @@ export default function LoginPage() {
           )}
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-bold hover:opacity-90 transition-colors"
+            disabled={loading}
+            className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-bold hover:opacity-90 transition-colors disabled:opacity-50"
           >
-            {isLogin ? "Sign In" : "Sign Up"}
+            {loading ? "Please wait..." : (isLogin ? "Sign In" : "Sign Up")}
           </button>
         </form>
+
+        {isLogin && (
+          <div className="pt-4 border-t border-border">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-center mb-4">Test Roles</p>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => handleQuickLogin("player")}
+                className="p-2 text-[10px] font-bold bg-muted hover:bg-muted/80 rounded-lg text-foreground transition-colors disabled:opacity-50"
+              >
+                Player
+              </button>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => handleQuickLogin("coach")}
+                className="p-2 text-[10px] font-bold bg-muted hover:bg-muted/80 rounded-lg text-foreground transition-colors disabled:opacity-50"
+              >
+                Coach
+              </button>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => handleQuickLogin("admin")}
+                className="p-2 text-[10px] font-bold bg-muted hover:bg-muted/80 rounded-lg text-foreground transition-colors disabled:opacity-50"
+              >
+                Admin
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="text-center mt-4">
           <button
