@@ -8,9 +8,16 @@ interface DeleteButtonProps {
   onDelete: (id: string) => Promise<void>;
   confirmMessage?: string;
   className?: string;
+  size?: "sm" | "md";
 }
 
-export function DeleteButton({ id, onDelete, confirmMessage = "Are you sure you want to delete this?", className = "" }: DeleteButtonProps) {
+export function DeleteButton({ 
+  id, 
+  onDelete, 
+  confirmMessage = "Are you sure you want to delete this?", 
+  className = "",
+  size = "md"
+}: DeleteButtonProps) {
   const [isPending, startTransition] = useTransition();
 
   const handleClick = async () => {
@@ -26,17 +33,19 @@ export function DeleteButton({ id, onDelete, confirmMessage = "Are you sure you 
     }
   };
 
+  const iconSize = size === "sm" ? "w-3 h-3" : "w-4 h-4";
+
   return (
     <button
       onClick={handleClick}
       disabled={isPending}
-      className={`p-2 text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50 ${className}`}
+      className={`p-2 text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50 ${size === "sm" ? "p-1.5" : "p-2"} ${className}`}
       aria-label="Delete"
     >
       {isPending ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
+        <Loader2 className={`${iconSize} animate-spin`} />
       ) : (
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className={iconSize} />
       )}
     </button>
   );
