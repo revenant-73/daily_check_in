@@ -36,9 +36,9 @@ export default function AdminDashboardClient({
     return teams.filter(t => 
       t.name.toLowerCase().includes(search.toLowerCase())
     ).sort((a, b) => {
-      if (!a.lastActivity) return -1;
-      if (!b.lastActivity) return 1;
-      return new Date(a.lastActivity).getTime() - new Date(b.lastActivity).getTime();
+      const timeA = a.lastActivity ? new Date(a.lastActivity).getTime() : 0;
+      const timeB = b.lastActivity ? new Date(b.lastActivity).getTime() : 0;
+      return timeA - timeB;
     });
   }, [teams, search]);
 
