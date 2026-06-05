@@ -5,6 +5,7 @@ import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus } fro
 import Link from "next/link";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { ActionButton } from "@/components/admin/ActionButton";
+import { RosterUpload } from "@/components/admin/RosterUpload";
 import { Header } from "@/components/layout/Header";
 
 export default async function TeamView(props: { params: Promise<{ teamId: string }> }) {
@@ -128,6 +129,7 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
             <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
               Players ({players.length})
             </h3>
+            <RosterUpload teamId={team.id} />
             <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden divide-y divide-border">
               {players.map(player => (
                 <div key={player.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">

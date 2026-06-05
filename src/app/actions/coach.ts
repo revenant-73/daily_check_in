@@ -41,6 +41,33 @@ export async function addReaction(checkInId: string, type: string) {
   }
 }
 
+export async function submitCoachNote(checkInId: string, note: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id || session.user.role !== "coach") {
+      throw new Error("Unauthorized");
+    }
+
+    const checkIn = await db.select().from(checkIns).where(eq(checkIns.id, checkInId)).get();
+    if (!checkIn) throw new Error("Check-in not found");
+
+    const metadata = checkIn.metadata ? JSON.parse(checkIn.metadata) : {};
+    metadata.coachNote = note;
+    metadata.coachId = session.user.id;
+    metadata.coachNoteAt = new Date().toISOString();
+
+    await db.update(checkIns)
+      .set({ metadata: JSON.stringify(metadata) })
+      .where(eq(checkIns.id, checkInId));
+
+    revalidatePath("/coach/dashboard");
+    revalidatePath("/dashboard"); // For player
+  } catch (error) {
+    logError("submitCoachNote", error);
+    throw error;
+  }
+}
+
 export async function getTeamData() {
   try {
     const session = await auth();

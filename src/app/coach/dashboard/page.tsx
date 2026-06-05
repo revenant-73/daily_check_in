@@ -4,9 +4,13 @@ import { getTeamData, getTeamReadinessTrends } from "@/app/actions/coach";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { AttendanceList } from "@/components/coach/AttendanceList";
 import { ReactionButtons } from "@/components/coach/ReactionButtons";
-import { Users, Activity, TrendingUp } from "lucide-react";
+import { TeamHeatmap } from "@/components/coach/TeamHeatmap";
+import { ActivityFeed } from "@/components/coach/ActivityFeed";
+import { CoachNoteDialog } from "@/components/coach/CoachNoteDialog";
+import { Users, Activity, TrendingUp, Zap, Target, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
+import { cn } from "@/lib/utils";
 
 export default async function CoachDashboard(props: {
   params: Promise<{ [key: string]: string }>;
@@ -64,6 +68,31 @@ export default async function CoachDashboard(props: {
   const physicalDelta = getDelta(avgPhysical, prevAvg?.physical);
   const emotionalDelta = getDelta(avgEmotional, prevAvg?.emotional);
 
+  // Combine for Activity Feed
+  const feedActivities = [
+    ...checkIns.map(ci => ({
+      id: ci.id,
+      playerName: players.find(p => p.id === ci.playerId)?.name || "Athlete",
+      type: 'check-in' as const,
+      goal: ci.goal,
+      readiness: ci.physicalRating,
+      timestamp: ci.createdAt
+    })),
+    ...reviews.map(r => ({
+      id: r.id,
+      playerName: players.find(p => p.id === r.playerId)?.name || "Athlete",
+      type: 'review' as const,
+      timestamp: r.createdAt
+    }))
+  ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  const getStatusBadge = (ci: any) => {
+    if (ci.physicalRating <= 3) return { label: 'FATIGUED', color: 'bg-red-500/10 text-red-500 border-red-500/20' };
+    if (ci.mentalRating <= 3) return { label: 'UNFOCUSED', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' };
+    if (ci.physicalRating >= 8 && ci.mentalRating >= 8) return { label: 'READY', color: 'bg-vibrant/10 text-vibrant border-vibrant/20' };
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
       <Header 
@@ -73,164 +102,126 @@ export default async function CoachDashboard(props: {
         href="/coach/dashboard"
       />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
-        <header className="space-y-4">
-          <div className="flex justify-between items-end">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-black text-foreground">
-                Hi Coach {session.user.name?.split(' ')[0]},
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Current data for <span className="text-primary font-bold">{team?.name}</span>
-              </p>
-            </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-1">
+            <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase">
+              COACH {session.user.name?.split(' ')[0]}
+            </h2>
+            <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">
+              Directing <span className="text-primary font-black">{team?.name}</span>
+            </p>
           </div>
-          
           <AttendanceList players={players} inviteCode={team?.playerInviteCode || undefined} variant="condensed" />
         </header>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2 text-blue-500">
-                <Activity className="w-4 h-4" />
-                <h3 className="font-bold text-muted-foreground text-[10px] uppercase tracking-wider">Avg Mental</h3>
-              </div>
-              {mentalDelta && (
-                <span className={`text-[10px] font-bold ${mentalDelta.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                  {mentalDelta.isPositive ? '↑' : '↓'} {mentalDelta.value}
-                </span>
-              )}
-            </div>
-            <p className="text-2xl font-black text-foreground">{avgMental ? avgMental.toFixed(1) : "N/A"}</p>
-          </div>
-          <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2 text-green-500">
-                <TrendingUp className="w-4 h-4" />
-                <h3 className="font-bold text-muted-foreground text-[10px] uppercase tracking-wider">Avg Physical</h3>
-              </div>
-              {physicalDelta && (
-                <span className={`text-[10px] font-bold ${physicalDelta.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                  {physicalDelta.isPositive ? '↑' : '↓'} {physicalDelta.value}
-                </span>
-              )}
-            </div>
-            <p className="text-2xl font-black text-foreground">{avgPhysical ? avgPhysical.toFixed(1) : "N/A"}</p>
-          </div>
-          <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2 text-purple-500">
-                <Activity className="w-4 h-4" />
-                <h3 className="font-bold text-muted-foreground text-[10px] uppercase tracking-wider">Avg Emotional</h3>
-              </div>
-              {emotionalDelta && (
-                <span className={`text-[10px] font-bold ${emotionalDelta.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                  {emotionalDelta.isPositive ? '↑' : '↓'} {emotionalDelta.value}
-                </span>
-              )}
-            </div>
-            <p className="text-2xl font-black text-foreground">{avgEmotional ? avgEmotional.toFixed(1) : "N/A"}</p>
-          </div>
-          <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
-            <div className="flex items-center gap-2 text-yellow-500 mb-1">
-              <Users className="w-4 h-4" />
-              <h3 className="font-bold text-muted-foreground text-[10px] uppercase tracking-wider">Avg Performance</h3>
-            </div>
-            <p className="text-2xl font-black text-foreground">{avgPerformance}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6">
-          <TeamReadinessGraph data={trends} />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <section className="space-y-3">
-            <h2 className="text-lg font-bold text-foreground">Recent Check-Ins</h2>
-            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
-                    <th className="p-3">Player</th>
-                    <th className="p-3">Goal</th>
-                    <th className="p-3 text-center">Readiness</th>
-                    <th className="p-3 text-right">React</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {checkIns.slice(0, 8).map((ci) => {
-                    const player = players.find(p => p.id === ci.playerId);
-                    const ciReactions = reactions?.filter((r: any) => r.checkInId === ci.id) || [];
-                    return (
-                      <tr key={ci.id} className="hover:bg-muted/50 transition-colors group">
-                        <td className="p-3">
-                          <Link href={`/coach/player/${ci.playerId}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors">
-                            {player?.name?.split(' ')[0] || "Unknown"}
-                          </Link>
-                        </td>
-                        <td className="p-3 text-xs text-muted-foreground truncate max-w-[150px]">{ci.goal}</td>
-                        <td className="p-3">
-                          <div className="flex gap-1 justify-center">
-                             <span className="w-5 h-5 flex items-center justify-center bg-blue-500/10 text-blue-500 rounded text-[10px] font-bold" title="Mental">{ci.mentalRating}</span>
-                             <span className="w-5 h-5 flex items-center justify-center bg-green-500/10 text-green-500 rounded text-[10px] font-bold" title="Physical">{ci.physicalRating}</span>
-                             <span className="w-5 h-5 flex items-center justify-center bg-purple-500/10 text-purple-500 rounded text-[10px] font-bold" title="Emotional">{ci.emotionalRating}</span>
-                          </div>
-                        </td>
-                        <td className="p-3 text-right">
-                          <div className="flex justify-end">
-                            <ReactionButtons checkInId={ci.id} currentReactions={ciReactions} />
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {checkIns.length === 0 && (
-                    <tr>
-                      <td colSpan={3} className="p-6 text-center text-xs text-muted-foreground">No check-ins today</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section className="space-y-3">
-            <h2 className="text-lg font-bold text-foreground">Recent Reviews</h2>
-             <div className="grid grid-cols-1 gap-3">
-               {reviews.slice(0, 4).map((r) => {
-                 const player = players.find(p => p.id === r.playerId);
-                 return (
-                   <div key={r.id} className="p-4 bg-card rounded-xl border border-border shadow-sm">
-                     <div className="flex justify-between items-center mb-1">
-                       <Link href={`/coach/player/${r.playerId}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors">
-                        {player?.name?.split(' ')[0] || "Unknown"}
-                       </Link>
-                       <div className="flex gap-0.5">
-                         {Array.from({ length: 5 }).map((_, i) => (
-                           <Star key={i} className={`w-2.5 h-2.5 ${i < r.rating ? "fill-yellow-400 text-yellow-400" : "text-border"}`} />
-                         ))}
-                       </div>
-                     </div>
-                     {r.notes && <p className="text-xs text-muted-foreground line-clamp-2 italic">&quot;{r.notes}&quot;</p>}
-                     <p className="text-[9px] text-muted-foreground mt-1 uppercase font-bold tracking-widest text-right">
-                       {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "N/A"}
-                     </p>
-                   </div>
-                 );
-               })}
-                {reviews.length === 0 && (
-                  <div className="p-6 text-center text-xs text-muted-foreground bg-card rounded-xl border border-border shadow-sm">
-                    No reviews yet
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { label: 'Avg Mental', val: avgMental, delta: mentalDelta, color: 'text-blue-400', icon: Brain },
+            { label: 'Avg Physical', val: avgPhysical, delta: physicalDelta, color: 'text-green-400', icon: Activity },
+            { label: 'Avg Emotional', val: avgEmotional, delta: emotionalDelta, color: 'text-purple-400', icon: Heart },
+            { label: 'Performance', val: parseFloat(avgPerformance as string) || 0, delta: null, color: 'text-yellow-400', icon: Target }
+          ].map((stat, i) => (
+            <div key={i} className="glass-card p-6 rounded-3xl relative overflow-hidden group">
+               <div className="flex justify-between items-start mb-4">
+                  <div className={cn("p-2 rounded-xl bg-muted/50", stat.color)}>
+                    {stat.icon && <stat.icon className="w-5 h-5" />}
                   </div>
-                )}
-             </div>
-          </section>
+                  {stat.delta && (
+                    <span className={cn(
+                      "text-[10px] font-black px-2 py-0.5 rounded-full",
+                      stat.delta.isPositive ? "bg-vibrant/10 text-vibrant" : "bg-red-500/10 text-red-500"
+                    )}>
+                      {stat.delta.isPositive ? '↑' : '↓'} {stat.delta.value}
+                    </span>
+                  )}
+               </div>
+               <div className="text-3xl font-black tabular-nums">{stat.val ? stat.val.toFixed(1) : 'N/A'}</div>
+               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mt-1">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+           <div className="lg:col-span-2 space-y-8">
+              <TeamHeatmap data={trends} />
+              
+              <section className="glass-card rounded-[2.5rem] overflow-hidden">
+                <div className="p-8 border-b border-border/50 flex justify-between items-center">
+                  <h3 className="text-xl font-black uppercase tracking-widest">Recent Check-Ins</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-muted/30 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] border-b border-border/50">
+                        <th className="p-6">Player</th>
+                        <th className="p-6">Intent</th>
+                        <th className="p-6 text-center">Status</th>
+                        <th className="p-6 text-right">React</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/50">
+                      {checkIns.slice(0, 8).map((ci) => {
+                        const player = players.find(p => p.id === ci.playerId);
+                        const status = getStatusBadge(ci);
+                        const ciReactions = reactions?.filter((r: any) => r.checkInId === ci.id) || [];
+                        const metadata = ci.metadata ? JSON.parse(ci.metadata) : {};
+                        return (
+                          <tr key={ci.id} className="hover:bg-muted/20 transition-colors group">
+                            <td className="p-6">
+                              <Link href={`/coach/player/${ci.playerId}`} className="font-black text-sm text-foreground hover:text-primary transition-colors uppercase tracking-tight">
+                                {player?.name?.split(' ')[0] || "Unknown"}
+                              </Link>
+                            </td>
+                            <td className="p-6">
+                               <p className="text-xs text-muted-foreground font-medium line-clamp-1">{ci.goal}</p>
+                            </td>
+                            <td className="p-6">
+                              <div className="flex justify-center">
+                                {status ? (
+                                  <div className={cn("px-3 py-1 rounded-full text-[9px] font-black border uppercase tracking-widest", status.color)}>
+                                    {status.label}
+                                  </div>
+                                ) : (
+                                  <div className="flex gap-1">
+                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-400/40" />
+                                     <div className="w-1.5 h-1.5 rounded-full bg-green-400/40" />
+                                     <div className="w-1.5 h-1.5 rounded-full bg-purple-400/40" />
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-6 text-right">
+                              <div className="flex justify-end gap-3 items-center">
+                                <CoachNoteDialog checkInId={ci.id} existingNote={metadata.coachNote} />
+                                <ReactionButtons checkInId={ci.id} currentReactions={ciReactions} />
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+           </div>
+
+           <div className="space-y-8">
+              <ActivityFeed activities={feedActivities.slice(0, 15)} />
+              
+              {/* Team Readiness Trends Summary */}
+              <div className="glass-card rounded-[2.5rem] p-8">
+                 <h3 className="text-lg font-black uppercase tracking-widest mb-6">Readiness Trends</h3>
+                 <TeamReadinessGraph data={trends} />
+              </div>
+           </div>
         </div>
       </main>
     </div>
   );
 }
+
+import { Brain, Heart } from "lucide-react";
 
 function Star({ className }: { className?: string }) {
   return (

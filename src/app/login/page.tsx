@@ -13,11 +13,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleQuickLogin = async (role: "player" | "coach" | "admin") => {
+  const handleQuickLogin = async (role: "player" | "coach") => {
     setLoading(true);
     setError("");
     try {
-      await ensureTestUser(role);
+      await ensureTestUser(role as any);
       const result = await signIn("credentials", {
         email: `${role}@example.com`,
         password: "password123",
@@ -183,7 +183,7 @@ export default function LoginPage() {
         {isLogin && (
           <div className="pt-4 border-t border-border">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-center mb-4">Test Roles</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 disabled={loading}
@@ -199,14 +199,6 @@ export default function LoginPage() {
                 className="p-2 text-[10px] font-bold bg-muted hover:bg-muted/80 rounded-lg text-foreground transition-colors disabled:opacity-50"
               >
                 Coach
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => handleQuickLogin("admin")}
-                className="p-2 text-[10px] font-bold bg-muted hover:bg-muted/80 rounded-lg text-foreground transition-colors disabled:opacity-50"
-              >
-                Admin
               </button>
             </div>
           </div>

@@ -42,11 +42,14 @@ export async function getAdminData() {
         ? teamReviews.reduce((acc, r) => acc + r.rating, 0) / teamReviews.length
         : 0;
 
+      const lastCheckIn = teamCheckIns.length > 0 ? teamCheckIns[0].createdAt : null;
+
       return {
         ...team,
         avgReadiness,
         avgPerformance,
-        playerCount: teamPlayers.length
+        playerCount: teamPlayers.length,
+        lastActivity: lastCheckIn
       };
     }));
 
@@ -181,4 +184,36 @@ export async function deleteUser(userId: string) {
 
   await db.delete(users).where(eq(users.id, userId));
   revalidatePath("/admin", "layout");
+}
+
+export async function batchCreateUsers(teamId: string, roster: { name: string, email: string }[]) {
+  try {
+    const session = await auth();
+    if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
+
+    const newUsers = roster.map(u => ({
+      name: u.name,
+      email: u.email.toLowerCase().trim(),
+      role: "player" as const,
+      teamId,
+    }));
+
+    // In a real app we'd handle existing users or send invites
+    // For now we just insert
+    for (const user of newUsers) {
+      const existing = await db.select().from(users).where(eq(users.email, user.email)).get();
+      if (!existing) {
+        await db.insert(users).values(user);
+      } else {
+        // Just update team if already exists?
+        await db.update(users).set({ teamId }).where(eq(users.id, existing.id));
+      }
+    }
+
+    revalidatePath("/admin", "layout");
+    revalidatePath(`/admin/team/${teamId}`, "layout");
+  } catch (error) {
+    logError("batchCreateUsers", error);
+    throw error;
+  }
 }

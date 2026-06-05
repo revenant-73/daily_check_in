@@ -3,70 +3,64 @@ import { ArrowRight, Zap, Target, LineChart, Trophy } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 dark">
-      <main className="max-w-4xl w-full bg-card p-8 sm:p-16 rounded-[2.5rem] shadow-2xl shadow-primary/10 border-2 border-primary/5 text-center relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 dark selection:bg-vibrant selection:text-vibrant-foreground">
+      <main className="max-w-5xl w-full glass-card p-8 sm:p-20 rounded-[3rem] text-center relative overflow-hidden border-primary/10">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -ml-32 -mb-32" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -mr-48 -mt-48 animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-vibrant/10 rounded-full blur-[100px] -ml-48 -mb-48 animate-pulse" />
 
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 text-primary text-xs font-black mb-8 uppercase tracking-[0.2em]">
-            <Zap className="w-4 h-4 fill-primary" />
-            Athlete Ready
+        <div className="relative z-10 space-y-12">
+          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-vibrant/10 text-vibrant text-[10px] font-black uppercase tracking-[0.3em] border border-vibrant/20 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+            <Zap className="w-4 h-4 fill-vibrant animate-bounce" />
+            Athlete Ready v2.0
           </div>
           
-          <h1 className="text-5xl sm:text-7xl font-black text-foreground mb-6 tracking-tighter leading-[0.9]">
-            DOMINATE <br />
-            <span className="text-primary">YOUR DAY.</span>
-          </h1>
-          
-          <p className="text-xl sm:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-tight font-medium">
-            The ultimate daily toolkit for athletes to lock in, track progress, and own every single practice.
-          </p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
-            <div className="p-6 bg-muted/30 rounded-3xl border border-border/50 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2">
-                <Target className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-foreground">Set Intent</h3>
-              <p className="text-xs text-muted-foreground">Pick your focus and crush your small goals.</p>
-            </div>
+          <div className="space-y-6">
+            <h1 className="text-6xl sm:text-9xl font-black text-foreground tracking-tighter leading-[0.8] uppercase italic">
+              DOMINATE <br />
+              <span className="text-vibrant drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]">YOUR DAY.</span>
+            </h1>
             
-            <div className="p-6 bg-muted/30 rounded-3xl border border-border/50 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2">
-                <LineChart className="w-6 h-6" />
+            <p className="text-xl sm:text-2xl text-muted-foreground max-w-2xl mx-auto leading-tight font-medium uppercase tracking-tight">
+              The high-performance toolkit for athletes to <span className="text-foreground font-black">lock in</span>, track progress, and own the practice.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              { icon: Target, title: 'Set Intent', desc: 'Pick your focus and crush your small goals.', color: 'text-primary' },
+              { icon: LineChart, title: 'Track Edge', desc: 'Monitor your physical and mental readiness.', color: 'text-vibrant' },
+              { icon: Trophy, title: 'Own the Season', desc: 'Become the ultimate version of yourself.', color: 'text-accent' }
+            ].map((feature, i) => (
+              <div key={i} className="p-8 bg-muted/20 rounded-[2rem] border border-border/50 text-center space-y-4 hover:bg-muted/40 transition-colors group">
+                <div className={cn("w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mx-auto group-hover:scale-110 transition-transform shadow-lg", feature.color)}>
+                  <feature.icon className="w-7 h-7" />
+                </div>
+                <h3 className="font-black text-foreground uppercase tracking-widest text-sm">{feature.title}</h3>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-relaxed">{feature.desc}</p>
               </div>
-              <h3 className="font-bold text-foreground">Track Readiness</h3>
-              <p className="text-xs text-muted-foreground">Monitor your physical and mental edge.</p>
-            </div>
-
-            <div className="p-6 bg-muted/30 rounded-3xl border border-border/50 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2">
-                <Trophy className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-foreground">Own the Season</h3>
-              <p className="text-xs text-muted-foreground">Become the best version of you.</p>
-            </div>
+            ))}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="pt-8">
             <Link 
               href="/login" 
-              className="group px-10 py-5 bg-primary text-primary-foreground rounded-2xl font-black text-xl hover:scale-105 transition-all shadow-xl shadow-primary/20 flex items-center gap-3 w-full sm:w-auto"
+              className="group px-12 py-6 bg-primary text-primary-foreground rounded-2xl font-black text-2xl hover:scale-105 transition-all shadow-[0_20px_50px_rgba(99,102,241,0.2)] flex items-center gap-4 w-full sm:w-auto mx-auto uppercase tracking-tighter italic"
             >
-              LEVEL UP NOW
-              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+              Enter the Lab
+              <ArrowRight className="w-7 h-7 group-hover:translate-x-2 transition-transform" />
             </Link>
           </div>
         </div>
       </main>
       
-      <footer className="mt-12 text-muted-foreground text-sm font-black uppercase tracking-widest opacity-50 flex items-center gap-4">
+      <footer className="mt-16 text-muted-foreground text-[10px] font-black uppercase tracking-[0.4em] opacity-30 flex items-center gap-6">
         <span>Performance First</span>
-        <div className="w-1 h-1 rounded-full bg-muted-foreground" />
-        <span>Built for Athletes</span>
+        <div className="w-1.5 h-1.5 rounded-full bg-vibrant" />
+        <span>Built for Champions</span>
       </footer>
     </div>
   );
 }
+
+import { cn } from "@/lib/utils";

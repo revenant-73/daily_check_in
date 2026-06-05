@@ -8,10 +8,59 @@ import { db } from "@/lib/db";
 import { users, teams } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
-import { ClipboardList, History, CheckCircle2, BookOpen } from "lucide-react";
+import { ClipboardList, History, CheckCircle2, BookOpen, Zap, TrendingUp, MessageSquare } from "lucide-react";
 import { getDailyMotivationalMessage } from "@/lib/utils/messages";
 import { Header } from "@/components/layout/Header";
 import { PILLARS } from "@/lib/constants/pillars";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+function calculateStreak(checkIns: any[]) {
+  if (!checkIns || checkIns.length === 0) return 0;
+  
+  // Sort check-ins by date descending
+  const sorted = [...checkIns].sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  let streak = 0;
+  let currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  // Check if the most recent check-in was today or yesterday
+  const lastCheckIn = new Date(sorted[0].createdAt);
+  lastCheckIn.setHours(0, 0, 0, 0);
+  
+  const diffInDays = Math.floor((currentDate.getTime() - lastCheckIn.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (diffInDays > 1) return 0; // Streak broken
+
+  for (let i = 0; i < sorted.length; i++) {
+    const ciDate = new Date(sorted[i].createdAt);
+    ciDate.setHours(0, 0, 0, 0);
+    
+    if (i === 0) {
+      streak = 1;
+      continue;
+    }
+
+    const prevDate = new Date(sorted[i-1].createdAt);
+    prevDate.setHours(0, 0, 0, 0);
+    
+    const diff = Math.floor((prevDate.getTime() - ciDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diff === 1) {
+      streak++;
+    } else if (diff === 0) {
+      // Same day, don't count but don't break
+      continue;
+    } else {
+      break;
+    }
+  }
+  
+  return streak;
+}
 
 export default async function PlayerDashboard(props: {
   searchParams: Promise<{ view?: string }>;
@@ -50,6 +99,11 @@ export default async function PlayerDashboard(props: {
   const latestMetadata = latestEntry?.metadata ? JSON.parse(latestEntry.metadata) : {};
   const latestPillar = latestEntry?.pillar || latestMetadata.pillar;
 
+  const streak = calculateStreak(checkIns);
+  const edgeScore = latestEntry 
+    ? Math.round(((latestEntry.mentalRating + latestEntry.physicalRating + latestEntry.emotionalRating) / 30) * 100)
+    : 0;
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
       <Header 
@@ -60,101 +114,123 @@ export default async function PlayerDashboard(props: {
 
       <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-6">
         {view === "home" && (
-          <>
-            <div className="space-y-1">
-              <h2 className="text-2xl font-black text-foreground">Hello, {session.user.name?.split(' ')[0] || 'Athlete'}!</h2>
-              <p className="text-muted-foreground italic">&quot;{motivationalMessage}&quot;</p>
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div className="space-y-1">
+                <h2 className="text-3xl font-black text-foreground tracking-tighter">HELLO, {session.user.name?.split(' ')[0].toUpperCase() || 'ATHLETE'}!</h2>
+                <p className="text-muted-foreground italic">&quot;{motivationalMessage}&quot;</p>
+              </div>
+              <div className="flex gap-3">
+                 <div className="px-4 py-2 glass-card rounded-2xl flex items-center gap-2 border-vibrant/20">
+                    <div className="w-2 h-2 rounded-full bg-vibrant animate-pulse shadow-[0_0_8px_var(--vibrant)]" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-vibrant">Live Season</span>
+                 </div>
+              </div>
             </div>
             
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Edge Score Card */}
+              <div className="md:col-span-2 glass-card rounded-[2.5rem] p-8 flex flex-col justify-between relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                  <Zap className="w-32 h-32" />
+                </div>
+                <div className="relative z-10">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Current Readiness</p>
+                  <h3 className="text-5xl font-black text-foreground tracking-tighter mb-6">PERFORMANCE <span className="text-primary">EDGE</span></h3>
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-end gap-8">
+                    <div className="flex items-end gap-4">
+                      <div className="text-7xl font-black text-vibrant tabular-nums">{edgeScore}</div>
+                      <div className="pb-2">
+                        <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">Score</div>
+                        <div className="text-vibrant font-bold">Peak Potential</div>
+                      </div>
+                    </div>
+
+                    {latestMetadata.coachNote && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex-1 p-4 rounded-2xl bg-vibrant/5 border border-vibrant/20 relative"
+                      >
+                         <div className="absolute -top-2 -left-2 bg-vibrant text-vibrant-foreground p-1 rounded-lg">
+                            <MessageSquare className="w-3 h-3 fill-current" />
+                         </div>
+                         <p className="text-[10px] font-black uppercase tracking-widest text-vibrant mb-1">Coach Feedback</p>
+                         <p className="text-sm font-bold text-foreground italic leading-tight">"{latestMetadata.coachNote}"</p>
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-8 grid grid-cols-3 gap-4 relative z-10">
+                  {[
+                    { label: 'Mental', val: latestEntry?.mentalRating || 0, color: 'text-blue-400' },
+                    { label: 'Physical', val: latestEntry?.physicalRating || 0, color: 'text-green-400' },
+                    { label: 'Emotional', val: latestEntry?.emotionalRating || 0, color: 'text-purple-400' }
+                  ].map(stat => (
+                    <div key={stat.label} className="space-y-1">
+                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={cn("h-full rounded-full transition-all duration-1000", stat.val <= 3 ? "bg-red-500" : stat.val <= 7 ? "bg-yellow-500" : "bg-vibrant")}
+                          style={{ width: `${stat.val * 10}%` }}
+                        />
+                      </div>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Streak Card */}
+              <div className="glass-card rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center relative overflow-hidden bg-primary/5 border-primary/10">
+                <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-4">
+                  <TrendingUp className="w-8 h-8 text-primary" />
+                </div>
+                <div className="text-5xl font-black text-foreground mb-1">{streak}</div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Day Streak</p>
+                <div className="mt-6 px-4 py-2 bg-vibrant/10 rounded-xl">
+                  <p className="text-[10px] font-black text-vibrant uppercase tracking-widest">Consistency is King</p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-foreground">Today&apos;s Practice</h3>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 gap-3">
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Before practice</p>
-                    <Link 
-                      href="/dashboard?view=check-in"
-                      className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group w-full"
-                    >
-                      <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                        <ClipboardList className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm text-foreground">Check-In</h4>
-                        <p className="text-xs text-muted-foreground line-clamp-1">Set your goal</p>
-                      </div>
-                    </Link>
-                  </div>
-
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">After practice</p>
-                    <Link 
-                      href="/dashboard?view=review"
-                      className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group w-full"
-                    >
-                      <div className="w-10 h-10 bg-card text-foreground border-2 border-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                        <CheckCircle2 className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm text-foreground">Review</h4>
-                        <p className="text-xs text-muted-foreground line-clamp-1">Reflect</p>
-                      </div>
-                    </Link>
-                  </div>
-
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Learn more</p>
-                    <Link 
-                      href="/dashboard?view=resources"
-                      className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all group w-full"
-                    >
-                      <div className="w-10 h-10 bg-card text-foreground border-2 border-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                        <BookOpen className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm text-foreground">Resources</h4>
-                        <p className="text-xs text-muted-foreground line-clamp-1">Behavior Guide</p>
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-
                 <ReadinessGraph data={trends} />
               </div>
 
               <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-foreground">Recent History</h3>
-                  <Link href="/dashboard?view=history" className="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1">
+                <div className="flex justify-between items-center px-2">
+                  <h3 className="text-lg font-black uppercase tracking-widest text-foreground">Recent History</h3>
+                  <Link href="/dashboard?view=history" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
                     <History className="w-3 h-3" />
                     View All
                   </Link>
                 </div>
-                <div className="bg-card rounded-xl border border-border shadow-sm divide-y divide-border overflow-hidden">
+                <div className="glass-card rounded-[2.5rem] p-4 divide-y divide-border/50">
                   {checkIns.slice(0, 4).map((ci) => (
-                    <div key={ci.id} className="p-3 flex justify-between items-center">
+                    <div key={ci.id} className="p-4 flex justify-between items-center group hover:bg-muted/30 transition-colors rounded-2xl first:rounded-t-[2rem] last:rounded-b-[2rem]">
                       <div className="min-w-0 flex-1">
-                        <p className="font-bold text-sm text-foreground truncate">{ci.goal}</p>
-                        <p className="text-[10px] text-muted-foreground">{ci.createdAt ? new Date(ci.createdAt).toLocaleDateString() : "N/A"}</p>
+                        <p className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">{ci.goal}</p>
+                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">{ci.createdAt ? new Date(ci.createdAt).toLocaleDateString() : "N/A"}</p>
                       </div>
-                      <div className="flex gap-1 ml-4">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400" title={`Mental: ${ci.mentalRating}`}></div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-400" title={`Physical: ${ci.physicalRating}`}></div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-purple-400" title={`Emotional: ${ci.emotionalRating}`}></div>
+                      <div className="flex gap-1.5 ml-4">
+                        <div className="w-2 h-2 rounded-full bg-blue-400/40" title={`Mental: ${ci.mentalRating}`}></div>
+                        <div className="w-2 h-2 rounded-full bg-green-400/40" title={`Physical: ${ci.physicalRating}`}></div>
+                        <div className="w-2 h-2 rounded-full bg-purple-400/40" title={`Emotional: ${ci.emotionalRating}`}></div>
                       </div>
                     </div>
                   ))}
                   {checkIns.length === 0 && (
-                    <div className="p-6 text-center text-xs text-muted-foreground">
-                      No entries yet.
+                    <div className="p-12 text-center">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">No entries yet.</p>
                     </div>
                   )}
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {view === "check-in" && (
@@ -162,7 +238,7 @@ export default async function PlayerDashboard(props: {
             <Link href="/dashboard" className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-6 gap-1">
               ← Back to Dashboard
             </Link>
-            <CheckInForm />
+            <CheckInForm previousGoal={latestGoal} />
           </div>
         )}
 
