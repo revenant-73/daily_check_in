@@ -8,14 +8,14 @@ export function Logo({ className, href = "/" }: { className?: string, href?: str
       <div className="relative w-8 h-8 sm:w-10 sm:h-10">
         <Image
           src="/logo.png"
-          alt="Daily Check-In Logo"
+          alt="Practice With Purpose Logo"
           fill
           className="object-contain"
           priority
         />
       </div>
       <span className="font-black text-lg sm:text-xl tracking-tight text-foreground group-hover:text-primary transition-colors">
-        Daily<span className="text-primary group-hover:text-foreground">CheckIn</span>
+        Practice<span className="text-primary group-hover:text-foreground">WithPurpose</span>
       </span>
     </Link>
   );

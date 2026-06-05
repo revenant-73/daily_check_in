@@ -136,6 +136,33 @@ export async function getTeamData() {
       emotional: prevCheckIns.reduce((acc, ci) => acc + ci.emotionalRating, 0) / prevCheckIns.length,
     } : null;
 
+    // Calculate Alarming Trends (3-4 day decline or low)
+    const criticalPlayers = teamPlayers.map(player => {
+      const playerCheckIns = allCheckIns
+        .filter(ci => ci.playerId === player.id)
+        .slice(0, 4); // Last 4 check-ins
+
+      if (playerCheckIns.length < 2) return null;
+
+      const scores = playerCheckIns.map(ci => (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3);
+      const currentAvg = scores[0];
+      const prevAvg = scores.slice(1).reduce((a, b) => a + b, 0) / (scores.length - 1);
+      
+      const isDeclining = currentAvg < prevAvg - 1.5; // Significant drop
+      const isLow = currentAvg <= 4; // Flat out low
+
+      if (isDeclining || isLow) {
+        return {
+          id: player.id,
+          name: player.name,
+          currentScore: currentAvg,
+          prevScore: prevAvg,
+          status: isLow ? 'LOW' : 'DECLINING'
+        };
+      }
+      return null;
+    }).filter(Boolean);
+
     return {
       team,
       players: playersWithStatus,
@@ -143,7 +170,8 @@ export async function getTeamData() {
       allCheckIns,
       reviews: allReviews,
       reactions: allReactions,
-      prevAvg
+      prevAvg,
+      criticalPlayers
     };
   } catch (error) {
     logError("getTeamData", error);

@@ -16,8 +16,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Daily Check-In | Athlete Performance",
-  description: "Track readiness and set daily goals for peak performance.",
+  title: "Practice With Purpose | Athlete Performance",
+  description: "Notice where you are, set your intent, and reflect on what you learned.",
 };
 
 export default async function RootLayout({

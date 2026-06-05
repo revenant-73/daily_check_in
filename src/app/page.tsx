@@ -17,12 +17,12 @@ export default function Home() {
           
           <div className="space-y-6">
             <h1 className="text-6xl sm:text-9xl font-black text-foreground tracking-tighter leading-[0.8] uppercase italic">
-              DOMINATE <br />
-              <span className="text-vibrant drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]">YOUR DAY.</span>
+              PRACTICE <br />
+              <span className="text-vibrant drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]">WITH PURPOSE.</span>
             </h1>
             
             <p className="text-xl sm:text-2xl text-muted-foreground max-w-2xl mx-auto leading-tight font-medium uppercase tracking-tight">
-              The high-performance toolkit for athletes to <span className="text-foreground font-black">lock in</span>, track progress, and own the practice.
+              Notice where you are, set your intent, and reflect on what you learned.
             </p>
           </div>
           
@@ -54,10 +54,15 @@ export default function Home() {
         </div>
       </main>
       
-      <footer className="mt-16 text-muted-foreground text-[10px] font-black uppercase tracking-[0.4em] opacity-30 flex items-center gap-6">
-        <span>Performance First</span>
-        <div className="w-1.5 h-1.5 rounded-full bg-vibrant" />
-        <span>Built for Champions</span>
+      <footer className="mt-20 py-10 w-full flex flex-col items-center gap-8">
+        <div className="w-24 h-px bg-gradient-to-r from-transparent via-vibrant/30 to-transparent" />
+        <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-muted-foreground/40 text-[10px] font-black uppercase tracking-[0.3em]">
+          <span>Small goals</span>
+          <div className="w-1 h-1 rounded-full bg-vibrant/20" />
+          <span>Better practice</span>
+          <div className="w-1 h-1 rounded-full bg-vibrant/20" />
+          <span>Stronger teams</span>
+        </div>
       </footer>
     </div>
   );

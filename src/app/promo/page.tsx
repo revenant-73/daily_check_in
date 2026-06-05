@@ -22,7 +22,7 @@ export default function PromoPage() {
             <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-white" />
             </div>
-            <span className="font-black text-xl tracking-tight uppercase">Daily Check-In</span>
+            <span className="font-black text-xl tracking-tight uppercase">Practice With Purpose</span>
           </div>
           <Link 
             href="/login" 
@@ -248,7 +248,7 @@ export default function PromoPage() {
             <div className="w-6 h-6 bg-zinc-900 rounded flex items-center justify-center">
               <CheckCircle2 className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-black text-sm tracking-tight uppercase">Daily Check-In</span>
+            <span className="font-black text-sm tracking-tight uppercase">Practice With Purpose</span>
           </div>
           <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">
             Built for intentional programs • {new Date().getFullYear()}
