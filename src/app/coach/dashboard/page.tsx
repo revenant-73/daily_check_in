@@ -70,25 +70,25 @@ export default async function CoachDashboard(props: {
 
   // Combine for Activity Feed
   const feedActivities = [
-    ...checkIns.map(ci => ({
-      id: ci.id,
-      playerName: players.find(p => p.id === ci.playerId)?.name || "Athlete",
-      type: 'check-in' as const,
-      goal: ci.goal,
-      readiness: ci.physicalRating,
-      timestamp: ci.createdAt
-    })),
-    ...reviews.map(r => ({
-      id: r.id,
-      playerName: players.find(p => p.id === r.playerId)?.name || "Athlete",
-      type: 'review' as const,
-      timestamp: r.createdAt
-    }))
-  ].sort((a, b) => {
-    const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-    const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-    return timeB - timeA;
-  });
+    ...checkIns
+      .filter(ci => ci.createdAt !== null)
+      .map(ci => ({
+        id: ci.id,
+        playerName: players.find(p => p.id === ci.playerId)?.name || "Athlete",
+        type: 'check-in' as const,
+        goal: ci.goal,
+        readiness: ci.physicalRating,
+        timestamp: ci.createdAt as Date
+      })),
+    ...reviews
+      .filter(r => r.createdAt !== null)
+      .map(r => ({
+        id: r.id,
+        playerName: players.find(p => p.id === r.playerId)?.name || "Athlete",
+        type: 'review' as const,
+        timestamp: r.createdAt as Date
+      }))
+  ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
   const getStatusBadge = (ci: any) => {
     if (ci.physicalRating <= 3) return { label: 'FATIGUED', color: 'bg-red-500/10 text-red-500 border-red-500/20' };
