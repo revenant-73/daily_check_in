@@ -24,6 +24,16 @@ export default function Home() {
             <p className="text-xl sm:text-2xl text-muted-foreground max-w-2xl mx-auto leading-tight font-medium uppercase tracking-tight">
               Notice where you are, set your intent, and reflect on what you learned.
             </p>
+
+            <div className="pt-4">
+              <Link 
+                href="/login" 
+                className="group px-12 py-6 bg-primary text-primary-foreground rounded-2xl font-black text-2xl hover:scale-105 transition-all shadow-[0_20px_50px_rgba(99,102,241,0.2)] flex items-center justify-center gap-4 w-full sm:w-auto mx-auto uppercase tracking-tighter italic"
+              >
+                Start Now
+                <ArrowRight className="w-7 h-7 group-hover:translate-x-2 transition-transform" />
+              </Link>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -42,15 +52,6 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="pt-8">
-            <Link 
-              href="/login" 
-              className="group px-12 py-6 bg-primary text-primary-foreground rounded-2xl font-black text-2xl hover:scale-105 transition-all shadow-[0_20px_50px_rgba(99,102,241,0.2)] flex items-center justify-center gap-4 w-full sm:w-auto mx-auto uppercase tracking-tighter italic"
-            >
-              Start Now
-              <ArrowRight className="w-7 h-7 group-hover:translate-x-2 transition-transform" />
-            </Link>
-          </div>
         </div>
       </main>
       

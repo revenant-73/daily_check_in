@@ -4,63 +4,36 @@ import { getPlayerEntries, getReadinessTrends } from "@/app/actions/entries";
 import { CheckInForm } from "@/components/player/CheckInForm";
 import { ReviewForm } from "@/components/player/ReviewForm";
 import { ReadinessGraph } from "@/components/player/ReadinessGraph";
+import { InstallPrompt } from "@/components/player/InstallPrompt";
 import { db } from "@/lib/db";
 import { users, teams } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
-import { ClipboardList, History, CheckCircle2, BookOpen, Zap, TrendingUp, MessageSquare } from "lucide-react";
+import { History, Zap, TrendingUp, MessageSquare, ChevronRight, Target, Star } from "lucide-react";
 import { getDailyMotivationalMessage } from "@/lib/utils/messages";
+import { calculateStreak, getStreakMilestone } from "@/lib/utils/stats";
 import { Header } from "@/components/layout/Header";
+
+type CheckIn = {
+  id: string;
+  goal: string;
+  mentalRating: number;
+  physicalRating: number;
+  emotionalRating: number;
+  createdAt: Date | string | number;
+  pillar?: string;
+  metadata?: string;
+};
+
+type Review = {
+  id: string;
+  rating: number;
+  notes: string;
+  createdAt: Date | string | number;
+};
 import { PILLARS } from "@/lib/constants/pillars";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-function calculateStreak(checkIns: any[]) {
-  if (!checkIns || checkIns.length === 0) return 0;
-  
-  // Sort check-ins by date descending
-  const sorted = [...checkIns].sort((a, b) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-
-  let streak = 0;
-  let currentDate = new Date();
-  currentDate.setHours(0, 0, 0, 0);
-
-  // Check if the most recent check-in was today or yesterday
-  const lastCheckIn = new Date(sorted[0].createdAt);
-  lastCheckIn.setHours(0, 0, 0, 0);
-  
-  const diffInDays = Math.floor((currentDate.getTime() - lastCheckIn.getTime()) / (1000 * 60 * 60 * 24));
-  
-  if (diffInDays > 1) return 0; // Streak broken
-
-  for (let i = 0; i < sorted.length; i++) {
-    const ciDate = new Date(sorted[i].createdAt);
-    ciDate.setHours(0, 0, 0, 0);
-    
-    if (i === 0) {
-      streak = 1;
-      continue;
-    }
-
-    const prevDate = new Date(sorted[i-1].createdAt);
-    prevDate.setHours(0, 0, 0, 0);
-    
-    const diff = Math.floor((prevDate.getTime() - ciDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diff === 1) {
-      streak++;
-    } else if (diff === 0) {
-      // Same day, don't count but don't break
-      continue;
-    } else {
-      break;
-    }
-  }
-  
-  return streak;
-}
 
 export default async function PlayerDashboard(props: {
   searchParams: Promise<{ view?: string }>;
@@ -79,9 +52,9 @@ export default async function PlayerDashboard(props: {
   
   const team = await db.select().from(teams).where(eq(teams.id, dbUser.teamId)).get();
 
-  let checkIns: any[] = [];
-  let reviews: any[] = [];
-  let trends: any[] = [];
+  let checkIns: CheckIn[] = [];
+  let reviews: Review[] = [];
+  let trends: { date: Date | null; mental: number; physical: number; emotional: number; average: number }[] = [];
 
   try {
     const entries = await getPlayerEntries();
@@ -95,11 +68,13 @@ export default async function PlayerDashboard(props: {
   const view = searchParams.view || "home";
   const motivationalMessage = getDailyMotivationalMessage();
   const latestEntry = checkIns[0];
+  const hasCheckedInToday = latestEntry && new Date(latestEntry.createdAt).toDateString() === new Date().toDateString();
   const latestGoal = latestEntry?.goal;
   const latestMetadata = latestEntry?.metadata ? JSON.parse(latestEntry.metadata) : {};
   const latestPillar = latestEntry?.pillar || latestMetadata.pillar;
 
   const streak = calculateStreak(checkIns);
+  const milestone = getStreakMilestone(streak);
   const edgeScore = latestEntry 
     ? Math.round(((latestEntry.mentalRating + latestEntry.physicalRating + latestEntry.emotionalRating) / 30) * 100)
     : 0;
@@ -112,9 +87,29 @@ export default async function PlayerDashboard(props: {
         teamName={team?.name} 
       />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-6">
+      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-6 pb-24 sm:pb-6">
         {view === "home" && (
           <div className="space-y-6">
+            {!hasCheckedInToday && (
+              <Link 
+                href="/dashboard?view=check-in"
+                className="block p-1 rounded-[2rem] bg-gradient-to-r from-primary via-vibrant to-primary animate-gradient-x shadow-lg shadow-primary/20 hover:scale-[1.01] transition-transform"
+              >
+                <div className="bg-background/90 backdrop-blur-xl rounded-[1.9rem] p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-primary animate-pulse" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-0.5">Action Required</p>
+                      <h3 className="text-lg font-black text-foreground tracking-tight">SET YOUR INTENT FOR TODAY</h3>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-muted-foreground mr-2" />
+                </div>
+              </Link>
+            )}
+
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div className="space-y-1">
                 <h2 className="text-3xl font-black text-foreground tracking-tighter">HELLO, {session.user.name?.split(' ')[0].toUpperCase() || 'ATHLETE'}!</h2>
@@ -128,7 +123,29 @@ export default async function PlayerDashboard(props: {
               </div>
             </div>
             
+            <InstallPrompt />
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {hasCheckedInToday && (
+                <div className="md:col-span-3 glass-card rounded-[2.5rem] p-6 bg-vibrant/5 border-vibrant/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-vibrant/20 rounded-2xl flex items-center justify-center">
+                      <Target className="w-8 h-8 text-vibrant" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-vibrant mb-0.5">Today&apos;s Mission</p>
+                      <h3 className="text-2xl font-black text-foreground tracking-tight uppercase italic">&quot;{latestGoal}&quot;</h3>
+                    </div>
+                  </div>
+                  {latestPillar && (
+                    <div className="px-6 py-3 rounded-2xl bg-background/50 border border-border flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-vibrant shadow-[0_0_8px_var(--vibrant)]" />
+                      <span className="text-xs font-black uppercase tracking-widest text-foreground">{latestPillar}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Edge Score Card */}
               <div className="md:col-span-2 glass-card rounded-[2.5rem] p-8 flex flex-col justify-between relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -157,7 +174,7 @@ export default async function PlayerDashboard(props: {
                             <MessageSquare className="w-3 h-3 fill-current" />
                          </div>
                          <p className="text-[10px] font-black uppercase tracking-widest text-vibrant mb-1">Coach Feedback</p>
-                         <p className="text-sm font-bold text-foreground italic leading-tight">"{latestMetadata.coachNote}"</p>
+                         <p className="text-sm font-bold text-foreground italic leading-tight">&quot;{latestMetadata.coachNote}&quot;</p>
                       </motion.div>
                     )}
                   </div>
@@ -184,13 +201,24 @@ export default async function PlayerDashboard(props: {
 
               {/* Streak Card */}
               <div className="glass-card rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center relative overflow-hidden bg-primary/5 border-primary/10">
-                <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-4">
-                  <TrendingUp className="w-8 h-8 text-primary" />
-                </div>
-                <div className="text-5xl font-black text-foreground mb-1">{streak}</div>
+                {milestone ? (
+                  <div className="flex flex-col items-center">
+                    <div className="text-4xl mb-2 animate-bounce">{milestone.icon}</div>
+                    <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] mb-4", milestone.color)}>
+                      {milestone.label} STATUS
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-4">
+                    <TrendingUp className="w-8 h-8 text-primary" />
+                  </div>
+                )}
+                <div className="text-5xl font-black text-foreground mb-1 tabular-nums">{streak}</div>
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Day Streak</p>
                 <div className="mt-6 px-4 py-2 bg-vibrant/10 rounded-xl">
-                  <p className="text-[10px] font-black text-vibrant uppercase tracking-widest">Consistency is King</p>
+                  <p className="text-[10px] font-black text-vibrant uppercase tracking-widest">
+                    {streak === 0 ? "Start your journey" : "Consistency is King"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -340,25 +368,16 @@ export default async function PlayerDashboard(props: {
           </div>
         )}
       </main>
-    </div>
-  );
-}
 
-function Star({ className }: { className?: string }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
+      {/* Mobile Quick Action FAB */}
+      <div className="fixed bottom-6 right-6 sm:hidden z-50">
+        <Link 
+          href="/dashboard?view=check-in"
+          className="w-16 h-16 bg-primary text-primary-foreground rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center active:scale-95 transition-transform"
+        >
+          <Zap className="w-8 h-8 fill-current" />
+        </Link>
+      </div>
+    </div>
   );
 }

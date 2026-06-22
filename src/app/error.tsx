@@ -20,7 +20,7 @@ export default function Error({
         <div className="space-y-2">
           <h2 className="text-3xl font-bold tracking-tighter text-red-500">Something went wrong!</h2>
           <p className="text-muted-foreground">
-            An error occurred while rendering this page. We've logged the error for investigation.
+            An error occurred while rendering this page. We&apos;ve logged the error for investigation.
           </p>
         </div>
         

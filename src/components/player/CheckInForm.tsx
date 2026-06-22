@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { CheckCircle2, ChevronRight, ChevronLeft, Zap, Target, Brain, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 const STEPS = [
   { id: "readiness", title: "Readiness", description: "How is your edge today?", icon: Zap },
   { id: "goal", title: "Daily Goal", description: "What is your focus?", icon: Target },
-  { id: "standard", title: "Standard", description: "Which pillar will you own?", icon: Shield },
+  { id: "standard", title: "Torchbearer Action", description: "How will you carry the culture today?", icon: Shield },
 ];
 
 interface CheckInFormProps {
@@ -24,16 +24,12 @@ export function CheckInForm({ previousGoal }: CheckInFormProps) {
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState("");
   const [pillar, setPillar] = useState("");
+  const [lookLike, setLookLike] = useState("");
   const [mental, setMental] = useState(5);
   const [physical, setPhysical] = useState(5);
   const [emotional, setEmotional] = useState(5);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Randomize some goals for the "Chips"
-  const goalSuggestions = useMemo(() => {
-    return [...SMALL_ACHIEVABLE_GOALS].sort(() => 0.5 - Math.random()).slice(0, 8);
-  }, []);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -41,7 +37,7 @@ export function CheckInForm({ previousGoal }: CheckInFormProps) {
       await submitCheckIn({
         goal,
         pillar,
-        metadata: { pillar },
+        metadata: { pillar, lookLike },
         mentalRating: mental,
         physicalRating: physical,
         emotionalRating: emotional,
@@ -140,77 +136,105 @@ export function CheckInForm({ previousGoal }: CheckInFormProps) {
               <div className="space-y-6">
                 {previousGoal && (
                   <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Last Session's Goal</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Last Session&apos;s Goal</p>
                     <button 
                       type="button"
                       onClick={() => setGoal(previousGoal)}
                       className="text-sm font-bold text-foreground text-left hover:text-primary transition-colors italic"
                     >
-                      "{previousGoal}"
+                      &quot;{previousGoal}&quot;
                     </button>
                   </div>
                 )}
                 <div className="space-y-4">
-                   <input
-                    autoFocus
-                    type="text"
-                    placeholder="Enter your custom goal..."
-                    value={goal}
-                    onChange={(e) => setGoal(e.target.value)}
-                    className="w-full p-6 rounded-3xl bg-muted/50 border-2 border-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-xl font-bold placeholder:text-muted-foreground/50"
-                  />
-                </div>
-                
-                <div className="space-y-3">
-                  <p className="text-xs font-black text-muted-foreground uppercase tracking-widest ml-1">Quick Picks</p>
-                  <div className="flex flex-wrap gap-2">
-                    {goalSuggestions.map((suggestion) => (
-                      <button
-                        key={suggestion}
-                        type="button"
-                        onClick={() => setGoal(suggestion)}
-                        className={cn(
-                          "px-4 py-2 rounded-xl text-xs font-bold border transition-all",
-                          goal === suggestion 
-                            ? "bg-primary text-primary-foreground border-primary shadow-lg" 
-                            : "bg-muted/30 border-border hover:border-muted-foreground text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
+                  <div className="space-y-3">
+                    <p className="text-xs font-black text-muted-foreground uppercase tracking-widest ml-1">Suggested Goals</p>
+                    <select
+                      value={SMALL_ACHIEVABLE_GOALS.includes(goal) ? goal : ""}
+                      onChange={(e) => setGoal(e.target.value)}
+                      className="w-full p-5 rounded-2xl bg-muted/50 border-2 border-border focus:border-primary transition-all text-sm font-bold text-foreground appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled>Select a suggested goal...</option>
+                      {SMALL_ACHIEVABLE_GOALS.map((suggestion) => (
+                        <option key={suggestion} value={suggestion} className="bg-background text-foreground">
+                          {suggestion}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div className="w-full border-t border-border"></div>
+                    </div>
+                    <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
+                      <span className="bg-card px-4 text-muted-foreground">Or</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-xs font-black text-muted-foreground uppercase tracking-widest ml-1">Custom Goal</p>
+                    <input
+                      type="text"
+                      placeholder="Enter your custom goal..."
+                      value={goal}
+                      onChange={(e) => setGoal(e.target.value)}
+                      className="w-full p-6 rounded-3xl bg-muted/50 border-2 border-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-xl font-bold placeholder:text-muted-foreground/50"
+                    />
                   </div>
                 </div>
               </div>
             )}
 
             {step === 2 && (
-              <div className="grid grid-cols-1 gap-3">
-                {PILLARS.map((p) => (
-                  <button
-                    key={p.name}
-                    type="button"
-                    onClick={() => setPillar(p.name)}
-                    className={cn(
-                      "p-5 rounded-3xl border-2 text-left transition-all relative group",
-                      pillar === p.name 
-                        ? "bg-primary border-primary shadow-lg" 
-                        : "bg-muted/30 border-border hover:border-muted-foreground"
-                    )}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className={cn(
-                        "font-black uppercase tracking-widest text-xs",
-                        pillar === p.name ? "text-primary-foreground" : "text-foreground"
-                      )}>{p.name}</span>
-                      {pillar === p.name && <CheckCircle2 className="w-4 h-4 text-primary-foreground" />}
-                    </div>
-                    <p className={cn(
-                      "text-xs leading-relaxed",
-                      pillar === p.name ? "text-primary-foreground/80" : "text-muted-foreground"
-                    )}>{p.description}</p>
-                  </button>
-                ))}
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 gap-3">
+                  {PILLARS.map((p) => (
+                    <button
+                      key={p.name}
+                      type="button"
+                      onClick={() => setPillar(p.name)}
+                      className={cn(
+                        "p-5 rounded-3xl border-2 text-left transition-all relative group",
+                        pillar === p.name 
+                          ? "bg-primary border-primary shadow-lg" 
+                          : "bg-muted/30 border-border hover:border-muted-foreground"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={cn(
+                          "font-black uppercase tracking-widest text-xs",
+                          pillar === p.name ? "text-primary-foreground" : "text-foreground"
+                        )}>{p.name}</span>
+                        {pillar === p.name && <CheckCircle2 className="w-4 h-4 text-primary-foreground" />}
+                      </div>
+                      <p className={cn(
+                        "text-xs leading-relaxed",
+                        pillar === p.name ? "text-primary-foreground/80" : "text-muted-foreground"
+                      )}>{p.description}</p>
+                    </button>
+                  ))}
+                </div>
+
+                <AnimatePresence>
+                  {pillar && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-3 pt-4 border-t border-border"
+                    >
+                      <p className="text-xs font-black text-muted-foreground uppercase tracking-widest ml-1">What will that look like today?</p>
+                      <textarea
+                        autoFocus
+                        placeholder="Explain your action..."
+                        value={lookLike}
+                        onChange={(e) => setLookLike(e.target.value)}
+                        className="w-full p-6 rounded-3xl bg-muted/50 border-2 border-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-lg font-bold placeholder:text-muted-foreground/50 min-h-[120px]"
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             )}
           </motion.div>
@@ -228,10 +252,10 @@ export function CheckInForm({ previousGoal }: CheckInFormProps) {
           )}
           <button
             onClick={nextStep}
-            disabled={loading || (step === 1 && !goal) || (step === 2 && !pillar)}
+            disabled={loading || (step === 1 && !goal) || (step === 2 && (!pillar || !lookLike))}
             className={cn(
               "flex-[2] py-5 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20",
-              loading || (step === 1 && !goal) || (step === 2 && !pillar)
+              loading || (step === 1 && !goal) || (step === 2 && (!pillar || !lookLike))
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
                 : "bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98]"
             )}

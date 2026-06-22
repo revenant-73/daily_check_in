@@ -1,6 +1,16 @@
 "use client";
 
 import React from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 interface TrendData {
   date: Date | null;
@@ -19,72 +29,80 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
     );
   }
 
-  const height = 150;
-  const width = 400;
-  const padding = 20;
-  
-  const maxValue = 10;
-  const points = data.map((d, i) => {
-    const x = (i / (data.length - 1 || 1)) * (width - padding * 2) + padding;
-    const y = height - (d.average / maxValue) * (height - padding * 2) - padding;
-    return `${x},${y}`;
-  }).join(" ");
+  const chartData = data.map((d) => ({
+    name: d.date ? new Date(d.date).toLocaleDateString(undefined, { weekday: 'short' }) : "??",
+    mental: d.mental,
+    physical: d.physical,
+    emotional: d.emotional,
+    average: parseFloat(d.average.toFixed(1)),
+  }));
 
   return (
-    <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
-      <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">7-Day Readiness Trend</h3>
-      <div className="relative h-[150px] w-full">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
-          {/* Grid lines */}
-          {[0, 2.5, 5, 7.5, 10].map((v) => {
-            const y = height - (v / maxValue) * (height - padding * 2) - padding;
-            return (
-              <line 
-                key={v} 
-                x1={padding} 
-                y1={y} 
-                x2={width - padding} 
-                y2={y} 
-                stroke="currentColor" 
-                strokeWidth="1" 
-                className="text-border/50"
-              />
-            );
-          })}
-          
-          {/* Trend Line */}
-          <polyline
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            points={points}
-            className="text-foreground drop-shadow-sm"
-          />
-          
-          {/* Data Points */}
-          {data.map((d, i) => {
-            const x = (i / (data.length - 1 || 1)) * (width - padding * 2) + padding;
-            const y = height - (d.average / maxValue) * (height - padding * 2) - padding;
-            return (
-              <circle
-                key={i}
-                cx={x}
-                cy={y}
-                r="4"
-                fill="currentColor"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="text-card stroke-foreground"
-              />
-            );
-          })}
-        </svg>
-      </div>
-      <div className="flex justify-between mt-2 px-4">
-        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Older</span>
-        <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">Today</span>
+    <div className="glass-card p-6 rounded-[2.5rem] border border-border shadow-sm">
+      <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-6 ml-2">7-Day Readiness Trend</h3>
+      <div className="h-[250px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+            <XAxis 
+              dataKey="name" 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fontSize: 10, fontWeight: 800, fill: "rgba(255,255,255,0.4)" }}
+              dy={10}
+            />
+            <YAxis 
+              domain={[0, 10]} 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fontSize: 10, fontWeight: 800, fill: "rgba(255,255,255,0.4)" }}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: "rgba(23, 23, 23, 0.9)", 
+                border: "1px solid rgba(255, 255, 255, 0.1)", 
+                borderRadius: "1rem",
+                fontSize: "12px",
+                fontWeight: "bold",
+                backdropFilter: "blur(8px)"
+              }}
+              itemStyle={{ padding: "2px 0" }}
+            />
+            <Legend 
+              verticalAlign="top" 
+              align="right" 
+              iconType="circle"
+              wrapperStyle={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', paddingBottom: '20px' }}
+            />
+            <Line
+              type="monotone"
+              dataKey="mental"
+              stroke="#60a5fa"
+              strokeWidth={3}
+              dot={{ r: 4, fill: "#60a5fa" }}
+              activeDot={{ r: 6 }}
+              name="Mental"
+            />
+            <Line
+              type="monotone"
+              dataKey="physical"
+              stroke="#4ade80"
+              strokeWidth={3}
+              dot={{ r: 4, fill: "#4ade80" }}
+              activeDot={{ r: 6 }}
+              name="Physical"
+            />
+            <Line
+              type="monotone"
+              dataKey="emotional"
+              stroke="#c084fc"
+              strokeWidth={3}
+              dot={{ r: 4, fill: "#c084fc" }}
+              activeDot={{ r: 6 }}
+              name="Emotional"
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
