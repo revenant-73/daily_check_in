@@ -20,16 +20,16 @@ type CheckIn = {
   mentalRating: number;
   physicalRating: number;
   emotionalRating: number;
-  createdAt: Date | string | number;
-  pillar?: string;
-  metadata?: string;
+  createdAt: Date | string | number | null;
+  pillar?: string | null;
+  metadata?: string | null;
 };
 
 type Review = {
   id: string;
   rating: number;
-  notes: string;
-  createdAt: Date | string | number;
+  notes: string | null;
+  createdAt: Date | string | number | null;
 };
 import { PILLARS } from "@/lib/constants/pillars";
 import { motion } from "framer-motion";
@@ -69,8 +69,8 @@ export default async function PlayerDashboard(props: {
   const motivationalMessage = getDailyMotivationalMessage();
   const latestEntry = checkIns[0];
   const latestReview = reviews[0];
-  const hasCheckedInToday = latestEntry && new Date(latestEntry.createdAt).toDateString() === new Date().toDateString();
-  const hasReviewedToday = latestReview && new Date(latestReview.createdAt).toDateString() === new Date().toDateString();
+  const hasCheckedInToday = latestEntry && latestEntry.createdAt && new Date(latestEntry.createdAt).toDateString() === new Date().toDateString();
+  const hasReviewedToday = latestReview && latestReview.createdAt && new Date(latestReview.createdAt).toDateString() === new Date().toDateString();
   const latestGoal = latestEntry?.goal;
   const latestMetadata = latestEntry?.metadata ? JSON.parse(latestEntry.metadata) : {};
   const latestPillar = latestEntry?.pillar || latestMetadata.pillar;

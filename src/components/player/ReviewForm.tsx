@@ -1,28 +1,53 @@
 "use client";
 
 import React, { useState } from "react";
-import { CheckCircle2, Star } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { CheckCircle2, Star, ChevronRight, ChevronLeft, Zap, Target, Shield, MessageSquare, RotateCcw } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { submitReview } from "@/app/actions/entries";
+import { cn } from "@/lib/utils";
 
-export function ReviewForm({ goal, pillar }: { goal?: string; pillar?: string }) {
-  const [rating, setRating] = useState(3);
-  const [pillarRating, setPillarRating] = useState(3);
-  const [notes, setNotes] = useState("");
-  const [nextSessionNotes, setNextSessionNotes] = useState("");
+const STEPS = [
+  { id: "readiness", title: "Readiness", description: "How are you leaving practice?", icon: Zap },
+  { id: "goal", title: "Goal Review", description: "Did you practice what you said?", icon: Target },
+  { id: "torchbearer", title: "Culture Review", description: "How did you carry the culture?", icon: Shield },
+  { id: "reflection", title: "One Reflection", description: "What do you want to remember?", icon: MessageSquare },
+  { id: "next", title: "Next Rep", description: "What is your next commitment?", icon: RotateCcw },
+];
+
+interface ReviewFormProps {
+  goal?: string;
+  pillar?: string;
+}
+
+export function ReviewForm({ goal, pillar }: ReviewFormProps) {
+  const [step, setStep] = useState(0);
+  const [mental, setMental] = useState(5);
+  const [physical, setPhysical] = useState(5);
+  const [emotional, setEmotional] = useState(5);
+  const [goalAttention, setGoalAttention] = useState<string | null>(null);
+  const [cultureReview, setCultureReview] = useState<string | null>(null);
+  const [reflection, setReflection] = useState("");
+  const [nextCommitment, setNextCommitment] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
     try {
-      await submitReview({ 
-        rating, 
-        notes, 
-        nextSessionNotes,
+      await submitReview({
+        rating: goalAttention === "Yes" ? 5 : goalAttention === "Somewhat" ? 3 : 1,
+        mentalRating: mental,
+        physicalRating: physical,
+        emotionalRating: emotional,
+        notes: reflection,
+        nextSessionNotes: nextCommitment || "",
         metadata: {
-          pillarRating,
-          pillarName: pillar
+          goalAttention,
+          cultureReview,
+          originalGoal: goal,
+          originalPillar: pillar,
+          nextCommitment
         }
       });
       setSubmitted(true);
@@ -34,108 +59,231 @@ export function ReviewForm({ goal, pillar }: { goal?: string; pillar?: string })
     }
   };
 
+  const nextStep = () => {
+    if (step < STEPS.length - 1) setStep(step + 1);
+    else handleSubmit();
+  };
+
+  const prevStep = () => {
+    if (step > 0) setStep(step - 1);
+  };
+
   if (submitted) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 bg-card rounded-2xl border border-border shadow-sm text-center">
-        <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">Review Complete!</h2>
-        <p className="text-muted-foreground">Thanks for reflecting on your practice. Rest up!</p>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center justify-center p-12 glass-card rounded-[2.5rem] text-center"
+      >
+        <div className="w-24 h-24 bg-vibrant/20 rounded-full flex items-center justify-center mb-6">
+          <CheckCircle2 className="w-12 h-12 text-vibrant" />
+        </div>
+        <h2 className="text-3xl font-black text-foreground mb-4 tracking-tighter">PRACTICE SEALED.</h2>
+        <p className="text-muted-foreground text-lg mb-8 max-w-xs">Reflection complete. Rest, recover, and get ready for the next rep.</p>
         <button 
-          onClick={() => setSubmitted(false)}
-          className="mt-6 text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
+          onClick={() => window.location.href = '/dashboard'}
+          className="px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform"
         >
-          Submit another (Debug)
+          Back to Dashboard
         </button>
-      </div>
+      </motion.div>
     );
   }
 
+  const CurrentIcon = STEPS[step].icon;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 bg-card p-6 sm:p-10 rounded-2xl border border-border shadow-sm max-w-lg mx-auto">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-foreground tracking-tight">Post-Practice Review</h1>
-        <p className="text-base text-muted-foreground">How did today&apos;s session go?</p>
+    <div className="w-full max-w-xl mx-auto pb-12">
+      {/* Progress Header */}
+      <div className="flex justify-between mb-8 px-2 overflow-x-auto pb-2 gap-4 no-scrollbar">
+        {STEPS.map((s, i) => (
+          <div key={s.id} className="flex flex-col items-center gap-2 flex-shrink-0">
+            <div className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-500",
+              i === step ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-110" : 
+              i < step ? "bg-vibrant border-vibrant text-vibrant-foreground" : "bg-muted border-border text-muted-foreground"
+            )}>
+              {i < step ? <CheckCircle2 className="w-4 h-4" /> : <s.icon className="w-4 h-4" />}
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="space-y-4">
-        <label className="block text-base font-bold text-foreground">
-          {goal ? `How did you do on your goal: "${goal}"?` : "Rate your practice performance"}
-        </label>
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((star) => (
+      <div className="glass-card rounded-[2.5rem] p-8 sm:p-12 relative overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-8"
+          >
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-vibrant/10 text-vibrant text-[10px] font-black uppercase tracking-widest">
+                <CurrentIcon className="w-3 h-3" />
+                Step {step + 1} of 5
+              </div>
+              <h1 className="text-3xl font-black text-foreground tracking-tighter uppercase">{STEPS[step].title}</h1>
+              <p className="text-muted-foreground font-medium">{STEPS[step].description}</p>
+            </div>
+
+            {step === 0 && (
+              <div className="space-y-10 py-4">
+                <Slider label="Mental Edge" value={mental} onChange={(e) => setMental(parseInt(e.target.value))} />
+                <Slider label="Physical Power" value={physical} onChange={(e) => setPhysical(parseInt(e.target.value))} />
+                <Slider label="Emotional Calm" value={emotional} onChange={(e) => setEmotional(parseInt(e.target.value))} />
+              </div>
+            )}
+
+            {step === 1 && (
+              <div className="space-y-8">
+                <div className="p-6 rounded-3xl bg-primary/5 border-2 border-primary/20">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Today&apos;s Goal</p>
+                  <p className="text-xl font-bold text-foreground italic uppercase">&quot;{goal || "No goal set"}&quot;</p>
+                </div>
+                
+                <div className="space-y-4">
+                  <p className="text-sm font-black text-foreground uppercase tracking-widest text-center">Did you give this goal honest attention today?</p>
+                  <div className="grid grid-cols-1 gap-3">
+                    {["Yes", "Somewhat", "No"].map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => setGoalAttention(option)}
+                        className={cn(
+                          "py-4 rounded-2xl font-black uppercase tracking-widest transition-all border-2",
+                          goalAttention === option 
+                            ? "bg-primary border-primary text-primary-foreground" 
+                            : "bg-muted/50 border-border hover:border-primary/50 text-foreground"
+                        )}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-8">
+                <div className="p-6 rounded-3xl bg-vibrant/5 border-2 border-vibrant/20">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-vibrant mb-2">Torchbearer Action</p>
+                  <p className="text-xl font-bold text-foreground italic uppercase">&quot;{pillar || "No action selected"}&quot;</p>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-sm font-black text-foreground uppercase tracking-widest text-center">How did you carry the culture today?</p>
+                  <div className="grid grid-cols-1 gap-3">
+                    {[
+                      { id: "lived", label: "I lived it clearly" },
+                      { id: "progress", label: "I made progress" },
+                      { id: "missed", label: "I missed chances" },
+                      { id: "avoided", label: "I avoided it today" }
+                    ].map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => setCultureReview(option.label)}
+                        className={cn(
+                          "py-4 px-6 rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-left flex justify-between items-center",
+                          cultureReview === option.label 
+                            ? "bg-vibrant border-vibrant text-vibrant-foreground" 
+                            : "bg-muted/50 border-border hover:border-vibrant/50 text-foreground"
+                        )}
+                      >
+                        {option.label}
+                        {cultureReview === option.label && <CheckCircle2 className="w-5 h-5" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <p className="text-sm font-black text-foreground uppercase tracking-widest">What is one moment from practice you want to remember?</p>
+                  <textarea
+                    autoFocus
+                    placeholder="Technical, emotional, social, or competitive..."
+                    value={reflection}
+                    onChange={(e) => setReflection(e.target.value)}
+                    className="w-full p-6 rounded-3xl bg-muted/50 border-2 border-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-lg font-bold placeholder:text-muted-foreground/50 min-h-[160px]"
+                  />
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="space-y-6">
+                <p className="text-sm font-black text-foreground uppercase tracking-widest text-center">What is your next small commitment?</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {[
+                    "Repeat today's goal",
+                    "Adjust today's goal",
+                    "Choose a new goal next practice"
+                  ].map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => setNextCommitment(option)}
+                      className={cn(
+                        "py-5 px-6 rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-left",
+                        nextCommitment === option 
+                          ? "bg-primary border-primary text-primary-foreground shadow-lg" 
+                          : "bg-muted/50 border-border hover:border-primary/50 text-foreground"
+                      )}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="flex gap-4 mt-12">
+          {step > 0 && (
             <button
-              key={star}
-              type="button"
-              onClick={() => setRating(star)}
-              className="focus:outline-none"
+              onClick={prevStep}
+              className="flex-1 py-5 rounded-2xl border-2 border-border font-black uppercase tracking-widest text-sm hover:bg-muted transition-colors flex items-center justify-center gap-2"
             >
-              <Star
-                className={`w-10 h-10 ${
-                  star <= rating ? "fill-yellow-400 text-yellow-400" : "text-border"
-                } transition-colors`}
-              />
+              <ChevronLeft className="w-5 h-5" />
+              Back
             </button>
-          ))}
+          )}
+          <button
+            onClick={nextStep}
+            disabled={
+              loading || 
+              (step === 1 && !goalAttention) || 
+              (step === 2 && !cultureReview) || 
+              (step === 3 && !reflection) || 
+              (step === 4 && !nextCommitment)
+            }
+            className={cn(
+              "flex-[2] py-5 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20",
+              loading || 
+              (step === 1 && !goalAttention) || 
+              (step === 2 && !cultureReview) || 
+              (step === 3 && !reflection) || 
+              (step === 4 && !nextCommitment)
+                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98]"
+            )}
+          >
+            {loading ? "Syncing..." : step === STEPS.length - 1 ? "Complete Review" : "Next Step"}
+            {!loading && <ChevronRight className="w-5 h-5" />}
+          </button>
         </div>
       </div>
-
-      <div className="space-y-4 pt-2">
-        <label className="block text-base font-bold text-foreground">
-          {pillar ? `How did you do on your focus: "${pillar}"?` : "Rate your behavioral focus"}
-        </label>
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              type="button"
-              onClick={() => setPillarRating(star)}
-              className="focus:outline-none"
-            >
-              <Star
-                className={`w-10 h-10 ${
-                  star <= pillarRating ? "fill-primary text-primary" : "text-border"
-                } transition-colors`}
-              />
-            </button>
-          ))}
-        </div>
+      
+      <div className="mt-8 text-center">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+          &quot;Did I practice what I said I would practice?&quot;
+        </p>
       </div>
-
-      <div className="space-y-4">
-        <label htmlFor="notes" className="block text-base font-bold text-foreground">
-          Any notes or reflections? (Optional)
-        </label>
-        <textarea
-          id="notes"
-          rows={3}
-          placeholder="What went well? What could be better?"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="w-full p-5 rounded-2xl border-2 border-border bg-muted focus:bg-card focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-muted-foreground text-foreground text-lg"
-        />
-      </div>
-
-      <div className="space-y-4">
-        <label htmlFor="nextSessionNotes" className="block text-base font-bold text-foreground">
-          Note for your next session
-        </label>
-        <textarea
-          id="nextSessionNotes"
-          rows={3}
-          placeholder="What do you want to remember for next time?"
-          value={nextSessionNotes}
-          onChange={(e) => setNextSessionNotes(e.target.value)}
-          className="w-full p-5 rounded-2xl border-2 border-border bg-muted focus:bg-card focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all placeholder:text-muted-foreground text-foreground text-lg"
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-bold text-xl hover:opacity-90 active:scale-[0.97] transition-all shadow-xl shadow-primary/20 mt-4 disabled:opacity-50"
-      >
-        {loading ? "Submitting..." : "Submit Review"}
-      </button>
-    </form>
+    </div>
   );
 }

@@ -43,6 +43,9 @@ export async function submitCheckIn(data: {
 
 export async function submitReview(data: {
   rating: number;
+  mentalRating?: number;
+  physicalRating?: number;
+  emotionalRating?: number;
   notes: string;
   metadata?: Record<string, any>;
   nextSessionNotes: string;
