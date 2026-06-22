@@ -29,7 +29,9 @@ type Review = {
   id: string;
   rating: number;
   notes: string | null;
+  nextSessionNotes: string | null;
   createdAt: Date | string | number | null;
+  metadata?: string | null;
 };
 import { PILLARS } from "@/lib/constants/pillars";
 import { motion } from "framer-motion";
@@ -105,6 +107,12 @@ export default async function PlayerDashboard(props: {
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-0.5">Action Required</p>
                       <h3 className="text-lg font-black text-foreground tracking-tight">SET YOUR INTENT FOR TODAY</h3>
+                      {latestReview?.nextSessionNotes && (
+                        <p className="text-[10px] font-bold text-muted-foreground italic mt-1 flex items-center gap-1">
+                          <Star className="w-2 h-2 text-vibrant fill-vibrant" />
+                          Commitment: {latestReview.nextSessionNotes}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <ChevronRight className="w-6 h-6 text-muted-foreground mr-2" />
@@ -115,19 +123,31 @@ export default async function PlayerDashboard(props: {
             {hasCheckedInToday && !hasReviewedToday && (
               <Link 
                 href="/dashboard?view=review"
-                className="block p-1 rounded-[2rem] bg-gradient-to-r from-vibrant via-primary to-vibrant animate-gradient-x shadow-lg shadow-vibrant/20 hover:scale-[1.01] transition-transform"
+                className="block p-1 rounded-[2.5rem] bg-gradient-to-r from-vibrant via-primary to-vibrant animate-gradient-x shadow-xl shadow-vibrant/20 hover:scale-[1.01] transition-all group"
               >
-                <div className="bg-background/90 backdrop-blur-xl rounded-[1.9rem] p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-vibrant/20 rounded-2xl flex items-center justify-center">
-                      <Star className="w-6 h-6 text-vibrant animate-pulse" />
+                <div className="bg-background/90 backdrop-blur-xl rounded-[2.4rem] p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-6">
+                    <div className="w-16 h-16 bg-vibrant/20 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform">
+                      <Star className="w-8 h-8 text-vibrant animate-pulse fill-vibrant/20" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-vibrant mb-0.5">Next Step</p>
-                      <h3 className="text-lg font-black text-foreground tracking-tight">REVIEW YOUR PRACTICE</h3>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-vibrant mb-1">Final Step</p>
+                      <h3 className="text-2xl font-black text-foreground tracking-tight uppercase italic mb-1">REVIEW YOUR PRACTICE</h3>
+                      <p className="text-sm font-bold text-muted-foreground flex items-center gap-2">
+                        <Target className="w-4 h-4 text-primary" />
+                        Today&apos;s Mission: &quot;{latestGoal}&quot;
+                      </p>
                     </div>
                   </div>
-                  <ChevronRight className="w-6 h-6 text-muted-foreground mr-2" />
+                  <div className="flex items-center gap-4">
+                    <div className="hidden sm:flex flex-col items-end">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Practice</span>
+                      <span className="text-xs font-bold text-vibrant">Locked In</span>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-vibrant/10 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                      <ChevronRight className="w-6 h-6 text-vibrant" />
+                    </div>
+                  </div>
                 </div>
               </Link>
             )}
@@ -148,7 +168,7 @@ export default async function PlayerDashboard(props: {
             <InstallPrompt />
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {hasCheckedInToday && (
+              {hasCheckedInToday && hasReviewedToday && (
                 <div className="md:col-span-3 glass-card rounded-[2.5rem] p-6 bg-vibrant/5 border-vibrant/20 flex flex-col sm:flex-row items-center justify-between gap-6">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-vibrant/20 rounded-2xl flex items-center justify-center">
@@ -288,7 +308,10 @@ export default async function PlayerDashboard(props: {
             <Link href="/dashboard" className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-6 gap-1">
               ← Back to Dashboard
             </Link>
-            <CheckInForm previousGoal={latestGoal} />
+            <CheckInForm 
+              previousGoal={latestGoal} 
+              latestReview={latestReview}
+            />
           </div>
         )}
 

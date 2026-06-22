@@ -10,7 +10,8 @@ import {
   BookOpen, 
   Users, 
   Shield,
-  Activity
+  Activity,
+  Star
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +50,12 @@ export function MobileNav({ role }: MobileNavProps) {
         href: "/dashboard?view=check-in", 
         icon: ClipboardList, 
         active: view === "check-in" 
+      },
+      { 
+        label: "Review", 
+        href: "/dashboard?view=review", 
+        icon: Star, 
+        active: view === "review" 
       },
       { 
         label: "History", 

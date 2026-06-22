@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Slider } from "@/components/ui/slider";
-import { CheckCircle2, ChevronRight, ChevronLeft, Zap, Target, Brain, Shield } from "lucide-react";
+import { CheckCircle2, ChevronRight, ChevronLeft, Zap, Target, Brain, Shield, Star, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { submitCheckIn } from "@/app/actions/entries";
@@ -18,9 +18,13 @@ const STEPS = [
 
 interface CheckInFormProps {
   previousGoal?: string;
+  latestReview?: {
+    nextSessionNotes: string | null;
+    metadata?: string | null;
+  } | null;
 }
 
-export function CheckInForm({ previousGoal }: CheckInFormProps) {
+export function CheckInForm({ previousGoal, latestReview }: CheckInFormProps) {
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState("");
   const [pillar, setPillar] = useState("");
@@ -134,7 +138,28 @@ export function CheckInForm({ previousGoal }: CheckInFormProps) {
 
             {step === 1 && (
               <div className="space-y-6">
-                {previousGoal && (
+                {latestReview?.nextSessionNotes && (
+                  <div className="p-4 rounded-2xl bg-vibrant/5 border border-vibrant/20 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-2 opacity-10">
+                      <Star className="w-8 h-8 text-vibrant" />
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-vibrant mb-2">Last Session&apos;s Commitment</p>
+                    <p className="text-sm font-bold text-foreground mb-3 italic">&quot;{latestReview.nextSessionNotes}&quot;</p>
+                    
+                    {(latestReview.nextSessionNotes.includes("Repeat") || latestReview.nextSessionNotes.includes("Adjust")) && previousGoal && (
+                      <button 
+                        type="button"
+                        onClick={() => setGoal(previousGoal)}
+                        className="text-[10px] font-black uppercase tracking-widest bg-vibrant/10 hover:bg-vibrant/20 text-vibrant px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        Use Previous Goal: {previousGoal}
+                      </button>
+                    )}
+                  </div>
+                )}
+                
+                {!latestReview?.nextSessionNotes && previousGoal && (
                   <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10">
                     <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Last Session&apos;s Goal</p>
                     <button 
