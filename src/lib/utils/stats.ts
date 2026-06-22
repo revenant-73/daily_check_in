@@ -1,9 +1,12 @@
 
-export function calculateStreak(checkIns: { createdAt: Date | number | string }[]) {
+export function calculateStreak(checkIns: { createdAt: Date | number | string | null }[]) {
   if (!checkIns || checkIns.length === 0) return 0;
   
-  // Sort check-ins by date descending
-  const sorted = [...checkIns].sort((a, b) => 
+  // Filter out nulls and sort check-ins by date descending
+  const validCheckIns = checkIns.filter(ci => ci.createdAt !== null) as { createdAt: Date | number | string }[];
+  if (validCheckIns.length === 0) return 0;
+
+  const sorted = [...validCheckIns].sort((a, b) => 
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
