@@ -68,7 +68,9 @@ export default async function PlayerDashboard(props: {
   const view = searchParams.view || "home";
   const motivationalMessage = getDailyMotivationalMessage();
   const latestEntry = checkIns[0];
+  const latestReview = reviews[0];
   const hasCheckedInToday = latestEntry && new Date(latestEntry.createdAt).toDateString() === new Date().toDateString();
+  const hasReviewedToday = latestReview && new Date(latestReview.createdAt).toDateString() === new Date().toDateString();
   const latestGoal = latestEntry?.goal;
   const latestMetadata = latestEntry?.metadata ? JSON.parse(latestEntry.metadata) : {};
   const latestPillar = latestEntry?.pillar || latestMetadata.pillar;
@@ -103,6 +105,26 @@ export default async function PlayerDashboard(props: {
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-0.5">Action Required</p>
                       <h3 className="text-lg font-black text-foreground tracking-tight">SET YOUR INTENT FOR TODAY</h3>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-muted-foreground mr-2" />
+                </div>
+              </Link>
+            )}
+
+            {hasCheckedInToday && !hasReviewedToday && (
+              <Link 
+                href="/dashboard?view=review"
+                className="block p-1 rounded-[2rem] bg-gradient-to-r from-vibrant via-primary to-vibrant animate-gradient-x shadow-lg shadow-vibrant/20 hover:scale-[1.01] transition-transform"
+              >
+                <div className="bg-background/90 backdrop-blur-xl rounded-[1.9rem] p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-vibrant/20 rounded-2xl flex items-center justify-center">
+                      <Star className="w-6 h-6 text-vibrant animate-pulse" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-vibrant mb-0.5">Next Step</p>
+                      <h3 className="text-lg font-black text-foreground tracking-tight">REVIEW YOUR PRACTICE</h3>
                     </div>
                   </div>
                   <ChevronRight className="w-6 h-6 text-muted-foreground mr-2" />
@@ -370,14 +392,21 @@ export default async function PlayerDashboard(props: {
       </main>
 
       {/* Mobile Quick Action FAB */}
-      <div className="fixed bottom-6 right-6 sm:hidden z-50">
-        <Link 
-          href="/dashboard?view=check-in"
-          className="w-16 h-16 bg-primary text-primary-foreground rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center active:scale-95 transition-transform"
-        >
-          <Zap className="w-8 h-8 fill-current" />
-        </Link>
-      </div>
+      {!hasReviewedToday && (
+        <div className="fixed bottom-6 right-6 sm:hidden z-50">
+          <Link 
+            href={hasCheckedInToday ? "/dashboard?view=review" : "/dashboard?view=check-in"}
+            className={cn(
+              "w-16 h-16 rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform",
+              hasCheckedInToday 
+                ? "bg-vibrant text-vibrant-foreground shadow-vibrant/40" 
+                : "bg-primary text-primary-foreground shadow-primary/40"
+            )}
+          >
+            {hasCheckedInToday ? <Star className="w-8 h-8 fill-current" /> : <Zap className="w-8 h-8 fill-current" />}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
