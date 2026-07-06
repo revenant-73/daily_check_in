@@ -48,6 +48,10 @@ export default async function PlayerDashboard(props: {
     redirect("/coach/dashboard");
   }
 
+  if (session.user.role === "admin") {
+    redirect("/admin");
+  }
+
   const dbUser = await db.select().from(users).where(eq(users.id, session.user.id)).get();
   
   if (!dbUser?.teamId) redirect("/onboarding");
