@@ -61,3 +61,12 @@ export const reactions = sqliteTable("reactions", {
   type: text("type").notNull(), // 'high-five', 'fire', 'muscle', etc.
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
 });
+
+export const feedback = sqliteTable("feedback", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  rating: integer("rating"), // Optional general satisfaction rating
+  category: text("category").default("general"), // 'bug', 'feature', 'ui', 'general'
+  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(strftime('%s', 'now'))`),
+});

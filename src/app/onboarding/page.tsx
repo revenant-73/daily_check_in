@@ -9,7 +9,11 @@ import { LogOut, Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage(props: {
+  searchParams: Promise<{ code?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const initialCode = searchParams.code;
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
@@ -64,7 +68,7 @@ export default async function OnboardingPage() {
 
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         <div className="space-y-8">
-          <JoinByCodeForm />
+          <JoinByCodeForm initialCode={initialCode} />
           
           <div className="bg-card p-8 rounded-3xl border border-border shadow-sm space-y-6">
             <div className="text-center space-y-1">

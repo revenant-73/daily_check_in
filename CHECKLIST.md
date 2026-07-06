@@ -127,8 +127,16 @@ This document breaks down the "Daily Check-In" app into **Milestones** (phases) 
 - **Goal**: Steamline onboarding and data access.
 - **Actions**:
     - [ ] **Bulk Roster Import**: Implement CSV upload for players.
+    - [x] **Direct Invite Links**: Support `?code=XXXX` in onboarding for one-click team joining.
     - [ ] **Invite QR Codes**: Generate scannable links for team joining.
     - [ ] **Data Export**: Add CSV export for team readiness data.
+
+### 🎫 Ticket #705: Player Feedback & Testing
+- **Goal**: Collect insights from players during the testing phase.
+- **Actions**:
+    - [x] **Feedback Table**: Create database schema for feedback collection.
+    - [x] **Feedback Form**: Build a dedicated `/feedback` page and form.
+    - [x] **Dashboard Integration**: Add "Give Feedback" link to the global Header.
 
 ### 🎫 Ticket #704: UI/UX & Performance
 - **Goal**: Professionalize the interface and feel.

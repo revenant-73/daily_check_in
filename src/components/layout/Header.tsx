@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { LogOut, MessageSquare } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 
 interface HeaderProps {
@@ -8,9 +8,16 @@ interface HeaderProps {
   role?: string;
   teamName?: string;
   href?: string;
+  feedbackUrl?: string;
 }
 
-export function Header({ userName, role, teamName, href = "/dashboard" }: HeaderProps) {
+export function Header({ 
+  userName, 
+  role, 
+  teamName, 
+  href = "/dashboard",
+  feedbackUrl = "/feedback"
+}: HeaderProps) {
 
   return (
     <header className="bg-card border-b border-border p-4 sticky top-0 z-50">
@@ -28,6 +35,13 @@ export function Header({ userName, role, teamName, href = "/dashboard" }: Header
 
         {/* User Info & Actions */}
         <div className="flex gap-4 items-center">
+          <Link
+            href={feedbackUrl}
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-vibrant/10 text-vibrant border border-vibrant/20 hover:bg-vibrant/20 transition-all font-black text-[10px] uppercase tracking-widest"
+          >
+            <MessageSquare className="w-3 h-3" />
+            Give Feedback
+          </Link>
           <div className="hidden md:flex flex-col items-end mr-2">
             <span className="text-sm font-bold text-foreground">{userName || "User"}</span>
             <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none">{role}</span>

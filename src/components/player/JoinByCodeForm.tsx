@@ -5,8 +5,8 @@ import { joinTeamByCode } from "@/app/actions/teams";
 import { useRouter } from "next/navigation";
 import { Hash, ArrowRight } from "lucide-react";
 
-export function JoinByCodeForm() {
-  const [code, setCode] = useState("");
+export function JoinByCodeForm({ initialCode = "" }: { initialCode?: string }) {
+  const [code, setCode] = useState(initialCode.toUpperCase());
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
