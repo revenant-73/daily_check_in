@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { signUp, ensureTestUser } from "@/app/actions/auth";
+import { signUp } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/ui/Logo";
 
@@ -12,30 +12,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  const handleQuickLogin = async (role: "player" | "coach") => {
-    setLoading(true);
-    setError("");
-    try {
-      await ensureTestUser(role as any);
-      const result = await signIn("credentials", {
-        email: `${role}@example.com`,
-        password: "password123",
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError(`Quick login failed for ${role}`);
-      } else {
-        router.push("/dashboard");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -179,30 +155,6 @@ export default function LoginPage() {
             {loading ? "Please wait..." : (isLogin ? "Sign In" : "Sign Up")}
           </button>
         </form>
-
-        {isLogin && (
-          <div className="pt-4 border-t border-border">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-center mb-4">Test Roles</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => handleQuickLogin("player")}
-                className="p-2 text-[10px] font-bold bg-muted hover:bg-muted/80 rounded-lg text-foreground transition-colors disabled:opacity-50"
-              >
-                Player
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => handleQuickLogin("coach")}
-                className="p-2 text-[10px] font-bold bg-muted hover:bg-muted/80 rounded-lg text-foreground transition-colors disabled:opacity-50"
-              >
-                Coach
-              </button>
-            </div>
-          </div>
-        )}
 
         <div className="text-center mt-4">
           <button
