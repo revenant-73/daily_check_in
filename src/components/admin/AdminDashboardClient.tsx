@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { CopyInviteButton } from "@/components/admin/CopyInviteButton";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 import { createOrganization, deleteOrganization, deleteUser, assignToTeam } from "@/app/actions/admin";
@@ -109,6 +110,10 @@ export default function AdminDashboardClient({
                          <h4 className="text-xl font-black text-foreground group-hover:text-primary transition-colors truncate">{team.name}</h4>
                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4">{org?.name || 'No Org'}</p>
                          
+                         <div className="mb-4">
+                            <CopyInviteButton code={team.playerInviteCode} className="w-full justify-center py-2" />
+                         </div>
+
                          <div className="flex justify-between items-center pt-4 border-t border-border/50">
                             <div className="flex gap-4">
                                <div className="text-center">

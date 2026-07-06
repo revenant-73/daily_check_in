@@ -6,6 +6,7 @@ import Link from "next/link";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { RosterUpload } from "@/components/admin/RosterUpload";
+import { CopyInviteButton } from "@/components/admin/CopyInviteButton";
 import { Header } from "@/components/layout/Header";
 
 export default async function TeamView(props: { params: Promise<{ teamId: string }> }) {
@@ -83,9 +84,12 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
               </h2>
               <p className="text-muted-foreground">Team Analytics and Player Management</p>
             </div>
-            <div className="bg-muted px-4 py-2 rounded-xl border border-border">
-              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Invite Code</p>
-              <code className="text-sm font-mono text-primary font-bold">{team.playerInviteCode}</code>
+            <div className="flex items-center gap-3">
+              <CopyInviteButton code={team.playerInviteCode} />
+              <div className="bg-muted px-4 py-2 rounded-xl border border-border">
+                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Invite Code</p>
+                <code className="text-sm font-mono text-primary font-bold">{team.playerInviteCode}</code>
+              </div>
             </div>
           </div>
         </div>
