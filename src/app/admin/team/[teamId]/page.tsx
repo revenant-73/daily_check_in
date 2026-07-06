@@ -87,10 +87,10 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
             </div>
             <div className="flex items-center gap-3">
               <DeleteTeamAndRedirect teamId={team.id} />
-              <CopyInviteButton code={team.playerInviteCode} />
+              <CopyInviteButton code={team.playerInviteCode || team.inviteCode} />
               <div className="bg-muted px-4 py-2 rounded-xl border border-border">
                 <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Invite Code</p>
-                <code className="text-sm font-mono text-primary font-bold">{team.playerInviteCode}</code>
+                <code className="text-sm font-mono text-primary font-bold">{team.playerInviteCode || team.inviteCode}</code>
               </div>
             </div>
           </div>
