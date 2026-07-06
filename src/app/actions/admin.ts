@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { organizations, teams, users, checkIns, reviews } from "@/lib/db/schema";
+import { organizations, teams, users, checkIns, reviews, reactions } from "@/lib/db/schema";
 import { eq, desc, inArray, or } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
@@ -199,8 +199,31 @@ export async function deleteTeam(teamId: string) {
   const session = await auth();
   if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
 
-  await db.delete(teams).where(eq(teams.id, teamId));
-  revalidatePath("/admin", "layout");
+  try {
+    // 1. Delete all reactions for check-ins in this team
+    const teamCheckIns = await db.select().from(checkIns).where(eq(checkIns.teamId, teamId));
+    if (teamCheckIns.length > 0) {
+      const checkInIds = teamCheckIns.map(ci => ci.id);
+      await db.delete(reactions).where(inArray(reactions.checkInId, checkInIds));
+    }
+
+    // 2. Delete all check-ins for this team
+    await db.delete(checkIns).where(eq(checkIns.teamId, teamId));
+
+    // 3. Delete all reviews for this team
+    await db.delete(reviews).where(eq(reviews.teamId, teamId));
+
+    // 4. Unassign users from this team
+    await db.update(users).set({ teamId: null }).where(eq(users.teamId, teamId));
+
+    // 5. Finally delete the team
+    await db.delete(teams).where(eq(teams.id, teamId));
+
+    revalidatePath("/admin", "layout");
+  } catch (error) {
+    logError("deleteTeam", error);
+    throw new Error("Failed to delete team and its related data");
+  }
 }
 
 export async function updateUserRole(userId: string, role: "admin" | "coach" | "player") {
