@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
-import { getAdminData, deleteTeam } from "@/app/actions/admin";
-import { Building2, Users, ChevronRight, ChevronLeft } from "lucide-react";
+import { getAdminData, deleteTeam, adminCreateTeam } from "@/app/actions/admin";
+import { Building2, Users, ChevronRight, ChevronLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { Header } from "@/components/layout/Header";
@@ -57,7 +57,26 @@ export default async function OrganizationView(props: { params: Promise<{ orgId:
           <h2 className="text-3xl font-black text-foreground flex items-center gap-3">
             <Building2 className="w-8 h-8 text-primary" /> {organization.name}
           </h2>
-          <p className="text-muted-foreground">Manage teams and view performance for this organization.</p>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <p className="text-muted-foreground">Manage teams and view performance for this organization.</p>
+            
+            <form action={async (formData) => {
+              "use server";
+              const name = formData.get("name") as string;
+              if (name) await adminCreateTeam(name, params.orgId);
+            }} className="flex gap-2 w-full md:w-auto">
+              <input 
+                name="name" 
+                required 
+                placeholder="New Team Name" 
+                className="flex-1 md:w-64 bg-card border border-border p-2 rounded-xl text-xs focus:outline-none focus:border-primary transition-all" 
+              />
+              <button className="bg-primary text-primary-foreground p-2 rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 font-bold text-xs px-4">
+                <Plus className="w-4 h-4" />
+                Add Team
+              </button>
+            </form>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -101,7 +120,7 @@ export default async function OrganizationView(props: { params: Promise<{ orgId:
             <div className="col-span-full bg-muted/30 border border-dashed border-border rounded-2xl p-12 text-center">
               <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-20" />
               <p className="text-muted-foreground font-medium">No teams in this organization yet.</p>
-              <Link href="/admin" className="text-primary font-bold hover:underline mt-2 inline-block">Create a team</Link>
+              <p className="text-xs text-muted-foreground mt-2">Use the form above to create your first team.</p>
             </div>
           )}
         </div>

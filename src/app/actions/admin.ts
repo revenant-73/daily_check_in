@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { organizations, teams, users, checkIns, reviews } from "@/lib/db/schema";
-import { eq, desc, inArray } from "drizzle-orm";
+import { eq, desc, inArray, or } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { logError } from "@/lib/logger";
@@ -136,6 +136,47 @@ export async function getTeamDataForAdmin(teamId: string) {
     logError("getTeamDataForAdmin", error);
     throw error;
   }
+}
+
+async function generateUniqueInviteCode() {
+  let code = "";
+  let isUnique = false;
+  let attempts = 0;
+
+  while (!isUnique && attempts < 10) {
+    code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const existing = await db.query.teams.findFirst({
+      where: or(
+        eq(teams.inviteCode, code),
+        eq(teams.coachInviteCode, code),
+        eq(teams.playerInviteCode, code)
+      ),
+    });
+    if (!existing) {
+      isUnique = true;
+    }
+    attempts++;
+  }
+  return code;
+}
+
+export async function adminCreateTeam(name: string, orgId: string) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
+
+  const coachInviteCode = await generateUniqueInviteCode();
+  const playerInviteCode = await generateUniqueInviteCode();
+
+  await db.insert(teams).values({
+    name,
+    orgId,
+    inviteCode: playerInviteCode,
+    coachInviteCode,
+    playerInviteCode,
+  });
+
+  revalidatePath("/admin", "layout");
+  revalidatePath(`/admin/org/${orgId}`, "layout");
 }
 
 export async function createOrganization(name: string) {
