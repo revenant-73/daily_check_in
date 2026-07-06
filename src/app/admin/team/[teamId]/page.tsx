@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
-import { getTeamDataForAdmin, getAdminData, assignToTeam } from "@/app/actions/admin";
-import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus } from "lucide-react";
+import { getTeamDataForAdmin, getAdminData, assignToTeam, deleteTeam } from "@/app/actions/admin";
+import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { ActionButton } from "@/components/admin/ActionButton";
+import { DeleteTeamAndRedirect } from "@/components/admin/DeleteTeamAndRedirect";
 import { RosterUpload } from "@/components/admin/RosterUpload";
 import { CopyInviteButton } from "@/components/admin/CopyInviteButton";
 import { Header } from "@/components/layout/Header";
@@ -85,6 +86,7 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
               <p className="text-muted-foreground">Team Analytics and Player Management</p>
             </div>
             <div className="flex items-center gap-3">
+              <DeleteTeamAndRedirect teamId={team.id} />
               <CopyInviteButton code={team.playerInviteCode} />
               <div className="bg-muted px-4 py-2 rounded-xl border border-border">
                 <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Invite Code</p>

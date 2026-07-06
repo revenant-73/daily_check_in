@@ -17,7 +17,7 @@ import { DeleteButton } from "@/components/admin/DeleteButton";
 import { CopyInviteButton } from "@/components/admin/CopyInviteButton";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
-import { createOrganization, deleteOrganization, deleteUser, assignToTeam } from "@/app/actions/admin";
+import { createOrganization, deleteOrganization, deleteUser, assignToTeam, deleteTeam } from "@/app/actions/admin";
 
 export default function AdminDashboardClient({ 
   initialData,
@@ -102,9 +102,17 @@ export default function AdminDashboardClient({
                             <div className={cn("px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border", health.color)}>
                                {health.label}
                             </div>
-                            <div className="text-right">
-                               <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Readiness</p>
-                               <p className="text-lg font-black text-foreground">{((team.avgReadiness || 0) * 10).toFixed(0)}%</p>
+                            <div className="flex items-center gap-3">
+                               <div className="text-right">
+                                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Readiness</p>
+                                  <p className="text-lg font-black text-foreground">{((team.avgReadiness || 0) * 10).toFixed(0)}%</p>
+                               </div>
+                               <DeleteButton 
+                                 id={team.id} 
+                                 onDelete={deleteTeam} 
+                                 size="sm" 
+                                 className="opacity-0 group-hover:opacity-100 transition-opacity"
+                               />
                             </div>
                          </div>
                          <h4 className="text-xl font-black text-foreground group-hover:text-primary transition-colors truncate">{team.name}</h4>
