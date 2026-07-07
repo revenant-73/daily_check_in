@@ -62,7 +62,16 @@ export default function AdminDashboardClient({
               <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase flex items-center gap-3">
                 <Shield className="w-10 h-10 text-primary" /> Admin Lab
               </h2>
-              <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Global Systems Control</p>
+              <div className="flex items-center gap-4">
+                <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Global Systems Control</p>
+                <Link 
+                  href="/dashboard?preview=true" 
+                  className="px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all font-black text-[10px] uppercase tracking-widest flex items-center gap-2"
+                >
+                  <Users className="w-3 h-3" />
+                  Demo Player Experience
+                </Link>
+              </div>
            </div>
            
            <div className="relative w-full md:w-96 group">

@@ -38,17 +38,19 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export default async function PlayerDashboard(props: {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; preview?: string }>;
 }) {
   const searchParams = await props.searchParams;
   const session = await auth();
   if (!session?.user) redirect("/login");
 
+  const isPreview = searchParams.preview === "true" && session.user.role === "admin";
+
   if (session.user.role === "coach") {
     redirect("/coach/dashboard");
   }
 
-  if (session.user.role === "admin") {
+  if (session.user.role === "admin" && !isPreview) {
     redirect("/admin");
   }
 

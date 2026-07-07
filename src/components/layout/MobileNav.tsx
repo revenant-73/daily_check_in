@@ -28,6 +28,7 @@ export function MobileNav({ role }: MobileNavProps) {
     if (role === "admin") {
       return [
         { label: "Admin", href: "/admin", icon: Shield, active: pathname === "/admin" },
+        { label: "Player", href: "/dashboard?preview=true", icon: Users, active: pathname === "/dashboard" },
       ];
     }
 
