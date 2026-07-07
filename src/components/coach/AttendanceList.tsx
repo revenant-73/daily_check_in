@@ -17,18 +17,18 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
 
   if (variant === "condensed") {
     return (
-      <div className="bg-card rounded-xl border border-border shadow-sm p-4">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <div className="flex items-center gap-3 pr-4 border-r border-border">
-            <h3 className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+      <div className="bg-card rounded-xl border border-border shadow-sm p-3 sm:p-4 overflow-hidden">
+        <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar py-1">
+          <div className="flex items-center gap-2 pr-4 border-r border-border shrink-0">
+            <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-muted-foreground whitespace-nowrap">
               Attendance
             </h3>
-            <span className="text-[10px] font-black px-2 py-0.5 bg-primary/20 text-primary rounded-full">
+            <span className="text-[9px] sm:text-[10px] font-black px-2 py-0.5 bg-primary/20 text-primary rounded-full">
               {checkedInCount}/{players.length}
             </span>
           </div>
           
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 flex-1">
+          <div className="flex items-center gap-x-4 shrink-0 pr-4">
             {players.map((player) => {
               const isCheckedIn = !!player.hasCheckedInToday;
               const isLowReadiness = isCheckedIn && player.latestReadiness !== null && player.latestReadiness < 4;
@@ -36,16 +36,16 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
                 <Link 
                   key={player.id} 
                   href={`/coach/player/${player.id}`}
-                  className="flex items-center gap-1.5 group hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-1.5 group hover:opacity-80 transition-opacity whitespace-nowrap"
                 >
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                  <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${
                     isLowReadiness 
                       ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse' 
                       : isCheckedIn 
                         ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' 
                         : 'bg-amber-500/40'
                   }`} />
-                  <span className={`text-xs font-bold ${
+                  <span className={`text-[10px] sm:text-xs font-black uppercase tracking-tight ${
                     isLowReadiness 
                       ? 'text-red-500' 
                       : isCheckedIn 
@@ -58,14 +58,14 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
               );
             })}
             {players.length === 0 && (
-              <span className="text-xs text-muted-foreground italic">No players joined yet.</span>
+              <span className="text-[10px] text-muted-foreground italic uppercase">No players</span>
             )}
           </div>
 
           {inviteCode && (
-            <div className="pl-4 border-l border-border hidden sm:block">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Invite Code</p>
-              <code className="text-xs font-mono text-primary font-bold select-all bg-primary/5 px-1.5 py-0.5 rounded">{inviteCode}</code>
+            <div className="pl-4 border-l border-border shrink-0">
+              <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mr-2">Code:</span>
+              <code className="text-[10px] font-mono text-primary font-bold select-all bg-primary/5 px-1.5 py-0.5 rounded uppercase">{inviteCode}</code>
             </div>
           )}
         </div>

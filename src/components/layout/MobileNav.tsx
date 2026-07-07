@@ -76,7 +76,7 @@ export function MobileNav({ role }: MobileNavProps) {
 
   return (
     <nav className={cn(
-      "md:hidden fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-t border-border px-6 py-3 z-50 flex items-center safe-area-bottom",
+      "md:hidden fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-t border-border px-6 py-2 z-50 flex items-center safe-area-bottom",
       navItems.length > 1 ? "justify-between" : "justify-center"
     )}>
       {navItems.map((item) => (
@@ -84,12 +84,12 @@ export function MobileNav({ role }: MobileNavProps) {
           key={item.label}
           href={item.href}
           className={cn(
-            "flex flex-col items-center gap-1 transition-colors",
+            "flex flex-col items-center transition-colors",
             item.active ? "text-primary" : "text-muted-foreground hover:text-foreground"
           )}
         >
-          <item.icon className={cn("w-6 h-6", item.active && "fill-primary/10")} />
-          <span className="text-[10px] font-black uppercase tracking-tighter">{item.label}</span>
+          <item.icon className={cn("w-5 h-5 mb-0.5", item.active && "fill-primary/10")} />
+          <span className="text-[9px] font-black uppercase tracking-tighter">{item.label}</span>
         </Link>
       ))}
     </nav>

@@ -93,23 +93,23 @@ export function ReviewForm({ goal, pillar }: ReviewFormProps) {
   const CurrentIcon = STEPS[step].icon;
 
   return (
-    <div className="w-full max-w-xl mx-auto pb-12">
+    <div className="w-full max-w-xl mx-auto pb-8 sm:pb-0">
       {/* Progress Header */}
-      <div className="flex justify-between mb-8 px-2 overflow-x-auto pb-2 gap-4 no-scrollbar">
+      <div className="flex justify-between mb-6 px-2 overflow-x-auto no-scrollbar gap-3">
         {STEPS.map((s, i) => (
-          <div key={s.id} className="flex flex-col items-center gap-2 flex-shrink-0">
+          <div key={s.id} className="flex flex-col items-center gap-1.5 flex-shrink-0">
             <div className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-500",
+              "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500",
               i === step ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-110" : 
               i < step ? "bg-vibrant border-vibrant text-vibrant-foreground" : "bg-muted border-border text-muted-foreground"
             )}>
-              {i < step ? <CheckCircle2 className="w-4 h-4" /> : <s.icon className="w-4 h-4" />}
+              {i < step ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" /> : <s.icon className="w-4 h-4 sm:w-5 sm:h-5" />}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="glass-card rounded-[2.5rem] p-8 sm:p-12 relative overflow-hidden">
+      <div className="glass-card rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-12 relative overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -117,19 +117,19 @@ export function ReviewForm({ goal, pillar }: ReviewFormProps) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="space-y-8"
+            className="space-y-6 sm:space-y-8"
           >
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-vibrant/10 text-vibrant text-[10px] font-black uppercase tracking-widest">
+            <div className="space-y-1 sm:space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-vibrant/10 text-vibrant text-[9px] font-black uppercase tracking-widest">
                 <CurrentIcon className="w-3 h-3" />
                 Step {step + 1} of 5
               </div>
-              <h1 className="text-3xl font-black text-foreground tracking-tighter uppercase">{STEPS[step].title}</h1>
-              <p className="text-muted-foreground font-medium">{STEPS[step].description}</p>
+              <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter uppercase">{STEPS[step].title}</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">{STEPS[step].description}</p>
             </div>
 
             {step === 0 && (
-              <div className="space-y-10 py-4">
+              <div className="space-y-6 sm:space-y-10 py-2 sm:py-4">
                 <Slider label="Mental Edge" value={mental} onChange={(e) => setMental(parseInt(e.target.value))} />
                 <Slider label="Physical Power" value={physical} onChange={(e) => setPhysical(parseInt(e.target.value))} />
                 <Slider label="Emotional Calm" value={emotional} onChange={(e) => setEmotional(parseInt(e.target.value))} />
@@ -137,21 +137,21 @@ export function ReviewForm({ goal, pillar }: ReviewFormProps) {
             )}
 
             {step === 1 && (
-              <div className="space-y-8">
-                <div className="p-6 rounded-3xl bg-primary/5 border-2 border-primary/20">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Today&apos;s Goal</p>
-                  <p className="text-xl font-bold text-foreground italic uppercase">&quot;{goal || "No goal set"}&quot;</p>
+              <div className="space-y-6 sm:space-y-8">
+                <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-primary/5 border-2 border-primary/20">
+                  <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-primary mb-1 sm:mb-2">Today&apos;s Goal</p>
+                  <p className="text-lg sm:text-xl font-bold text-foreground italic uppercase">&quot;{goal || "No goal set"}&quot;</p>
                 </div>
                 
-                <div className="space-y-4">
-                  <p className="text-sm font-black text-foreground uppercase tracking-widest text-center">Did you give this goal honest attention today?</p>
-                  <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-3 sm:space-y-4">
+                  <p className="text-xs sm:text-sm font-black text-foreground uppercase tracking-widest text-center">Honest attention today?</p>
+                  <div className="grid grid-cols-1 gap-2 sm:gap-3">
                     {["Yes", "Somewhat", "No"].map((option) => (
                       <button
                         key={option}
                         onClick={() => setGoalAttention(option)}
                         className={cn(
-                          "py-4 rounded-2xl font-black uppercase tracking-widest transition-all border-2",
+                          "py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-xs sm:text-sm",
                           goalAttention === option 
                             ? "bg-primary border-primary text-primary-foreground" 
                             : "bg-muted/50 border-border hover:border-primary/50 text-foreground"
@@ -166,33 +166,33 @@ export function ReviewForm({ goal, pillar }: ReviewFormProps) {
             )}
 
             {step === 2 && (
-              <div className="space-y-8">
-                <div className="p-6 rounded-3xl bg-vibrant/5 border-2 border-vibrant/20">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-vibrant mb-2">Torchbearer Action</p>
-                  <p className="text-xl font-bold text-foreground italic uppercase">&quot;{pillar || "No action selected"}&quot;</p>
+              <div className="space-y-6 sm:space-y-8">
+                <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-vibrant/5 border-2 border-vibrant/20">
+                  <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-vibrant mb-1 sm:mb-2">Torchbearer Action</p>
+                  <p className="text-lg sm:text-xl font-bold text-foreground italic uppercase">&quot;{pillar || "No action"}&quot;</p>
                 </div>
 
-                <div className="space-y-4">
-                  <p className="text-sm font-black text-foreground uppercase tracking-widest text-center">How did you carry the culture today?</p>
-                  <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-3 sm:space-y-4">
+                  <p className="text-xs sm:text-sm font-black text-foreground uppercase tracking-widest text-center">Cultural Impact?</p>
+                  <div className="grid grid-cols-1 gap-2 sm:gap-3">
                     {[
-                      { id: "lived", label: "I lived it clearly" },
-                      { id: "progress", label: "I made progress" },
-                      { id: "missed", label: "I missed chances" },
-                      { id: "avoided", label: "I avoided it today" }
+                      { id: "lived", label: "Lived it clearly" },
+                      { id: "progress", label: "Made progress" },
+                      { id: "missed", label: "Missed chances" },
+                      { id: "avoided", label: "Avoided it" }
                     ].map((option) => (
                       <button
                         key={option.id}
                         onClick={() => setCultureReview(option.label)}
                         className={cn(
-                          "py-4 px-6 rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-left flex justify-between items-center",
+                          "py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-left flex justify-between items-center text-xs sm:text-sm",
                           cultureReview === option.label 
                             ? "bg-vibrant border-vibrant text-vibrant-foreground" 
                             : "bg-muted/50 border-border hover:border-vibrant/50 text-foreground"
                         )}
                       >
                         {option.label}
-                        {cultureReview === option.label && <CheckCircle2 className="w-5 h-5" />}
+                        {cultureReview === option.label && <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />}
                       </button>
                     ))}
                   </div>
@@ -201,34 +201,34 @@ export function ReviewForm({ goal, pillar }: ReviewFormProps) {
             )}
 
             {step === 3 && (
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <p className="text-sm font-black text-foreground uppercase tracking-widest">What is one moment from practice you want to remember?</p>
+              <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-2 sm:space-y-3">
+                  <p className="text-xs sm:text-sm font-black text-foreground uppercase tracking-widest">One moment to remember?</p>
                   <textarea
                     autoFocus
-                    placeholder="Technical, emotional, social, or competitive..."
+                    placeholder="Technical, emotional, social..."
                     value={reflection}
                     onChange={(e) => setReflection(e.target.value)}
-                    className="w-full p-6 rounded-3xl bg-muted/50 border-2 border-border focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all text-lg font-bold placeholder:text-muted-foreground/50 min-h-[160px]"
+                    className="w-full p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-muted/50 border-2 border-border focus:border-primary transition-all text-sm sm:text-lg font-bold placeholder:text-muted-foreground/50 min-h-[120px] sm:min-h-[160px]"
                   />
                 </div>
               </div>
             )}
 
             {step === 4 && (
-              <div className="space-y-6">
-                <p className="text-sm font-black text-foreground uppercase tracking-widest text-center">What is your next small commitment?</p>
-                <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-4 sm:space-y-6">
+                <p className="text-xs sm:text-sm font-black text-foreground uppercase tracking-widest text-center">Next commitment?</p>
+                <div className="grid grid-cols-1 gap-2 sm:gap-3">
                   {[
                     "Repeat today's goal",
                     "Adjust today's goal",
-                    "Choose a new goal next practice"
+                    "Choose a new goal"
                   ].map((option) => (
                     <button
                       key={option}
                       onClick={() => setNextCommitment(option)}
                       className={cn(
-                        "py-5 px-6 rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-left",
+                        "py-4 sm:py-5 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-left text-xs sm:text-sm",
                         nextCommitment === option 
                           ? "bg-primary border-primary text-primary-foreground shadow-lg" 
                           : "bg-muted/50 border-border hover:border-primary/50 text-foreground"
@@ -243,13 +243,13 @@ export function ReviewForm({ goal, pillar }: ReviewFormProps) {
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex gap-4 mt-12">
+        <div className="flex gap-3 sm:gap-4 mt-8 sm:mt-12">
           {step > 0 && (
             <button
               onClick={prevStep}
-              className="flex-1 py-5 rounded-2xl border-2 border-border font-black uppercase tracking-widest text-sm hover:bg-muted transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-4 sm:py-5 rounded-xl sm:rounded-2xl border-2 border-border font-black uppercase tracking-widest text-xs sm:text-sm hover:bg-muted transition-colors flex items-center justify-center gap-1 sm:gap-2"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               Back
             </button>
           )}
@@ -263,7 +263,7 @@ export function ReviewForm({ goal, pillar }: ReviewFormProps) {
               (step === 4 && !nextCommitment)
             }
             className={cn(
-              "flex-[2] py-5 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20",
+              "flex-[2] py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2 transition-all shadow-xl shadow-primary/20",
               loading || 
               (step === 1 && !goalAttention) || 
               (step === 2 && !cultureReview) || 
@@ -273,8 +273,8 @@ export function ReviewForm({ goal, pillar }: ReviewFormProps) {
                 : "bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98]"
             )}
           >
-            {loading ? "Syncing..." : step === STEPS.length - 1 ? "Complete Review" : "Next Step"}
-            {!loading && <ChevronRight className="w-5 h-5" />}
+            {loading ? "Syncing..." : step === STEPS.length - 1 ? "Complete" : "Next"}
+            {!loading && <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />}
           </button>
         </div>
       </div>

@@ -190,11 +190,48 @@ export default async function CoachDashboard(props: {
                 </div>
               </section>
               
-              <section className="glass-card rounded-[2.5rem] overflow-hidden">
-                <div className="p-8 border-b border-border/50 flex justify-between items-center">
-                  <h3 className="text-xl font-black uppercase tracking-widest">Recent Check-Ins</h3>
+              <section className="glass-card rounded-3xl sm:rounded-[2.5rem] overflow-hidden">
+                <div className="p-5 sm:p-8 border-b border-border/50 flex justify-between items-center">
+                  <h3 className="text-sm sm:text-xl font-black uppercase tracking-widest">Recent Check-Ins</h3>
                 </div>
-                <div className="overflow-x-auto">
+                
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-border/50">
+                  {checkIns.slice(0, 8).map((ci) => {
+                    const player = players.find(p => p.id === ci.playerId);
+                    const status = getStatusBadge(ci);
+                    const ciReactions = reactions?.filter((r: any) => r.checkInId === ci.id) || [];
+                    const metadata = ci.metadata ? JSON.parse(ci.metadata) : {};
+                    return (
+                      <div key={ci.id} className="p-4 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <Link href={`/coach/player/${ci.playerId}`} className="font-black text-sm text-foreground uppercase tracking-tight">
+                            {player?.name || "Unknown"}
+                          </Link>
+                          {status && (
+                            <div className={cn("px-2 py-0.5 rounded-full text-[8px] font-black border uppercase tracking-widest", status.color)}>
+                              {status.label}
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground font-medium italic">&quot;{ci.goal}&quot;</p>
+                        <div className="flex justify-between items-center pt-1">
+                          <div className="flex gap-1">
+                            <div className={cn("w-1.5 h-1.5 rounded-full", ci.mentalRating <= 3 ? "bg-red-500" : "bg-blue-400/20")} />
+                            <div className={cn("w-1.5 h-1.5 rounded-full", ci.physicalRating <= 3 ? "bg-red-500" : "bg-green-400/20")} />
+                          </div>
+                          <div className="flex gap-2 items-center scale-90 origin-right">
+                            <CoachNoteDialog checkInId={ci.id} existingNote={metadata.coachNote} />
+                            <ReactionButtons checkInId={ci.id} currentReactions={ciReactions} />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-muted/30 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] border-b border-border/50">
