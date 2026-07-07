@@ -22,9 +22,10 @@ interface CheckInFormProps {
     nextSessionNotes: string | null;
     metadata?: string | null;
   } | null;
+  isPreview?: boolean;
 }
 
-export function CheckInForm({ previousGoal, latestReview }: CheckInFormProps) {
+export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFormProps) {
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState("");
   const [pillar, setPillar] = useState("");
@@ -45,7 +46,7 @@ export function CheckInForm({ previousGoal, latestReview }: CheckInFormProps) {
         mentalRating: mental,
         physicalRating: physical,
         emotionalRating: emotional,
-      });
+      }, isPreview);
       setSubmitted(true);
     } catch (err) {
       console.error(err);

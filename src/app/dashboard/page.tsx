@@ -93,8 +93,9 @@ export default async function PlayerDashboard(props: {
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
       <Header 
         userName={session.user.name} 
-        role="Player" 
+        role={isPreview ? "Admin (Preview)" : "Player"} 
         teamName={team?.name} 
+        href={isPreview ? "/admin" : "/dashboard"}
       />
 
       <main className="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pb-24 sm:pb-6">
@@ -102,7 +103,7 @@ export default async function PlayerDashboard(props: {
           <div className="space-y-4 sm:space-y-6">
             {!hasCheckedInToday && (
               <Link 
-                href="/dashboard?view=check-in"
+                href={isPreview ? "/dashboard?view=check-in&preview=true" : "/dashboard?view=check-in"}
                 className="block p-0.5 rounded-3xl bg-gradient-to-r from-primary via-vibrant to-primary animate-gradient-x shadow-lg shadow-primary/20 hover:scale-[1.01] transition-transform"
               >
                 <div className="bg-background/90 backdrop-blur-xl rounded-[1.4rem] p-3 flex items-center justify-between">
@@ -122,7 +123,7 @@ export default async function PlayerDashboard(props: {
 
             {hasCheckedInToday && !hasReviewedToday && (
               <Link 
-                href="/dashboard?view=review"
+                href={isPreview ? "/dashboard?view=review&preview=true" : "/dashboard?view=review"}
                 className="block p-0.5 rounded-[2rem] bg-gradient-to-r from-vibrant via-primary to-vibrant animate-gradient-x shadow-xl shadow-vibrant/20 hover:scale-[1.01] transition-all group"
               >
                 <div className="bg-background/90 backdrop-blur-xl rounded-[1.9rem] p-4 flex items-center justify-between gap-4">
@@ -259,7 +260,7 @@ export default async function PlayerDashboard(props: {
               <div className="space-y-4">
                 <div className="flex justify-between items-center px-2">
                   <h3 className="text-sm font-black uppercase tracking-widest text-foreground">History</h3>
-                  <Link href="/dashboard?view=history" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
+                  <Link href={isPreview ? "/dashboard?view=history&preview=true" : "/dashboard?view=history"} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
                     <History className="w-3 h-3" />
                     View All
                   </Link>
@@ -290,28 +291,29 @@ export default async function PlayerDashboard(props: {
 
         {view === "check-in" && (
           <div className="max-w-lg mx-auto">
-            <Link href="/dashboard" className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-6 gap-1">
+            <Link href={isPreview ? "/dashboard?preview=true" : "/dashboard"} className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-6 gap-1">
               ← Back to Dashboard
             </Link>
             <CheckInForm 
               previousGoal={latestGoal} 
               latestReview={latestReview}
+              isPreview={isPreview}
             />
           </div>
         )}
 
         {view === "review" && (
           <div className="max-w-lg mx-auto">
-            <Link href="/dashboard" className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-6 gap-1">
+            <Link href={isPreview ? "/dashboard?preview=true" : "/dashboard"} className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-6 gap-1">
               ← Back to Dashboard
             </Link>
-            <ReviewForm goal={latestGoal} pillar={latestPillar} />
+            <ReviewForm goal={latestGoal} pillar={latestPillar} isPreview={isPreview} />
           </div>
         )}
 
         {view === "history" && (
           <div className="space-y-8">
-            <Link href="/dashboard" className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-2 gap-1">
+            <Link href={isPreview ? "/dashboard?preview=true" : "/dashboard"} className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-2 gap-1">
               ← Back to Dashboard
             </Link>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -373,7 +375,7 @@ export default async function PlayerDashboard(props: {
 
         {view === "resources" && (
           <div className="space-y-8">
-            <Link href="/dashboard" className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-2 gap-1">
+            <Link href={isPreview ? "/dashboard?preview=true" : "/dashboard"} className="inline-flex items-center text-sm font-semibold text-muted-foreground hover:text-foreground mb-2 gap-1">
               ← Back to Dashboard
             </Link>
             
@@ -403,7 +405,9 @@ export default async function PlayerDashboard(props: {
       {!hasReviewedToday && (
         <div className="fixed bottom-6 right-6 sm:hidden z-50">
           <Link 
-            href={hasCheckedInToday ? "/dashboard?view=review" : "/dashboard?view=check-in"}
+            href={hasCheckedInToday 
+              ? (isPreview ? "/dashboard?view=review&preview=true" : "/dashboard?view=review") 
+              : (isPreview ? "/dashboard?view=check-in&preview=true" : "/dashboard?view=check-in")}
             className={cn(
               "w-16 h-16 rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform",
               hasCheckedInToday 

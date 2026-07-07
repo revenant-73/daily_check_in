@@ -14,10 +14,15 @@ export async function submitCheckIn(data: {
   mentalRating: number;
   physicalRating: number;
   emotionalRating: number;
-}) {
+}, isPreview?: boolean) {
   try {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
+
+    if (isPreview && session.user.role === "admin") {
+      console.log("Preview submission, skipping DB write");
+      return;
+    }
 
     const user = await db.query.users.findFirst({
       where: eq(users.id, session.user.id),
@@ -49,10 +54,15 @@ export async function submitReview(data: {
   notes: string;
   metadata?: Record<string, any>;
   nextSessionNotes: string;
-}) {
+}, isPreview?: boolean) {
   try {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
+
+    if (isPreview && session.user.role === "admin") {
+      console.log("Preview submission, skipping DB write");
+      return;
+    }
 
     const user = await db.query.users.findFirst({
       where: eq(users.id, session.user.id),

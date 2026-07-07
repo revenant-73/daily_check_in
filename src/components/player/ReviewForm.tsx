@@ -18,9 +18,10 @@ const STEPS = [
 interface ReviewFormProps {
   goal?: string;
   pillar?: string;
+  isPreview?: boolean;
 }
 
-export function ReviewForm({ goal, pillar }: ReviewFormProps) {
+export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
   const [step, setStep] = useState(0);
   const [mental, setMental] = useState(5);
   const [physical, setPhysical] = useState(5);
@@ -49,7 +50,7 @@ export function ReviewForm({ goal, pillar }: ReviewFormProps) {
           originalPillar: pillar,
           nextCommitment
         }
-      });
+      }, isPreview);
       setSubmitted(true);
     } catch (err) {
       console.error(err);
