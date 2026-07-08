@@ -379,6 +379,28 @@ export default async function PlayerDashboard(props: {
               ← Back to Dashboard
             </Link>
             
+            <div className="bg-gradient-to-br from-vibrant/20 to-primary/20 p-6 rounded-[2rem] border border-vibrant/20 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-vibrant/20 rounded-xl flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5 text-vibrant" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-foreground tracking-tight uppercase">Got Feedback?</h3>
+                  <p className="text-xs text-muted-foreground font-medium">We want to hear from you!</p>
+                </div>
+              </div>
+              <p className="text-sm text-foreground/80 leading-relaxed font-medium">
+                Help us make Practice With Purpose better. Tell us what you like or what we can improve.
+              </p>
+              <Link 
+                href="/feedback"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-vibrant text-vibrant-foreground rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                Send Feedback
+                <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+
             <div className="space-y-4">
               <h2 className="text-3xl font-black text-foreground">Behavior Guide</h2>
               <p className="text-muted-foreground">These are the seven standards we focus on to help ourselves, our teammates, and our team get better.</p>

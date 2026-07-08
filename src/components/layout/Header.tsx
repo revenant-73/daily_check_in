@@ -37,10 +37,11 @@ export function Header({
         <div className="flex gap-2 sm:gap-4 items-center">
           <Link
             href={feedbackUrl}
-            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-vibrant/10 text-vibrant border border-vibrant/20 hover:bg-vibrant/20 transition-all font-black text-[10px] uppercase tracking-widest"
+            className="flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-full bg-vibrant/10 text-vibrant border border-vibrant/20 hover:bg-vibrant/20 transition-all font-black text-[10px] uppercase tracking-widest"
+            title="Give Feedback"
           >
-            <MessageSquare className="w-3 h-3" />
-            Feedback
+            <MessageSquare className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
+            <span className="hidden sm:inline">Feedback</span>
           </Link>
           <div className="hidden md:flex flex-col items-end mr-2">
             <span className="text-sm font-bold text-foreground">{userName || "User"}</span>
