@@ -5,10 +5,11 @@ import { cn } from "@/lib/utils";
 
 interface SliderProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  description?: string;
   value: number;
 }
 
-export function Slider({ label, value, className, ...props }: SliderProps) {
+export function Slider({ label, description, value, className, ...props }: SliderProps) {
   // Calculate color based on value (1-10)
   const getGradient = (val: number) => {
     const percentage = ((val - 1) / 9) * 100;
@@ -25,7 +26,14 @@ export function Slider({ label, value, className, ...props }: SliderProps) {
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex justify-between items-center">
-        <label className="text-sm font-black text-muted-foreground uppercase tracking-widest">{label}</label>
+        <div className="space-y-0.5">
+          <label className="text-sm font-black text-muted-foreground uppercase tracking-widest">{label}</label>
+          {description && (
+            <p className="text-[10px] font-bold text-muted-foreground/60 leading-tight max-w-[200px]">
+              {description}
+            </p>
+          )}
+        </div>
         <div className="flex items-center gap-2">
            <span className={cn(
              "text-2xl font-black px-4 py-1 rounded-2xl min-w-[3.5rem] text-center transition-colors",

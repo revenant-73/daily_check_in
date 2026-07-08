@@ -131,9 +131,24 @@ export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFo
 
             {step === 0 && (
               <div className="space-y-6 sm:space-y-10 py-2 sm:py-4">
-                <Slider label="Mental Edge" value={mental} onChange={(e) => setMental(parseInt(e.target.value))} />
-                <Slider label="Physical Power" value={physical} onChange={(e) => setPhysical(parseInt(e.target.value))} />
-                <Slider label="Emotional Calm" value={emotional} onChange={(e) => setEmotional(parseInt(e.target.value))} />
+                <Slider 
+                  label="Mental Edge" 
+                  description="Focus, alertness, and cognitive readiness. Are you locked in?"
+                  value={mental} 
+                  onChange={(e) => setMental(parseInt(e.target.value))} 
+                />
+                <Slider 
+                  label="Physical Power" 
+                  description="Energy levels, recovery, and body health. How fueled is your engine?"
+                  value={physical} 
+                  onChange={(e) => setPhysical(parseInt(e.target.value))} 
+                />
+                <Slider 
+                  label="Emotional Calm" 
+                  description="Stress levels, mood, and composure. Are you centered and ready?"
+                  value={emotional} 
+                  onChange={(e) => setEmotional(parseInt(e.target.value))} 
+                />
               </div>
             )}
 

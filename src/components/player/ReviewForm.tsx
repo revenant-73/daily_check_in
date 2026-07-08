@@ -131,9 +131,24 @@ export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
 
             {step === 0 && (
               <div className="space-y-6 sm:space-y-10 py-2 sm:py-4">
-                <Slider label="Mental Edge" value={mental} onChange={(e) => setMental(parseInt(e.target.value))} />
-                <Slider label="Physical Power" value={physical} onChange={(e) => setPhysical(parseInt(e.target.value))} />
-                <Slider label="Emotional Calm" value={emotional} onChange={(e) => setEmotional(parseInt(e.target.value))} />
+                <Slider 
+                  label="Mental Edge" 
+                  description="Focus and cognitive clarity. How sharp was your mind during the session?"
+                  value={mental} 
+                  onChange={(e) => setMental(parseInt(e.target.value))} 
+                />
+                <Slider 
+                  label="Physical Power" 
+                  description="Energy and body state. How much did you have left in the tank?"
+                  value={physical} 
+                  onChange={(e) => setPhysical(parseInt(e.target.value))} 
+                />
+                <Slider 
+                  label="Emotional Calm" 
+                  description="Composure and mood. How well did you handle the session's pressure?"
+                  value={emotional} 
+                  onChange={(e) => setEmotional(parseInt(e.target.value))} 
+                />
               </div>
             )}
 
