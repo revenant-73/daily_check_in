@@ -34,7 +34,7 @@ export function Header({
         </div>
 
         {/* User Info & Actions */}
-        <div className="flex gap-2 sm:gap-4 items-center">
+        <div className="flex gap-1.5 sm:gap-4 items-center">
           <Link
             href={feedbackUrl}
             className="flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-full bg-vibrant/10 text-vibrant border border-vibrant/20 hover:bg-vibrant/20 transition-all font-black text-[10px] uppercase tracking-widest"
@@ -52,7 +52,6 @@ export function Header({
             className="p-1.5 sm:p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-muted rounded-lg flex items-center gap-2"
             title="Sign Out"
           >
-            <span className="text-[10px] font-black uppercase tracking-widest md:hidden">Exit</span>
             <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
         </div>

@@ -15,7 +15,7 @@ export function Logo({ className, href = "/" }: { className?: string, href?: str
         />
       </div>
       <span className="font-black text-lg sm:text-xl tracking-tight text-foreground group-hover:text-primary transition-colors">
-        Practice<span className="text-primary group-hover:text-foreground">WithPurpose</span>
+        Practice<span className="hidden sm:inline text-primary group-hover:text-foreground">WithPurpose</span>
       </span>
     </Link>
   );
