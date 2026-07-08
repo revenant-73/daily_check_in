@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
-import { getTeamDataForAdmin, getAdminData, assignToTeam, deleteTeam } from "@/app/actions/admin";
-import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus, Trash2 } from "lucide-react";
+import { getTeamDataForAdmin, getAdminData, assignToTeam, deleteTeam, updateUserRole } from "@/app/actions/admin";
+import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus, Trash2, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { ActionButton } from "@/components/admin/ActionButton";
@@ -139,11 +139,34 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
             <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden divide-y divide-border">
               {players.map(player => (
                 <div key={player.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
-                  <div>
-                    <p className="font-bold text-sm text-foreground">{player.name || "Unknown"}</p>
-                    <p className="text-[10px] text-muted-foreground">{player.email}</p>
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-sm text-foreground">{player.name || "Unknown"}</p>
+                        {player.role === "coach" && (
+                          <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/20 text-primary rounded text-[8px] font-black uppercase tracking-widest">
+                            <ShieldCheck className="w-2 h-2" />
+                            Coach
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">{player.email}</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    {player.role === "player" && (
+                      <ActionButton 
+                        id={player.id}
+                        action={async (id) => {
+                          "use server";
+                          await updateUserRole(id, "coach");
+                        }}
+                        icon={<ShieldCheck className="w-4 h-4" />}
+                        className="text-muted-foreground hover:text-primary"
+                        label="Promote"
+                        confirmMessage={`Make ${player.name || 'this user'} a coach? They will be able to view team stats and manage players.`}
+                      />
+                    )}
                     <ActionButton 
                       id={player.id}
                       action={async (id) => {
