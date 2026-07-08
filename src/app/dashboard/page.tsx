@@ -425,19 +425,19 @@ export default async function PlayerDashboard(props: {
 
       {/* Mobile Quick Action FAB */}
       {!hasReviewedToday && (
-        <div className="fixed bottom-6 right-6 sm:hidden z-50">
+        <div className="fixed bottom-24 right-4 sm:hidden z-50">
           <Link 
             href={hasCheckedInToday 
               ? (isPreview ? "/dashboard?view=review&preview=true" : "/dashboard?view=review") 
               : (isPreview ? "/dashboard?view=check-in&preview=true" : "/dashboard?view=check-in")}
             className={cn(
-              "w-16 h-16 rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform",
+              "w-14 h-14 rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform",
               hasCheckedInToday 
                 ? "bg-vibrant text-vibrant-foreground shadow-vibrant/40" 
                 : "bg-primary text-primary-foreground shadow-primary/40"
             )}
           >
-            {hasCheckedInToday ? <Star className="w-8 h-8 fill-current" /> : <Zap className="w-8 h-8 fill-current" />}
+            {hasCheckedInToday ? <Star className="w-7 h-7 fill-current" /> : <Zap className="w-7 h-7 fill-current" />}
           </Link>
         </div>
       )}
