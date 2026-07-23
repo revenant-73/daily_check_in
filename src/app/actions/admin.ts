@@ -18,7 +18,7 @@ export async function getAdminData() {
     const allTeams = await db.select().from(teams);
     const allUsers = await db.select().from(users);
 
-    const teamsWithStats = await Promise.all(allTeams.map(async (team) => {
+    const teamsWithStats = await Promise.all(allTeams.map(async (team: typeof teams.$inferSelect) => {
       const teamPlayers = allUsers.filter(u => u.teamId === team.id);
       if (teamPlayers.length === 0) {
         return {

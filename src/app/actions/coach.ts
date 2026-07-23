@@ -106,8 +106,8 @@ export async function getTeamData() {
     const twentyFourHoursAgo = new Date();
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
-    const playersWithStatus = teamPlayers.map(player => {
-      const playerCheckIns = allCheckIns.filter(ci => ci.playerId === player.id);
+    const playersWithStatus = teamPlayers.map((player: typeof users.$inferSelect) => {
+      const playerCheckIns = allCheckIns.filter((ci: typeof checkIns.$inferSelect) => ci.playerId === player.id);
       const latestCheckIn = playerCheckIns[0];
       const hasCheckedInToday = latestCheckIn && latestCheckIn.createdAt && new Date(latestCheckIn.createdAt) >= twentyFourHoursAgo;
       
@@ -137,9 +137,9 @@ export async function getTeamData() {
     } : null;
 
     // Calculate Alarming Trends (3-4 day decline or low)
-    const criticalPlayers = teamPlayers.map(player => {
+    const criticalPlayers = teamPlayers.map((player: typeof users.$inferSelect) => {
       const playerCheckIns = allCheckIns
-        .filter(ci => ci.playerId === player.id)
+        .filter((ci: typeof checkIns.$inferSelect) => ci.playerId === player.id)
         .slice(0, 4); // Last 4 check-ins
 
       if (playerCheckIns.length < 2) return null;
@@ -201,7 +201,7 @@ export async function getTeamReadinessTrends() {
     // Group by date and calculate average
     const trends: Record<string, { total: number, count: number }> = {};
     
-    checkInsData.forEach(ci => {
+    checkInsData.forEach((ci: typeof checkIns.$inferSelect) => {
       if (!ci.createdAt) return;
       const date = new Date(ci.createdAt).toLocaleDateString();
       const avg = (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3;
