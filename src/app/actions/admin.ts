@@ -19,7 +19,7 @@ export async function getAdminData() {
     const allUsers = await db.select().from(users);
 
     const teamsWithStats = await Promise.all(allTeams.map(async (team: typeof teams.$inferSelect) => {
-      const teamPlayers = allUsers.filter(u => u.teamId === team.id);
+      const teamPlayers = allUsers.filter((u: typeof users.$inferSelect) => u.teamId === team.id);
       if (teamPlayers.length === 0) {
         return {
           ...team,
@@ -29,7 +29,7 @@ export async function getAdminData() {
         };
       }
 
-      const playerIds = teamPlayers.map(p => p.id);
+      const playerIds = teamPlayers.map((p: typeof users.$inferSelect) => p.id);
       
       const teamCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds));
       const teamReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds));
@@ -93,7 +93,7 @@ export async function getTeamDataForAdmin(teamId: string) {
 
     // Calculate trends
     const trendMap: Record<string, { total: number, count: number }> = {};
-    allCheckIns.forEach(ci => {
+    allCheckIns.forEach((ci: typeof checkIns.$inferSelect) => {
       if (!ci.createdAt) return;
       const date = new Date(ci.createdAt).toLocaleDateString();
       const avg = (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3;
@@ -113,8 +113,8 @@ export async function getTeamDataForAdmin(teamId: string) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const playersWithStatus = teamPlayers.map(player => {
-      const hasCheckedInToday = allCheckIns.some(ci => 
+    const playersWithStatus = teamPlayers.map((player: typeof users.$inferSelect) => {
+      const hasCheckedInToday = allCheckIns.some((ci: typeof checkIns.$inferSelect) => 
         ci.playerId === player.id && 
         ci.createdAt && 
         new Date(ci.createdAt) >= today
@@ -203,7 +203,7 @@ export async function deleteTeam(teamId: string) {
     // 1. Delete all reactions for check-ins in this team
     const teamCheckIns = await db.select().from(checkIns).where(eq(checkIns.teamId, teamId));
     if (teamCheckIns.length > 0) {
-      const checkInIds = teamCheckIns.map(ci => ci.id);
+      const checkInIds = teamCheckIns.map((ci: typeof checkIns.$inferSelect) => ci.id);
       await db.delete(reactions).where(inArray(reactions.checkInId, checkInIds));
     }
 
