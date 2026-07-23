@@ -98,7 +98,7 @@ export async function getTeamData() {
 
     const allCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt)).all();
 
-    const allReactions = await db.select().from(reactions).where(inArray(reactions.checkInId, allCheckIns.map(ci => ci.id))).all();
+    const allReactions = await db.select().from(reactions).where(inArray(reactions.checkInId, allCheckIns.map((ci: typeof checkIns.$inferSelect) => ci.id))).all();
 
     const allReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds)).orderBy(desc(reviews.createdAt)).all();
 
@@ -246,7 +246,7 @@ export async function getPlayerData(playerId: string) {
 
   const playerReviews = await db.select().from(reviews).where(eq(reviews.playerId, playerId)).orderBy(desc(reviews.createdAt)).limit(10).all();
 
-  const trends = playerCheckIns.map(ci => ({
+  const trends = playerCheckIns.map((ci: typeof checkIns.$inferSelect) => ({
     date: ci.createdAt,
     mental: ci.mentalRating,
     physical: ci.physicalRating,
