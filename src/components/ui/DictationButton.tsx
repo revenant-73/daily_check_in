@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { Mic } from "lucide-react";
 import { cn, hapticFeedback } from "@/lib/utils";
 
 interface DictationButtonProps {
@@ -9,18 +9,51 @@ interface DictationButtonProps {
   className?: string;
 }
 
+interface SpeechRecognitionEvent extends Event {
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onstart: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+  start: () => void;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
 export function DictationButton({ onResult, className }: DictationButtonProps) {
   const [isListening, setIsListening] = useState(false);
-  const [isSupported, setIsSupported] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        setIsSupported(true);
-      }
-    }
+    const timeout = setTimeout(() => setIsMounted(true), 0);
+    return () => clearTimeout(timeout);
   }, []);
+
+  const getRecognitionConstructor = () => {
+    if (!isMounted || typeof window === "undefined") return null;
+    return (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor, webkitSpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition || 
+           (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor, webkitSpeechRecognition?: SpeechRecognitionConstructor }).webkitSpeechRecognition || null;
+  };
+
+  const isSupported = !!getRecognitionConstructor();
 
   const toggleListening = () => {
     if (isListening) {
@@ -31,10 +64,10 @@ export function DictationButton({ onResult, className }: DictationButtonProps) {
   };
 
   const startListening = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+    const RecognitionConstructor = getRecognitionConstructor();
+    if (!RecognitionConstructor) return;
 
-    const recognition = new SpeechRecognition();
+    const recognition = new RecognitionConstructor();
     recognition.lang = "en-US";
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
@@ -44,14 +77,14 @@ export function DictationButton({ onResult, className }: DictationButtonProps) {
       setIsListening(true);
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event) => {
       hapticFeedback("success");
       const text = event.results[0][0].transcript;
       onResult(text);
       setIsListening(false);
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event) => {
       console.error("Speech recognition error", event.error);
       setIsListening(false);
     };

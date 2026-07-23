@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { QrCode, X, Maximize2 } from "lucide-react";
+import { QrCode, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface TeamQRCodeProps {
@@ -11,12 +11,14 @@ interface TeamQRCodeProps {
 
 export function TeamQRCode({ teamName }: TeamQRCodeProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [baseUrl, setBaseUrl] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setBaseUrl(window.location.origin);
+    const timeout = setTimeout(() => setIsMounted(true), 0);
+    return () => clearTimeout(timeout);
   }, []);
 
+  const baseUrl = isMounted ? window.location.origin : "";
   const checkInUrl = `${baseUrl}/dashboard?view=check-in`;
 
   return (

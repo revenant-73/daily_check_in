@@ -11,5 +11,5 @@ const client = !isEdge ? createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 }) : null;
 
-export const db = client ? drizzle(client, { schema }) : ({} as any);
+export const db = (client ? drizzle(client, { schema }) : {}) as ReturnType<typeof drizzle<typeof schema>>;
 

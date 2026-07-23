@@ -25,7 +25,8 @@ export async function getAdminData() {
           ...team,
           avgReadiness: 0,
           avgPerformance: 0,
-          playerCount: 0
+          playerCount: 0,
+          lastActivity: null as Date | null
         };
       }
 

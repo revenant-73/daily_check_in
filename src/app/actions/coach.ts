@@ -161,7 +161,7 @@ export async function getTeamData() {
         };
       }
       return null;
-    }).filter(Boolean);
+    }).filter((p): p is NonNullable<typeof p> => p !== null);
 
     return {
       team,

@@ -9,16 +9,12 @@ export default async function AdminDashboard() {
     redirect("/login");
   }
 
-  try {
-    const data = await getAdminData();
-    return (
-      <AdminDashboardClient 
-        initialData={data} 
-        userName={session.user.name} 
-      />
-    );
-  } catch (error) {
-    console.error("Error fetching admin data:", error);
-    throw error;
-  }
+  const data = await getAdminData();
+  
+  return (
+    <AdminDashboardClient 
+      initialData={data} 
+      userName={session.user.name} 
+    />
+  );
 }

@@ -19,7 +19,7 @@ interface HeatmapData {
   label: string;
 }
 
-export function TeamHeatmap({ data }: { data: any[] }) {
+export function TeamHeatmap({ data }: { data: { date: string | Date, mental: number, physical: number, emotional: number }[] }) {
   // Process data for the last 7 days
   // For simplicity in this implementation, we'll map readiness types to Y axis
   // and days to X axis
