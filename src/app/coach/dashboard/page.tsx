@@ -49,10 +49,10 @@ export default async function CoachDashboard(props: {
   const { team, players, checkIns, reviews, reactions, prevAvg, criticalPlayers } = data;
 
   // Simple stats
-  const avgMental = checkIns.length > 0 ? (checkIns.reduce((acc, ci) => acc + ci.mentalRating, 0) / checkIns.length) : null;
-  const avgPhysical = checkIns.length > 0 ? (checkIns.reduce((acc, ci) => acc + ci.physicalRating, 0) / checkIns.length) : null;
-  const avgEmotional = checkIns.length > 0 ? (checkIns.reduce((acc, ci) => acc + ci.emotionalRating, 0) / checkIns.length) : null;
-  const avgPerformance = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "N/A";
+  const avgMental = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: any) => acc + ci.mentalRating, 0) / checkIns.length) : null;
+  const avgPhysical = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: any) => acc + ci.physicalRating, 0) / checkIns.length) : null;
+  const avgEmotional = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: any) => acc + ci.emotionalRating, 0) / checkIns.length) : null;
+  const avgPerformance = reviews.length > 0 ? (reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviews.length).toFixed(1) : "N/A";
 
   const getDelta = (current: number | null, prev: number | undefined) => {
     if (current === null || prev === undefined) return null;

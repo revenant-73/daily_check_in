@@ -35,11 +35,11 @@ export async function getAdminData() {
       const teamReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds));
 
       const avgReadiness = teamCheckIns.length > 0
-        ? teamCheckIns.reduce((acc, ci) => acc + (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3, 0) / teamCheckIns.length
+        ? teamCheckIns.reduce((acc: number, ci: typeof checkIns.$inferSelect) => acc + (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3, 0) / teamCheckIns.length
         : 0;
 
       const avgPerformance = teamReviews.length > 0
-        ? teamReviews.reduce((acc, r) => acc + r.rating, 0) / teamReviews.length
+        ? teamReviews.reduce((acc: number, r: typeof reviews.$inferSelect) => acc + r.rating, 0) / teamReviews.length
         : 0;
 
       const lastCheckIn = teamCheckIns.length > 0 ? teamCheckIns[0].createdAt : null;
