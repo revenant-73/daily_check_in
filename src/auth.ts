@@ -5,6 +5,7 @@ import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { authConfig } from "./auth.config";
 
 declare module "next-auth" {
   interface User {
@@ -27,8 +28,11 @@ declare module "next-auth/jwt" {
   }
 }
 
+const isEdge = process.env.NEXT_RUNTIME === "edge";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: DrizzleAdapter(db),
+  ...authConfig,
+  ...(isEdge ? {} : { adapter: DrizzleAdapter(db) }),
   providers: [
     Credentials({
       credentials: {
@@ -36,6 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        if (isEdge) return null;
         if (!credentials?.email || !credentials?.password) return null;
 
         const user = await db.query.users.findFirst({
@@ -60,20 +65,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.role = (token.role as string) ?? "player";
-        session.user.id = token.sub as string;
-      }
-      return session;
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-      }
-      return token;
-    },
-  },
-  session: { strategy: "jwt" },
 });
+

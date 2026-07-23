@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getTeamData, getTeamReadinessTrends } from "@/app/actions/coach";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { AttendanceList } from "@/components/coach/AttendanceList";
+import { TeamQRCode } from "@/components/coach/TeamQRCode";
 import { ReactionButtons } from "@/components/coach/ReactionButtons";
 import { TeamHeatmap } from "@/components/coach/TeamHeatmap";
 import { ActivityFeed } from "@/components/coach/ActivityFeed";
@@ -116,7 +117,10 @@ export default async function CoachDashboard(props: {
               Directing <span className="text-primary font-black">{team?.name}</span>
             </p>
           </div>
-          <AttendanceList players={players} inviteCode={team?.playerInviteCode || undefined} variant="condensed" />
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <TeamQRCode teamName={team?.name || ""} />
+            <AttendanceList players={players} inviteCode={team?.playerInviteCode || undefined} variant="condensed" />
+          </div>
         </header>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">

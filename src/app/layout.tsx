@@ -18,6 +18,12 @@ const plusJakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Practice With Purpose | Athlete Performance",
   description: "Notice where you are, set your intent, and reflect on what you learned.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Daily Check-In",
+  },
 };
 
 export default async function RootLayout({
@@ -39,6 +45,17 @@ export default async function RootLayout({
             <MobileNav role={session.user.role || "player"} />
           </Suspense>
         )}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js');
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
