@@ -10,7 +10,7 @@ import { logError } from "@/lib/logger";
 export async function submitCheckIn(data: {
   goal: string;
   pillar?: string; // Legacy
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   mentalRating: number;
   physicalRating: number;
   emotionalRating: number;
@@ -52,7 +52,7 @@ export async function submitReview(data: {
   physicalRating?: number;
   emotionalRating?: number;
   notes: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   nextSessionNotes: string;
 }, isPreview?: boolean) {
   try {

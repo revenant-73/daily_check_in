@@ -6,26 +6,20 @@ import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { AttendanceList } from "@/components/coach/AttendanceList";
 import { TeamQRCode } from "@/components/coach/TeamQRCode";
 import { ReactionButtons } from "@/components/coach/ReactionButtons";
-import { TeamHeatmap } from "@/components/coach/TeamHeatmap";
 import { ActivityFeed } from "@/components/coach/ActivityFeed";
 import { CoachNoteDialog } from "@/components/coach/CoachNoteDialog";
-import { Users, Activity, TrendingUp, Zap, Target, AlertTriangle } from "lucide-react";
+import { Activity, Target, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 
-export default async function CoachDashboard(props: {
-  params: Promise<{ [key: string]: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const params = await props.params;
-  const searchParams = await props.searchParams;
+export default async function CoachDashboard() {
   const session = await auth();
   if (!session?.user || session.user.role !== "coach") {
     redirect("/login");
   }
 
-  let data;
+  let data: Awaited<ReturnType<typeof getTeamData>> | null = null;
   let trends: Awaited<ReturnType<typeof getTeamReadinessTrends>> = [];
   try {
     data = await getTeamData();

@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { checkIns, reviews, users, teams, reactions } from "@/lib/db/schema";
-import { eq, desc, inArray, sql, and } from "drizzle-orm";
+import { eq, desc, inArray, and } from "drizzle-orm";
 import { auth } from "@/auth";
 import { logError } from "@/lib/logger";
 import { revalidatePath } from "next/cache";
@@ -146,7 +146,7 @@ export async function getTeamData() {
 
       const scores = playerCheckIns.map((ci: typeof checkIns.$inferSelect) => (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3);
       const currentAvg = scores[0];
-      const prevAvg = scores.slice(1).reduce((a, b) => a + b, 0) / (scores.length - 1);
+      const prevAvg = scores.slice(1).reduce((a: number, b: number) => a + b, 0) / (scores.length - 1);
       
       const isDeclining = currentAvg < prevAvg - 1.5; // Significant drop
       const isLow = currentAvg <= 4; // Flat out low
