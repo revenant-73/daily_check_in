@@ -124,7 +124,7 @@ export async function getTeamData() {
     const eightDaysAgo = new Date();
     eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
 
-    const prevCheckIns = allCheckIns.filter(ci => 
+    const prevCheckIns = allCheckIns.filter((ci: typeof checkIns.$inferSelect) => 
       ci.createdAt && 
       new Date(ci.createdAt) >= eightDaysAgo && 
       new Date(ci.createdAt) < twentyFourHoursAgo
@@ -144,7 +144,7 @@ export async function getTeamData() {
 
       if (playerCheckIns.length < 2) return null;
 
-      const scores = playerCheckIns.map(ci => (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3);
+      const scores = playerCheckIns.map((ci: typeof checkIns.$inferSelect) => (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3);
       const currentAvg = scores[0];
       const prevAvg = scores.slice(1).reduce((a, b) => a + b, 0) / (scores.length - 1);
       
@@ -166,7 +166,7 @@ export async function getTeamData() {
     return {
       team,
       players: playersWithStatus,
-      checkIns: allCheckIns.filter(ci => ci.createdAt && new Date(ci.createdAt) >= twentyFourHoursAgo),
+      checkIns: allCheckIns.filter((ci: typeof checkIns.$inferSelect) => ci.createdAt && new Date(ci.createdAt) >= twentyFourHoursAgo),
       allCheckIns,
       reviews: allReviews,
       reactions: allReactions,

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getTeamData, getTeamReadinessTrends } from "@/app/actions/coach";
+import { checkIns as checkInsSchema, reviews as reviewsSchema, reactions as reactionsSchema } from "@/lib/db/schema";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { AttendanceList } from "@/components/coach/AttendanceList";
 import { TeamQRCode } from "@/components/coach/TeamQRCode";
@@ -25,7 +26,7 @@ export default async function CoachDashboard(props: {
   }
 
   let data;
-  let trends: any[] = [];
+  let trends: Awaited<ReturnType<typeof getTeamReadinessTrends>> = [];
   try {
     data = await getTeamData();
     trends = await getTeamReadinessTrends();
@@ -49,10 +50,10 @@ export default async function CoachDashboard(props: {
   const { team, players, checkIns, reviews, reactions, prevAvg, criticalPlayers } = data;
 
   // Simple stats
-  const avgMental = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: any) => acc + ci.mentalRating, 0) / checkIns.length) : null;
-  const avgPhysical = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: any) => acc + ci.physicalRating, 0) / checkIns.length) : null;
-  const avgEmotional = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: any) => acc + ci.emotionalRating, 0) / checkIns.length) : null;
-  const avgPerformance = reviews.length > 0 ? (reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviews.length).toFixed(1) : "N/A";
+  const avgMental = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.mentalRating, 0) / checkIns.length) : null;
+  const avgPhysical = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.physicalRating, 0) / checkIns.length) : null;
+  const avgEmotional = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.emotionalRating, 0) / checkIns.length) : null;
+  const avgPerformance = reviews.length > 0 ? (reviews.reduce((acc: number, r: typeof reviewsSchema.$inferSelect) => acc + r.rating, 0) / reviews.length).toFixed(1) : "N/A";
 
   const getDelta = (current: number | null, prev: number | undefined) => {
     if (current === null || prev === undefined) return null;
@@ -91,7 +92,7 @@ export default async function CoachDashboard(props: {
       }))
   ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-  const getStatusBadge = (ci: any) => {
+  const getStatusBadge = (ci: typeof checkInsSchema.$inferSelect) => {
     if (ci.physicalRating <= 3) return { label: 'FATIGUED', color: 'bg-red-500/10 text-red-500 border-red-500/20' };
     if (ci.mentalRating <= 3) return { label: 'UNFOCUSED', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' };
     if (ci.physicalRating >= 8 && ci.mentalRating >= 8) return { label: 'READY', color: 'bg-vibrant/10 text-vibrant border-vibrant/20' };
@@ -163,7 +164,7 @@ export default async function CoachDashboard(props: {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {criticalPlayers && criticalPlayers.length > 0 ? (
-                    criticalPlayers.map((player: any) => (
+                    criticalPlayers.map((player) => (
                       <Link 
                         key={player.id} 
                         href={`/coach/player/${player.id}`}
@@ -204,8 +205,8 @@ export default async function CoachDashboard(props: {
                   {checkIns.slice(0, 8).map((ci) => {
                     const player = players.find(p => p.id === ci.playerId);
                     const status = getStatusBadge(ci);
-                    const ciReactions = reactions?.filter((r: any) => r.checkInId === ci.id) || [];
-                    const metadata = ci.metadata ? JSON.parse(ci.metadata) : {};
+                    const ciReactions = reactions?.filter((r: typeof reactionsSchema.$inferSelect) => r.checkInId === ci.id) || [];
+                    const metadata = ci.metadata ? JSON.parse(ci.metadata as string) : {};
                     return (
                       <div key={ci.id} className="p-4 space-y-3">
                         <div className="flex justify-between items-start">
@@ -249,8 +250,8 @@ export default async function CoachDashboard(props: {
                       {checkIns.slice(0, 8).map((ci) => {
                         const player = players.find(p => p.id === ci.playerId);
                         const status = getStatusBadge(ci);
-                        const ciReactions = reactions?.filter((r: any) => r.checkInId === ci.id) || [];
-                        const metadata = ci.metadata ? JSON.parse(ci.metadata) : {};
+                        const ciReactions = reactions?.filter((r: typeof reactionsSchema.$inferSelect) => r.checkInId === ci.id) || [];
+                        const metadata = ci.metadata ? JSON.parse(ci.metadata as string) : {};
                         return (
                           <tr key={ci.id} className="hover:bg-muted/20 transition-colors group">
                             <td className="p-6">

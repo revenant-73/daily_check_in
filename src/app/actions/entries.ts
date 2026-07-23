@@ -121,7 +121,7 @@ export async function getReadinessTrends() {
       .limit(7)
       .all();
 
-    return recentCheckIns.map(ci => ({
+    return recentCheckIns.map((ci: typeof checkIns.$inferSelect) => ({
       date: ci.createdAt,
       mental: ci.mentalRating,
       physical: ci.physicalRating,
