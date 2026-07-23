@@ -94,7 +94,7 @@ export async function getTeamData() {
       };
     }
 
-    const playerIds = teamPlayers.map(p => p.id);
+    const playerIds = teamPlayers.map((p: typeof users.$inferSelect) => p.id);
 
     const allCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt)).all();
 
@@ -131,9 +131,9 @@ export async function getTeamData() {
     );
 
     const prevAvg = prevCheckIns.length > 0 ? {
-      mental: prevCheckIns.reduce((acc, ci) => acc + ci.mentalRating, 0) / prevCheckIns.length,
-      physical: prevCheckIns.reduce((acc, ci) => acc + ci.physicalRating, 0) / prevCheckIns.length,
-      emotional: prevCheckIns.reduce((acc, ci) => acc + ci.emotionalRating, 0) / prevCheckIns.length,
+      mental: prevCheckIns.reduce((acc: number, ci: typeof checkIns.$inferSelect) => acc + ci.mentalRating, 0) / prevCheckIns.length,
+      physical: prevCheckIns.reduce((acc: number, ci: typeof checkIns.$inferSelect) => acc + ci.physicalRating, 0) / prevCheckIns.length,
+      emotional: prevCheckIns.reduce((acc: number, ci: typeof checkIns.$inferSelect) => acc + ci.emotionalRating, 0) / prevCheckIns.length,
     } : null;
 
     // Calculate Alarming Trends (3-4 day decline or low)
@@ -194,7 +194,7 @@ export async function getTeamReadinessTrends() {
     
     if (teamPlayers.length === 0) return [];
 
-    const playerIds = teamPlayers.map(p => p.id);
+    const playerIds = teamPlayers.map((p: typeof users.$inferSelect) => p.id);
 
     const checkInsData = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt)).all();
 

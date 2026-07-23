@@ -86,7 +86,7 @@ export async function getTeamDataForAdmin(teamId: string) {
       };
     }
 
-    const playerIds = teamPlayers.map(p => p.id);
+    const playerIds = teamPlayers.map((p: typeof users.$inferSelect) => p.id);
 
     const allCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt));
     const allReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds)).orderBy(desc(reviews.createdAt));
