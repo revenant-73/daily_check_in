@@ -1,22 +1,32 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
+
+import { eq, or } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { teams, users } from "@/lib/db/schema";
-import { eq, or } from "drizzle-orm";
-import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
 
-export async function getTeams() {
-  return await db.select().from(teams);
-}
+const inviteCodeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .regex(/^[A-Z0-9]{6}$/, "Enter a valid 6-character invite code");
+
+const createTeamSchema = z.object({
+  name: z.string().trim().min(2, "Team name is required").max(100),
+  orgId: z.string().uuid("Invalid organization"),
+});
+
+const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 async function generateUniqueInviteCode() {
-  let code = "";
-  let isUnique = false;
-  let attempts = 0;
-
-  while (!isUnique && attempts < 10) {
-    code = Math.random().toString(36).substring(2, 8).toUpperCase();
+  for (let attempts = 0; attempts < 10; attempts++) {
+    const bytes = randomBytes(6);
+    const code = Array.from(bytes, (byte) => CODE_ALPHABET[byte % CODE_ALPHABET.length]).join("");
     const existing = await db.query.teams.findFirst({
       where: or(
         eq(teams.inviteCode, code),
@@ -24,43 +34,44 @@ async function generateUniqueInviteCode() {
         eq(teams.playerInviteCode, code)
       ),
     });
+
     if (!existing) {
-      isUnique = true;
+      return code;
     }
-    attempts++;
   }
-  return code;
+
+  throw new Error("Unable to generate a unique invite code");
 }
 
-export async function joinTeam(teamId: string) {
+export async function joinTeamByCode(inviteCode: string) {
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
 
-  const user = await db.select().from(users).where(eq(users.id, session.user.id)).get();
-  // Only set role to player if they don't already have one, or preserve higher roles
-  const newRole = (user?.role === "admin" || user?.role === "coach") ? user.role : "player";
+  const parsedCode = inviteCodeSchema.safeParse(inviteCode);
+  if (!parsedCode.success) {
+    throw new Error(parsedCode.error.issues[0]?.message ?? "Invalid invite code");
+  }
 
-  await db.update(users)
-    .set({ teamId, role: newRole })
-    .where(eq(users.id, session.user.id));
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, session.user.id),
+  });
 
-  revalidatePath("/dashboard");
-  revalidatePath("/onboarding");
-  return { success: true };
-}
-
-export async function joinTeamByCode(inviteCode: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
-
-  const normalizedCode = inviteCode.toUpperCase();
+  if (!user) {
+    throw new Error("Account not found");
+  }
+  if (user.role === "admin") {
+    throw new Error("Administrator accounts cannot join teams with an invite code");
+  }
+  if (user.teamId) {
+    throw new Error("Your account is already assigned to a team");
+  }
 
   const team = await db.query.teams.findFirst({
     where: or(
-      eq(teams.coachInviteCode, normalizedCode),
-      eq(teams.playerInviteCode, normalizedCode)
+      eq(teams.coachInviteCode, parsedCode.data),
+      eq(teams.playerInviteCode, parsedCode.data)
     ),
   });
 
@@ -68,13 +79,11 @@ export async function joinTeamByCode(inviteCode: string) {
     throw new Error("Invalid invite code");
   }
 
-  const role = team.coachInviteCode === normalizedCode ? "coach" : "player";
+  const role = team.coachInviteCode === parsedCode.data ? "coach" : "player";
 
-  await db.update(users)
-    .set({ 
-      teamId: team.id,
-      role: role
-    })
+  await db
+    .update(users)
+    .set({ teamId: team.id, role })
     .where(eq(users.id, session.user.id));
 
   revalidatePath("/dashboard");
@@ -83,58 +92,41 @@ export async function joinTeamByCode(inviteCode: string) {
 }
 
 export async function createTeam(name: string, orgId: string) {
-  console.log("[createTeam] Starting creation process:", { name, orgId });
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      console.error("[createTeam] Unauthorized: No session or user ID");
-      throw new Error("Unauthorized");
-    }
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
 
-    console.log("[createTeam] User authenticated:", session.user.id);
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, session.user.id),
+  });
+  if (user?.role !== "admin") {
+    throw new Error("Administrator access required");
+  }
 
-    const coachInviteCode = await generateUniqueInviteCode();
-    const playerInviteCode = await generateUniqueInviteCode();
-    
-    console.log("[createTeam] Generated codes:", { coachInviteCode, playerInviteCode });
+  const parsed = createTeamSchema.safeParse({ name, orgId });
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Invalid team details");
+  }
 
-    const [newTeam] = await db.insert(teams).values({
-      name,
-      orgId,
-      inviteCode: playerInviteCode, // Populate legacy field
+  const coachInviteCode = await generateUniqueInviteCode();
+  const playerInviteCode = await generateUniqueInviteCode();
+
+  const [newTeam] = await db
+    .insert(teams)
+    .values({
+      name: parsed.data.name,
+      orgId: parsed.data.orgId,
+      inviteCode: playerInviteCode,
       coachInviteCode,
       playerInviteCode,
-    }).returning();
+    })
+    .returning();
 
-    if (!newTeam) {
-      console.error("[createTeam] Failed to create team record - no team returned");
-      throw new Error("Failed to create team record");
-    }
-
-    console.log("[createTeam] Team created successfully:", newTeam.id);
-
-    // Automatically assign creator as coach IF they are not already an admin
-    const user = await db.select().from(users).where(eq(users.id, session.user.id)).get();
-    
-    if (user && user.role !== "admin") {
-      console.log("[createTeam] Assigning creator as coach...");
-      await db.update(users)
-        .set({ 
-          teamId: newTeam.id, 
-          role: "coach" 
-        })
-        .where(eq(users.id, session.user.id));
-      console.log("[createTeam] Role updated to coach");
-    } else {
-      console.log("[createTeam] Skipping role update (User is admin or not found)");
-    }
-    
-    revalidatePath("/onboarding");
-    revalidatePath("/admin", "layout");
-    revalidatePath("/dashboard");
-    console.log("[createTeam] Paths revalidated");
-  } catch (error) {
-    console.error("[createTeam] CRITICAL ERROR:", error);
-    throw error;
+  if (!newTeam) {
+    throw new Error("Failed to create team");
   }
+
+  revalidatePath("/admin", "layout");
+  return { success: true, teamId: newTeam.id };
 }
