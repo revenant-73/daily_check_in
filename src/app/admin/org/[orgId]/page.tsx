@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { getAdminData, deleteTeam, adminCreateTeam } from "@/app/actions/admin";
+import { organizations as organizationsSchema, teams as teamsSchema } from "@/lib/db/schema";
 import { Building2, Users, ChevronRight, ChevronLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { DeleteButton } from "@/components/admin/DeleteButton";
@@ -13,15 +14,15 @@ export default async function OrganizationView(props: { params: Promise<{ orgId:
     redirect("/login");
   }
 
-  let organization: any = null;
-  let teams: any[] = [];
+  let organization: Awaited<ReturnType<typeof getAdminData>>["organizations"][0] | null = null;
+  let teams: Awaited<ReturnType<typeof getAdminData>>["teams"] = [];
 
   try {
     const data = await getAdminData();
-    organization = data.organizations.find((o: any) => o.id === params.orgId);
+    organization = data.organizations.find((o) => o.id === params.orgId) || null;
     if (!organization) notFound();
     
-    teams = data.teams.filter((t: any) => t.orgId === params.orgId);
+    teams = data.teams.filter((t) => t.orgId === params.orgId);
   } catch (error) {
     console.error("Error fetching org data:", error);
     throw error;

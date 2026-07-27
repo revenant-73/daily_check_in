@@ -55,7 +55,7 @@ async function seed() {
     { email: "athlete2@example.com", name: "Alex Smith", role: "player" as const, teamId: team!.id },
   ];
 
-  const players: any[] = [];
+  const players: (typeof schema.users.$inferSelect)[] = [];
 
   for (const userData of demoUsers) {
     let user = await db.query.users.findFirst({

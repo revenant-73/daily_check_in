@@ -1,7 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import { LogOut, MessageSquare } from "lucide-react";
+import { LogOut, MessageSquare, Flame } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { cn } from "@/lib/utils";
 
 interface HeaderProps {
   userName?: string | null;
@@ -9,6 +10,7 @@ interface HeaderProps {
   teamName?: string;
   href?: string;
   feedbackUrl?: string;
+  streak?: number;
 }
 
 export function Header({ 
@@ -16,7 +18,8 @@ export function Header({
   role, 
   teamName, 
   href = "/dashboard",
-  feedbackUrl = "/feedback"
+  feedbackUrl = "/feedback",
+  streak
 }: HeaderProps) {
 
   return (
@@ -35,6 +38,12 @@ export function Header({
 
         {/* User Info & Actions */}
         <div className="flex gap-1.5 sm:gap-4 items-center">
+          {streak !== undefined && (
+            <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20 font-black text-[11px] sm:text-sm tracking-tighter shadow-[0_0_10px_rgba(249,115,22,0.1)]">
+              <Flame className={cn("w-4 h-4 fill-orange-500", streak > 0 ? "animate-pulse" : "opacity-50")} />
+              <span>{streak}</span>
+            </div>
+          )}
           <Link
             href={feedbackUrl}
             className="flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-full bg-vibrant/10 text-vibrant border border-vibrant/20 hover:bg-vibrant/20 transition-all font-black text-[10px] uppercase tracking-widest"

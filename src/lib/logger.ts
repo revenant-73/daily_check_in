@@ -9,6 +9,6 @@ export function logError(context: string, error: unknown) {
   });
 }
 
-export function logInfo(context: string, data: any) {
+export function logInfo(context: string, data: unknown) {
   console.log(`[INFO] ${context}:`, JSON.stringify(data, null, 2));
 }

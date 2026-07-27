@@ -9,7 +9,7 @@ import { db } from "@/lib/db";
 import { users, teams } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
-import { History, Zap, TrendingUp, MessageSquare, ChevronRight, Target, Star } from "lucide-react";
+import { History, Zap, TrendingUp, MessageSquare, ChevronRight, Target, Star, RotateCcw } from "lucide-react";
 import { getDailyMotivationalMessage } from "@/lib/utils/messages";
 import { calculateStreak, getStreakMilestone } from "@/lib/utils/stats";
 import { Header } from "@/components/layout/Header";
@@ -96,29 +96,50 @@ export default async function PlayerDashboard(props: {
         role={isPreview ? "Admin (Preview)" : "Player"} 
         teamName={team?.name} 
         href={isPreview ? "/admin" : "/dashboard"}
+        streak={streak}
       />
 
       <main className="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pb-24 sm:pb-6">
         {view === "home" && (
           <div className="space-y-4 sm:space-y-6">
             {!hasCheckedInToday && (
-              <Link 
-                href={isPreview ? "/dashboard?view=check-in&preview=true" : "/dashboard?view=check-in"}
-                className="block p-0.5 rounded-3xl bg-gradient-to-r from-primary via-vibrant to-primary animate-gradient-x shadow-lg shadow-primary/20 hover:scale-[1.01] transition-transform"
-              >
-                <div className="bg-background/90 backdrop-blur-xl rounded-[1.4rem] p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-primary animate-pulse" />
+              <div className="space-y-3">
+                <Link 
+                  href={isPreview ? "/dashboard?view=check-in&preview=true" : "/dashboard?view=check-in"}
+                  className="block p-0.5 rounded-3xl bg-gradient-to-r from-primary via-vibrant to-primary animate-gradient-x shadow-lg shadow-primary/20 hover:scale-[1.01] transition-transform"
+                >
+                  <div className="bg-background/90 backdrop-blur-xl rounded-[1.4rem] p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+                        <Zap className="w-5 h-5 text-primary animate-pulse" />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-primary mb-0.5">Action Required</p>
+                        <h3 className="text-base font-black text-foreground tracking-tight uppercase">Set Your Intent</h3>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[9px] font-black uppercase tracking-widest text-primary mb-0.5">Action Required</p>
-                      <h3 className="text-base font-black text-foreground tracking-tight uppercase">Set Your Intent</h3>
-                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground mr-1" />
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground mr-1" />
-                </div>
-              </Link>
+                </Link>
+
+                {latestReview?.nextSessionNotes?.includes("Repeat") && latestGoal && (
+                  <Link 
+                    href={isPreview ? `/dashboard?view=check-in&preview=true&autoRepeat=true` : `/dashboard?view=check-in&autoRepeat=true`}
+                    className="block p-4 rounded-2xl bg-vibrant/10 border border-vibrant/30 hover:bg-vibrant/20 transition-all group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <RotateCcw className="w-5 h-5 text-vibrant group-hover:rotate-180 transition-transform duration-500" />
+                        <div>
+                          <p className="text-[8px] font-black uppercase tracking-widest text-vibrant">Quick Start</p>
+                          <p className="text-xs font-bold text-foreground">Repeat Goal: <span className="italic">&quot;{latestGoal}&quot;</span></p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-vibrant" />
+                    </div>
+                  </Link>
+                )}
+              </div>
             )}
 
             {hasCheckedInToday && !hasReviewedToday && (
