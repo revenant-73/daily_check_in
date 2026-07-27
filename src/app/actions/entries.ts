@@ -6,22 +6,59 @@ import { eq, desc } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { logError } from "@/lib/logger";
+import { z } from "zod";
 
-export async function submitCheckIn(data: {
-  goal: string;
-  pillar?: string; // Legacy
-  metadata?: Record<string, unknown>;
-  mentalRating: number;
-  physicalRating: number;
-  emotionalRating: number;
-}, isPreview?: boolean) {
+const readinessRating = z.number().int().min(1).max(10);
+
+const checkInSchema = z.object({
+  goal: z.string().trim().min(1, "Choose a practice goal").max(300),
+  pillar: z.string().trim().max(100).optional(),
+  metadata: z
+    .object({
+      pillar: z.string().trim().max(100).optional(),
+      lookLike: z.string().trim().max(500).optional(),
+    })
+    .strict()
+    .optional(),
+  mentalRating: readinessRating,
+  physicalRating: readinessRating,
+  emotionalRating: readinessRating,
+});
+
+const reviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  mentalRating: readinessRating.optional(),
+  physicalRating: readinessRating.optional(),
+  emotionalRating: readinessRating.optional(),
+  notes: z.string().trim().max(2_000),
+  metadata: z
+    .object({
+      goalAttention: z.string().trim().max(50).nullable().optional(),
+      cultureReview: z.string().trim().max(100).nullable().optional(),
+      originalGoal: z.string().trim().max(300).optional(),
+      originalPillar: z.string().trim().max(100).optional(),
+      nextCommitment: z.string().trim().max(100).nullable().optional(),
+    })
+    .strict()
+    .optional(),
+  nextSessionNotes: z.string().trim().max(500),
+});
+
+type CheckInInput = z.infer<typeof checkInSchema>;
+type ReviewInput = z.infer<typeof reviewSchema>;
+
+export async function submitCheckIn(data: CheckInInput, isPreview?: boolean) {
   try {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
     if (isPreview && session.user.role === "admin") {
-      console.log("Preview submission, skipping DB write");
       return;
+    }
+
+    const parsed = checkInSchema.safeParse(data);
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0]?.message ?? "Invalid check-in");
     }
 
     const user = await db.query.users.findFirst({
@@ -29,8 +66,9 @@ export async function submitCheckIn(data: {
     });
 
     if (!user?.teamId) throw new Error("No team assigned");
+    if (user.role !== "player") throw new Error("Player access required");
 
-    const { metadata, ...rest } = data;
+    const { metadata, ...rest } = parsed.data;
 
     await db.insert(checkIns).values({
       playerId: session.user.id,
@@ -46,22 +84,18 @@ export async function submitCheckIn(data: {
   }
 }
 
-export async function submitReview(data: {
-  rating: number;
-  mentalRating?: number;
-  physicalRating?: number;
-  emotionalRating?: number;
-  notes: string;
-  metadata?: Record<string, unknown>;
-  nextSessionNotes: string;
-}, isPreview?: boolean) {
+export async function submitReview(data: ReviewInput, isPreview?: boolean) {
   try {
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
 
     if (isPreview && session.user.role === "admin") {
-      console.log("Preview submission, skipping DB write");
       return;
+    }
+
+    const parsed = reviewSchema.safeParse(data);
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0]?.message ?? "Invalid review");
     }
 
     const user = await db.query.users.findFirst({
@@ -69,8 +103,9 @@ export async function submitReview(data: {
     });
 
     if (!user?.teamId) throw new Error("No team assigned");
+    if (user.role !== "player") throw new Error("Player access required");
 
-    const { metadata, ...rest } = data;
+    const { metadata, ...rest } = parsed.data;
 
     await db.insert(reviews).values({
       playerId: session.user.id,

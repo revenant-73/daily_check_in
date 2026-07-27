@@ -6,6 +6,32 @@ import { eq, desc, inArray, and } from "drizzle-orm";
 import { auth } from "@/auth";
 import { logError } from "@/lib/logger";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const reactionSchema = z.object({
+  checkInId: z.string().uuid("Invalid check-in"),
+  type: z.enum(["high-five", "fire", "muscle", "target"]),
+});
+
+const coachNoteSchema = z.object({
+  checkInId: z.string().uuid("Invalid check-in"),
+  note: z.string().trim().min(1, "Note cannot be empty").max(1_000, "Note is too long"),
+});
+
+async function requireCoachWithTeam(userId: string) {
+  const coach = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+  });
+
+  if (coach?.role !== "coach" || !coach.teamId) {
+    throw new Error("Coach access required");
+  }
+
+  return {
+    ...coach,
+    teamId: coach.teamId,
+  };
+}
 
 export async function addReaction(checkInId: string, type: string) {
   try {
@@ -14,12 +40,28 @@ export async function addReaction(checkInId: string, type: string) {
       throw new Error("Unauthorized");
     }
 
+    const parsed = reactionSchema.safeParse({ checkInId, type });
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0]?.message ?? "Invalid reaction");
+    }
+
+    const coach = await requireCoachWithTeam(session.user.id);
+    const ownedCheckIn = await db.query.checkIns.findFirst({
+      where: and(
+        eq(checkIns.id, parsed.data.checkInId),
+        eq(checkIns.teamId, coach.teamId)
+      ),
+    });
+    if (!ownedCheckIn) {
+      throw new Error("Check-in not found");
+    }
+
     // Check if already reacted with same type
     const existing = await db.select().from(reactions).where(
       and(
-        eq(reactions.checkInId, checkInId),
+        eq(reactions.checkInId, parsed.data.checkInId),
         eq(reactions.coachId, session.user.id),
-        eq(reactions.type, type)
+        eq(reactions.type, parsed.data.type)
       )
     ).get();
 
@@ -28,9 +70,9 @@ export async function addReaction(checkInId: string, type: string) {
       await db.delete(reactions).where(eq(reactions.id, existing.id));
     } else {
       await db.insert(reactions).values({
-        checkInId,
+        checkInId: parsed.data.checkInId,
         coachId: session.user.id,
-        type,
+        type: parsed.data.type,
       });
     }
 
@@ -48,17 +90,32 @@ export async function submitCoachNote(checkInId: string, note: string) {
       throw new Error("Unauthorized");
     }
 
-    const checkIn = await db.select().from(checkIns).where(eq(checkIns.id, checkInId)).get();
+    const parsed = coachNoteSchema.safeParse({ checkInId, note });
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0]?.message ?? "Invalid note");
+    }
+
+    const coach = await requireCoachWithTeam(session.user.id);
+    const checkIn = await db
+      .select()
+      .from(checkIns)
+      .where(
+        and(
+          eq(checkIns.id, parsed.data.checkInId),
+          eq(checkIns.teamId, coach.teamId)
+        )
+      )
+      .get();
     if (!checkIn) throw new Error("Check-in not found");
 
     const metadata = checkIn.metadata ? JSON.parse(checkIn.metadata) : {};
-    metadata.coachNote = note;
+    metadata.coachNote = parsed.data.note;
     metadata.coachId = session.user.id;
     metadata.coachNoteAt = new Date().toISOString();
 
     await db.update(checkIns)
       .set({ metadata: JSON.stringify(metadata) })
-      .where(eq(checkIns.id, checkInId));
+      .where(eq(checkIns.id, parsed.data.checkInId));
 
     revalidatePath("/coach/dashboard");
     revalidatePath("/dashboard"); // For player

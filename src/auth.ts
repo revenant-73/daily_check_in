@@ -5,7 +5,13 @@ import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { authConfig } from "./auth.config";
+
+const credentialsSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254),
+  password: z.string().min(1).max(128),
+});
 
 declare module "next-auth" {
   interface User {
@@ -41,16 +47,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (isEdge) return null;
-        if (!credentials?.email || !credentials?.password) return null;
+
+        const parsed = credentialsSchema.safeParse(credentials);
+        if (!parsed.success) return null;
 
         const user = await db.query.users.findFirst({
-          where: eq(users.email, credentials.email as string),
+          where: eq(users.email, parsed.data.email),
         });
 
         if (!user || !user.password) return null;
 
         const isPasswordValid = await bcrypt.compare(
-          credentials.password as string,
+          parsed.data.password,
           user.password
         );
 

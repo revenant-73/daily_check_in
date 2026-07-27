@@ -8,7 +8,6 @@ import { Logo } from "@/components/ui/Logo";
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState("player");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -16,8 +15,8 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
+      const formData = new FormData(e.currentTarget);
+    const email = (formData.get("email") as string).trim().toLowerCase();
     const password = formData.get("password") as string;
 
     if (isLogin) {
@@ -47,14 +46,7 @@ export default function LoginPage() {
           setError("Account created but failed to login automatically");
           setLoading(false);
         } else {
-          const selectedRole = formData.get("role") as string;
-          if (selectedRole === "coach") {
-            router.push("/coach/dashboard");
-          } else if (selectedRole === "admin") {
-            router.push("/admin");
-          } else {
-            router.push("/onboarding");
-          }
+          router.push("/onboarding");
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
@@ -116,37 +108,6 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
           </div>
-          {!isLogin && (
-            <>
-              <div>
-                <label className="block text-sm font-medium mb-1 text-foreground">I am a...</label>
-                <select 
-                  name="role" 
-                  value={role}
-                  disabled={loading}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
-                >
-                  <option value="player">Player</option>
-                  <option value="coach">Coach</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              {role === "admin" && (
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-foreground">Admin Access Code</label>
-                  <input
-                    name="adminCode"
-                    type="password"
-                    required
-                    disabled={loading}
-                    className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
-                    placeholder="Enter special code"
-                  />
-                </div>
-              )}
-            </>
-          )}
           <button
             type="submit"
             disabled={loading}
@@ -160,7 +121,7 @@ export default function LoginPage() {
           <button
             onClick={() => {
               setIsLogin(!isLogin);
-              setRole("player"); // Reset role when toggling
+              setError("");
             }}
             className="text-primary hover:underline text-sm"
           >
