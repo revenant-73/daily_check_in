@@ -77,7 +77,7 @@ export function FeedbackForm() {
 
         <div className="space-y-4">
           <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-2">
-            What's on your mind?
+            What&apos;s on your mind?
           </label>
           <textarea
             name="content"

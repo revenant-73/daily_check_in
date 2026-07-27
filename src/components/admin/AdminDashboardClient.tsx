@@ -18,15 +18,16 @@ import { CopyInviteButton } from "@/components/admin/CopyInviteButton";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 import { createOrganization, deleteOrganization, deleteUser, assignToTeam, deleteTeam } from "@/app/actions/admin";
+import { organizations as organizationsSchema, teams as teamsSchema, users as usersSchema } from "@/lib/db/schema";
 
 export default function AdminDashboardClient({ 
   initialData,
   userName
 }: { 
   initialData: { 
-    organizations: any[], 
-    teams: any[], 
-    users: any[] 
+    organizations: (typeof organizationsSchema.$inferSelect)[], 
+    teams: (typeof teamsSchema.$inferSelect & { avgReadiness: number, avgPerformance: number, playerCount: number, lastActivity: Date | null })[], 
+    users: (typeof usersSchema.$inferSelect)[] 
   },
   userName?: string | null
 }) {
@@ -45,9 +46,9 @@ export default function AdminDashboardClient({
 
   const unassignedUsers = users.filter(u => !u.teamId);
 
-  const getHealthStatus = (lastActivity: string | null) => {
+  const getHealthStatus = (lastActivity: Date | null) => {
     if (!lastActivity) return { label: 'Inactive', color: 'text-red-500 bg-red-500/10' };
-    const days = Math.floor((new Date().getTime() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24));
+    const days = Math.floor((new Date().getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
     if (days > 7) return { label: 'Stale', color: 'text-amber-500 bg-amber-500/10' };
     return { label: 'Active', color: 'text-vibrant bg-vibrant/10' };
   };
@@ -128,7 +129,7 @@ export default function AdminDashboardClient({
                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4">{org?.name || 'No Org'}</p>
                          
                          <div className="mb-4">
-                            <CopyInviteButton code={team.playerInviteCode} className="w-full justify-center py-2" />
+                            <CopyInviteButton code={team.playerInviteCode || ""} className="w-full justify-center py-2" />
                          </div>
 
                          <div className="flex justify-between items-center pt-4 border-t border-border/50">

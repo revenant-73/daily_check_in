@@ -18,28 +18,29 @@ export async function getAdminData() {
     const allTeams = await db.select().from(teams);
     const allUsers = await db.select().from(users);
 
-    const teamsWithStats = await Promise.all(allTeams.map(async (team) => {
-      const teamPlayers = allUsers.filter(u => u.teamId === team.id);
+    const teamsWithStats = await Promise.all(allTeams.map(async (team: typeof teams.$inferSelect) => {
+      const teamPlayers = allUsers.filter((u: typeof users.$inferSelect) => u.teamId === team.id);
       if (teamPlayers.length === 0) {
         return {
           ...team,
           avgReadiness: 0,
           avgPerformance: 0,
-          playerCount: 0
+          playerCount: 0,
+          lastActivity: null as Date | null
         };
       }
 
-      const playerIds = teamPlayers.map(p => p.id);
+      const playerIds = teamPlayers.map((p: typeof users.$inferSelect) => p.id);
       
       const teamCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds));
       const teamReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds));
 
       const avgReadiness = teamCheckIns.length > 0
-        ? teamCheckIns.reduce((acc, ci) => acc + (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3, 0) / teamCheckIns.length
+        ? teamCheckIns.reduce((acc: number, ci: typeof checkIns.$inferSelect) => acc + (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3, 0) / teamCheckIns.length
         : 0;
 
       const avgPerformance = teamReviews.length > 0
-        ? teamReviews.reduce((acc, r) => acc + r.rating, 0) / teamReviews.length
+        ? teamReviews.reduce((acc: number, r: typeof reviews.$inferSelect) => acc + r.rating, 0) / teamReviews.length
         : 0;
 
       const lastCheckIn = teamCheckIns.length > 0 ? teamCheckIns[0].createdAt : null;
@@ -86,14 +87,14 @@ export async function getTeamDataForAdmin(teamId: string) {
       };
     }
 
-    const playerIds = teamPlayers.map(p => p.id);
+    const playerIds = teamPlayers.map((p: typeof users.$inferSelect) => p.id);
 
     const allCheckIns = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt));
     const allReviews = await db.select().from(reviews).where(inArray(reviews.playerId, playerIds)).orderBy(desc(reviews.createdAt));
 
     // Calculate trends
     const trendMap: Record<string, { total: number, count: number }> = {};
-    allCheckIns.forEach(ci => {
+    allCheckIns.forEach((ci: typeof checkIns.$inferSelect) => {
       if (!ci.createdAt) return;
       const date = new Date(ci.createdAt).toLocaleDateString();
       const avg = (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3;
@@ -113,8 +114,8 @@ export async function getTeamDataForAdmin(teamId: string) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const playersWithStatus = teamPlayers.map(player => {
-      const hasCheckedInToday = allCheckIns.some(ci => 
+    const playersWithStatus = teamPlayers.map((player: typeof users.$inferSelect) => {
+      const hasCheckedInToday = allCheckIns.some((ci: typeof checkIns.$inferSelect) => 
         ci.playerId === player.id && 
         ci.createdAt && 
         new Date(ci.createdAt) >= today
@@ -203,7 +204,7 @@ export async function deleteTeam(teamId: string) {
     // 1. Delete all reactions for check-ins in this team
     const teamCheckIns = await db.select().from(checkIns).where(eq(checkIns.teamId, teamId));
     if (teamCheckIns.length > 0) {
-      const checkInIds = teamCheckIns.map(ci => ci.id);
+      const checkInIds = teamCheckIns.map((ci: typeof checkIns.$inferSelect) => ci.id);
       await db.delete(reactions).where(inArray(reactions.checkInId, checkInIds));
     }
 

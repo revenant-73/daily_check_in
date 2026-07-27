@@ -1,30 +1,26 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getTeamData, getTeamReadinessTrends } from "@/app/actions/coach";
+import { checkIns as checkInsSchema, reviews as reviewsSchema, reactions as reactionsSchema } from "@/lib/db/schema";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { AttendanceList } from "@/components/coach/AttendanceList";
+import { TeamQRCode } from "@/components/coach/TeamQRCode";
 import { ReactionButtons } from "@/components/coach/ReactionButtons";
-import { TeamHeatmap } from "@/components/coach/TeamHeatmap";
 import { ActivityFeed } from "@/components/coach/ActivityFeed";
 import { CoachNoteDialog } from "@/components/coach/CoachNoteDialog";
-import { Users, Activity, TrendingUp, Zap, Target, AlertTriangle } from "lucide-react";
+import { Activity, Target, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 
-export default async function CoachDashboard(props: {
-  params: Promise<{ [key: string]: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const params = await props.params;
-  const searchParams = await props.searchParams;
+export default async function CoachDashboard() {
   const session = await auth();
   if (!session?.user || session.user.role !== "coach") {
     redirect("/login");
   }
 
-  let data;
-  let trends: any[] = [];
+  let data: Awaited<ReturnType<typeof getTeamData>> | null = null;
+  let trends: Awaited<ReturnType<typeof getTeamReadinessTrends>> = [];
   try {
     data = await getTeamData();
     trends = await getTeamReadinessTrends();
@@ -48,10 +44,10 @@ export default async function CoachDashboard(props: {
   const { team, players, checkIns, reviews, reactions, prevAvg, criticalPlayers } = data;
 
   // Simple stats
-  const avgMental = checkIns.length > 0 ? (checkIns.reduce((acc, ci) => acc + ci.mentalRating, 0) / checkIns.length) : null;
-  const avgPhysical = checkIns.length > 0 ? (checkIns.reduce((acc, ci) => acc + ci.physicalRating, 0) / checkIns.length) : null;
-  const avgEmotional = checkIns.length > 0 ? (checkIns.reduce((acc, ci) => acc + ci.emotionalRating, 0) / checkIns.length) : null;
-  const avgPerformance = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "N/A";
+  const avgMental = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.mentalRating, 0) / checkIns.length) : null;
+  const avgPhysical = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.physicalRating, 0) / checkIns.length) : null;
+  const avgEmotional = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.emotionalRating, 0) / checkIns.length) : null;
+  const avgPerformance = reviews.length > 0 ? (reviews.reduce((acc: number, r: typeof reviewsSchema.$inferSelect) => acc + r.rating, 0) / reviews.length).toFixed(1) : "N/A";
 
   const getDelta = (current: number | null, prev: number | undefined) => {
     if (current === null || prev === undefined) return null;
@@ -90,7 +86,7 @@ export default async function CoachDashboard(props: {
       }))
   ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-  const getStatusBadge = (ci: any) => {
+  const getStatusBadge = (ci: typeof checkInsSchema.$inferSelect) => {
     if (ci.physicalRating <= 3) return { label: 'FATIGUED', color: 'bg-red-500/10 text-red-500 border-red-500/20' };
     if (ci.mentalRating <= 3) return { label: 'UNFOCUSED', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' };
     if (ci.physicalRating >= 8 && ci.mentalRating >= 8) return { label: 'READY', color: 'bg-vibrant/10 text-vibrant border-vibrant/20' };
@@ -116,7 +112,10 @@ export default async function CoachDashboard(props: {
               Directing <span className="text-primary font-black">{team?.name}</span>
             </p>
           </div>
-          <AttendanceList players={players} inviteCode={team?.playerInviteCode || undefined} variant="condensed" />
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <TeamQRCode teamName={team?.name || ""} />
+            <AttendanceList players={players} inviteCode={team?.playerInviteCode || undefined} variant="condensed" />
+          </div>
         </header>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -159,7 +158,7 @@ export default async function CoachDashboard(props: {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {criticalPlayers && criticalPlayers.length > 0 ? (
-                    criticalPlayers.map((player: any) => (
+                    criticalPlayers.map((player) => (
                       <Link 
                         key={player.id} 
                         href={`/coach/player/${player.id}`}
@@ -200,8 +199,8 @@ export default async function CoachDashboard(props: {
                   {checkIns.slice(0, 8).map((ci) => {
                     const player = players.find(p => p.id === ci.playerId);
                     const status = getStatusBadge(ci);
-                    const ciReactions = reactions?.filter((r: any) => r.checkInId === ci.id) || [];
-                    const metadata = ci.metadata ? JSON.parse(ci.metadata) : {};
+                    const ciReactions = reactions?.filter((r: typeof reactionsSchema.$inferSelect) => r.checkInId === ci.id) || [];
+                    const metadata = ci.metadata ? JSON.parse(ci.metadata as string) : {};
                     return (
                       <div key={ci.id} className="p-4 space-y-3">
                         <div className="flex justify-between items-start">
@@ -245,8 +244,8 @@ export default async function CoachDashboard(props: {
                       {checkIns.slice(0, 8).map((ci) => {
                         const player = players.find(p => p.id === ci.playerId);
                         const status = getStatusBadge(ci);
-                        const ciReactions = reactions?.filter((r: any) => r.checkInId === ci.id) || [];
-                        const metadata = ci.metadata ? JSON.parse(ci.metadata) : {};
+                        const ciReactions = reactions?.filter((r: typeof reactionsSchema.$inferSelect) => r.checkInId === ci.id) || [];
+                        const metadata = ci.metadata ? JSON.parse(ci.metadata as string) : {};
                         return (
                           <tr key={ci.id} className="hover:bg-muted/20 transition-colors group">
                             <td className="p-6">
@@ -303,22 +302,3 @@ export default async function CoachDashboard(props: {
 }
 
 import { Brain, Heart } from "lucide-react";
-
-function Star({ className }: { className?: string }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  );
-}

@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Slider } from "@/components/ui/slider";
+import { EmojiRating } from "@/components/ui/EmojiRating";
+import { DictationButton } from "@/components/ui/DictationButton";
 import { CheckCircle2, ChevronRight, ChevronLeft, Zap, Target, Brain, Shield, Star, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { submitCheckIn } from "@/app/actions/entries";
 import { SMALL_ACHIEVABLE_GOALS } from "@/lib/constants/goals";
 import { PILLARS } from "@/lib/constants/pillars";
-import { cn } from "@/lib/utils";
+import { cn, hapticFeedback } from "@/lib/utils";
 
 const STEPS = [
   { id: "readiness", title: "Readiness", description: "How is your edge today?", icon: Zap },
@@ -23,20 +24,22 @@ interface CheckInFormProps {
     metadata?: string | null;
   } | null;
   isPreview?: boolean;
+  autoRepeat?: boolean;
 }
 
-export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFormProps) {
+export function CheckInForm({ previousGoal, latestReview, isPreview, autoRepeat }: CheckInFormProps) {
   const [step, setStep] = useState(0);
-  const [goal, setGoal] = useState("");
+  const [goal, setGoal] = useState(autoRepeat && previousGoal ? previousGoal : "");
   const [pillar, setPillar] = useState("");
   const [lookLike, setLookLike] = useState("");
-  const [mental, setMental] = useState(5);
-  const [physical, setPhysical] = useState(5);
-  const [emotional, setEmotional] = useState(5);
+  const [mental, setMental] = useState(6);
+  const [physical, setPhysical] = useState(6);
+  const [emotional, setEmotional] = useState(6);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    hapticFeedback("medium");
     setLoading(true);
     try {
       await submitCheckIn({
@@ -47,6 +50,7 @@ export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFo
         physicalRating: physical,
         emotionalRating: emotional,
       }, isPreview);
+      hapticFeedback("success");
       setSubmitted(true);
     } catch (err) {
       console.error(err);
@@ -57,12 +61,23 @@ export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFo
   };
 
   const nextStep = () => {
-    if (step < STEPS.length - 1) setStep(step + 1);
-    else handleSubmit();
+    hapticFeedback("light");
+    if (step === 0 && autoRepeat && goal) {
+      setStep(2); // Skip Step 1 (Goal)
+    } else if (step < STEPS.length - 1) {
+      setStep(step + 1);
+    } else {
+      handleSubmit();
+    }
   };
 
   const prevStep = () => {
-    if (step > 0) setStep(step - 1);
+    hapticFeedback("light");
+    if (step === 2 && autoRepeat) {
+      setStep(0);
+    } else if (step > 0) {
+      setStep(step - 1);
+    }
   };
 
   if (submitted) {
@@ -131,23 +146,23 @@ export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFo
 
             {step === 0 && (
               <div className="space-y-6 sm:space-y-10 py-2 sm:py-4">
-                <Slider 
+                <EmojiRating 
                   label="Mental Edge" 
                   description="Focus, alertness, and cognitive readiness. Are you locked in?"
                   value={mental} 
-                  onChange={(e) => setMental(parseInt(e.target.value))} 
+                  onChange={(val) => setMental(val)} 
                 />
-                <Slider 
+                <EmojiRating 
                   label="Physical Power" 
                   description="Energy levels, recovery, and body health. How fueled is your engine?"
                   value={physical} 
-                  onChange={(e) => setPhysical(parseInt(e.target.value))} 
+                  onChange={(val) => setPhysical(val)} 
                 />
-                <Slider 
+                <EmojiRating 
                   label="Emotional Calm" 
                   description="Stress levels, mood, and composure. Are you centered and ready?"
                   value={emotional} 
-                  onChange={(e) => setEmotional(parseInt(e.target.value))} 
+                  onChange={(val) => setEmotional(val)} 
                 />
               </div>
             )}
@@ -189,19 +204,28 @@ export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFo
                 )}
                 <div className="space-y-3 sm:space-y-4">
                   <div className="space-y-2 sm:space-y-3">
-                    <p className="text-[10px] sm:text-xs font-black text-muted-foreground uppercase tracking-widest ml-1">Suggested</p>
-                    <select
-                      value={SMALL_ACHIEVABLE_GOALS.includes(goal) ? goal : ""}
-                      onChange={(e) => setGoal(e.target.value)}
-                      className="w-full p-4 sm:p-5 rounded-2xl bg-muted/50 border-2 border-border focus:border-primary transition-all text-xs sm:text-sm font-bold text-foreground appearance-none cursor-pointer"
-                    >
-                      <option value="" disabled>Select a suggestion...</option>
+                    <p className="text-[10px] sm:text-xs font-black text-muted-foreground uppercase tracking-widest ml-1">Suggested Goals</p>
+                    <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar -mx-1 px-1">
                       {SMALL_ACHIEVABLE_GOALS.map((suggestion) => (
-                        <option key={suggestion} value={suggestion} className="bg-background text-foreground text-xs sm:text-sm">
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onClick={() => {
+                            hapticFeedback("medium");
+                            setGoal(suggestion);
+                            setTimeout(nextStep, 200);
+                          }}
+                          className={cn(
+                            "flex-shrink-0 px-4 py-3 rounded-xl border-2 transition-all text-[10px] sm:text-xs font-bold uppercase tracking-tight",
+                            goal === suggestion
+                              ? "bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20"
+                              : "bg-muted/50 border-border hover:border-primary/50 text-foreground"
+                          )}
+                        >
                           {suggestion}
-                        </option>
+                        </button>
                       ))}
-                    </select>
+                    </div>
                   </div>
 
                   <div className="relative">
@@ -214,7 +238,10 @@ export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFo
                   </div>
 
                   <div className="space-y-2 sm:space-y-3">
-                    <p className="text-[10px] sm:text-xs font-black text-muted-foreground uppercase tracking-widest ml-1">Custom</p>
+                    <div className="flex items-center justify-between ml-1">
+                      <p className="text-[10px] sm:text-xs font-black text-muted-foreground uppercase tracking-widest">Custom</p>
+                      <DictationButton onResult={(text) => setGoal(text)} />
+                    </div>
                     <input
                       type="text"
                       placeholder="Your custom goal..."
@@ -234,7 +261,10 @@ export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFo
                     <button
                       key={p.name}
                       type="button"
-                      onClick={() => setPillar(p.name)}
+                      onClick={() => {
+                        hapticFeedback("medium");
+                        setPillar(p.name);
+                      }}
                       className={cn(
                         "p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 text-left transition-all relative group",
                         pillar === p.name 
@@ -265,7 +295,10 @@ export function CheckInForm({ previousGoal, latestReview, isPreview }: CheckInFo
                       exit={{ opacity: 0, height: 0 }}
                       className="space-y-2 sm:space-y-3 pt-4 border-t border-border"
                     >
-                      <p className="text-[10px] sm:text-xs font-black text-muted-foreground uppercase tracking-widest ml-1">Implementation Action</p>
+                      <div className="flex items-center justify-between ml-1">
+                        <p className="text-[10px] sm:text-xs font-black text-muted-foreground uppercase tracking-widest">Implementation Action</p>
+                        <DictationButton onResult={(text) => setLookLike(prev => prev ? `${prev} ${text}` : text)} />
+                      </div>
                       <textarea
                         autoFocus
                         placeholder="Explain your action..."

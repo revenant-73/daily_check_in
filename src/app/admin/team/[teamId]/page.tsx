@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
-import { getTeamDataForAdmin, getAdminData, assignToTeam, deleteTeam, updateUserRole } from "@/app/actions/admin";
-import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus, Trash2, ShieldCheck } from "lucide-react";
+import { getTeamDataForAdmin, getAdminData, assignToTeam, updateUserRole } from "@/app/actions/admin";
+import { checkIns as checkInsSchema, reviews as reviewsSchema, users as usersSchema, organizations as organizationsSchema } from "@/lib/db/schema";
+import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { ActionButton } from "@/components/admin/ActionButton";
@@ -24,19 +25,19 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
 
   // We need organization name for breadcrumbs
   const adminData = await getAdminData();
-  const organization = adminData.organizations.find((o: any) => o.id === team.orgId);
+  const organization = adminData.organizations.find((o: typeof organizationsSchema.$inferSelect) => o.id === team.orgId);
 
   const avgMental = checkIns.length > 0 
-    ? (checkIns.reduce((acc: any, ci: any) => acc + ci.mentalRating, 0) / checkIns.length).toFixed(1) 
+    ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.mentalRating, 0) / checkIns.length).toFixed(1) 
     : "N/A";
   const avgPhysical = checkIns.length > 0 
-    ? (checkIns.reduce((acc: any, ci: any) => acc + ci.physicalRating, 0) / checkIns.length).toFixed(1) 
+    ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.physicalRating, 0) / checkIns.length).toFixed(1) 
     : "N/A";
   const avgEmotional = checkIns.length > 0 
-    ? (checkIns.reduce((acc: any, ci: any) => acc + ci.emotionalRating, 0) / checkIns.length).toFixed(1) 
+    ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.emotionalRating, 0) / checkIns.length).toFixed(1) 
     : "N/A";
   const avgPerformance = reviews.length > 0 
-    ? (reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / reviews.length).toFixed(1) 
+    ? (reviews.reduce((acc: number, r: typeof reviewsSchema.$inferSelect) => acc + r.rating, 0) / reviews.length).toFixed(1) 
     : "N/A";
 
   return (
@@ -137,7 +138,7 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
             </h3>
             <RosterUpload teamId={team.id} />
             <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden divide-y divide-border">
-              {players.map(player => (
+              {players.map((player: typeof usersSchema.$inferSelect & { hasCheckedInToday: boolean }) => (
                 <div key={player.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
                   <div className="flex items-center gap-3">
                     <div>
@@ -205,8 +206,8 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {checkIns.slice(0, 10).map((ci: any) => {
-                    const player = players.find((p: any) => p.id === ci.playerId);
+                  {checkIns.slice(0, 10).map((ci: typeof checkInsSchema.$inferSelect) => {
+                    const player = players.find((p: typeof usersSchema.$inferSelect) => p.id === ci.playerId);
                     return (
                       <tr key={ci.id} className="hover:bg-muted/30 transition-colors">
                         <td className="p-4 font-bold text-foreground">{player?.name?.split(' ')[0] || "Unknown"}</td>
@@ -234,8 +235,8 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
           <section className="space-y-4">
             <h3 className="text-xl font-bold text-foreground">Recent Reviews</h3>
             <div className="space-y-3">
-              {reviews.slice(0, 5).map((r: any) => {
-                const player = players.find((p: any) => p.id === r.playerId);
+              {reviews.slice(0, 5).map((r: typeof reviewsSchema.$inferSelect) => {
+                const player = players.find((p: typeof usersSchema.$inferSelect) => p.id === r.playerId);
                 return (
                   <div key={r.id} className="p-4 bg-card rounded-xl border border-border shadow-sm">
                     <div className="flex justify-between items-center mb-1">

@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { authConfig } from "./auth.config";
 
 const credentialsSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(254),
@@ -33,8 +34,11 @@ declare module "next-auth/jwt" {
   }
 }
 
+const isEdge = process.env.NEXT_RUNTIME === "edge";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: DrizzleAdapter(db),
+  ...authConfig,
+  ...(isEdge ? {} : { adapter: DrizzleAdapter(db) }),
   providers: [
     Credentials({
       credentials: {
@@ -42,6 +46,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        if (isEdge) return null;
+
         const parsed = credentialsSchema.safeParse(credentials);
         if (!parsed.success) return null;
 
@@ -67,20 +73,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.role = (token.role as string) ?? "player";
-        session.user.id = token.sub as string;
-      }
-      return session;
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-      }
-      return token;
-    },
-  },
-  session: { strategy: "jwt" },
 });
+

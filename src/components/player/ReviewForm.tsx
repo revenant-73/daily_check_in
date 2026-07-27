@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Slider } from "@/components/ui/slider";
+import { EmojiRating } from "@/components/ui/EmojiRating";
+import { DictationButton } from "@/components/ui/DictationButton";
 import { CheckCircle2, Star, ChevronRight, ChevronLeft, Zap, Target, Shield, MessageSquare, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { submitReview } from "@/app/actions/entries";
-import { cn } from "@/lib/utils";
+import { cn, hapticFeedback } from "@/lib/utils";
 
 const STEPS = [
   { id: "readiness", title: "Readiness", description: "How are you leaving practice?", icon: Zap },
@@ -23,9 +24,9 @@ interface ReviewFormProps {
 
 export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
   const [step, setStep] = useState(0);
-  const [mental, setMental] = useState(5);
-  const [physical, setPhysical] = useState(5);
-  const [emotional, setEmotional] = useState(5);
+  const [mental, setMental] = useState(6);
+  const [physical, setPhysical] = useState(6);
+  const [emotional, setEmotional] = useState(6);
   const [goalAttention, setGoalAttention] = useState<string | null>(null);
   const [cultureReview, setCultureReview] = useState<string | null>(null);
   const [reflection, setReflection] = useState("");
@@ -34,6 +35,7 @@ export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    hapticFeedback("medium");
     setLoading(true);
     try {
       await submitReview({
@@ -51,6 +53,7 @@ export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
           nextCommitment
         }
       }, isPreview);
+      hapticFeedback("success");
       setSubmitted(true);
     } catch (err) {
       console.error(err);
@@ -61,11 +64,13 @@ export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
   };
 
   const nextStep = () => {
+    hapticFeedback("light");
     if (step < STEPS.length - 1) setStep(step + 1);
     else handleSubmit();
   };
 
   const prevStep = () => {
+    hapticFeedback("light");
     if (step > 0) setStep(step - 1);
   };
 
@@ -131,23 +136,23 @@ export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
 
             {step === 0 && (
               <div className="space-y-6 sm:space-y-10 py-2 sm:py-4">
-                <Slider 
+                <EmojiRating 
                   label="Mental Edge" 
                   description="Focus and cognitive clarity. How sharp was your mind during the session?"
                   value={mental} 
-                  onChange={(e) => setMental(parseInt(e.target.value))} 
+                  onChange={(val) => setMental(val)} 
                 />
-                <Slider 
+                <EmojiRating 
                   label="Physical Power" 
                   description="Energy and body state. How much did you have left in the tank?"
                   value={physical} 
-                  onChange={(e) => setPhysical(parseInt(e.target.value))} 
+                  onChange={(val) => setPhysical(val)} 
                 />
-                <Slider 
+                <EmojiRating 
                   label="Emotional Calm" 
                   description="Composure and mood. How well did you handle the session's pressure?"
                   value={emotional} 
-                  onChange={(e) => setEmotional(parseInt(e.target.value))} 
+                  onChange={(val) => setEmotional(val)} 
                 />
               </div>
             )}
@@ -165,7 +170,11 @@ export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
                     {["Yes", "Somewhat", "No"].map((option) => (
                       <button
                         key={option}
-                        onClick={() => setGoalAttention(option)}
+                        onClick={() => {
+                          hapticFeedback("medium");
+                          setGoalAttention(option);
+                          setTimeout(nextStep, 200);
+                        }}
                         className={cn(
                           "py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-xs sm:text-sm",
                           goalAttention === option 
@@ -199,7 +208,11 @@ export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
                     ].map((option) => (
                       <button
                         key={option.id}
-                        onClick={() => setCultureReview(option.label)}
+                        onClick={() => {
+                          hapticFeedback("medium");
+                          setCultureReview(option.label);
+                          setTimeout(nextStep, 200);
+                        }}
                         className={cn(
                           "py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-left flex justify-between items-center text-xs sm:text-sm",
                           cultureReview === option.label 
@@ -219,7 +232,10 @@ export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
             {step === 3 && (
               <div className="space-y-4 sm:space-y-6">
                 <div className="space-y-2 sm:space-y-3">
-                  <p className="text-xs sm:text-sm font-black text-foreground uppercase tracking-widest">One moment to remember?</p>
+                  <div className="flex items-center justify-between ml-1">
+                    <p className="text-xs sm:text-sm font-black text-foreground uppercase tracking-widest">One moment to remember?</p>
+                    <DictationButton onResult={(text) => setReflection(prev => prev ? `${prev} ${text}` : text)} />
+                  </div>
                   <textarea
                     autoFocus
                     placeholder="Technical, emotional, social..."
@@ -242,7 +258,11 @@ export function ReviewForm({ goal, pillar, isPreview }: ReviewFormProps) {
                   ].map((option) => (
                     <button
                       key={option}
-                      onClick={() => setNextCommitment(option)}
+                      onClick={() => {
+                        hapticFeedback("medium");
+                        setNextCommitment(option);
+                        setTimeout(nextStep, 200);
+                      }}
                       className={cn(
                         "py-4 sm:py-5 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest transition-all border-2 text-left text-xs sm:text-sm",
                         nextCommitment === option 
