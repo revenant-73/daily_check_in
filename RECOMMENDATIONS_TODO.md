@@ -57,17 +57,18 @@ This checklist turns the July 2026 application review into an actionable roadmap
 
 ### Database constraints
 
-- [ ] Add a unique constraint/index for normalized user email.
-- [ ] Add unique constraints/indexes for player and coach invite codes.
-- [ ] Generate invite codes with a cryptographically secure random source.
-- [ ] Ensure invite-code generation fails safely rather than returning a potentially duplicated code after retry exhaustion.
-- [ ] Add a unique constraint for `(checkInId, coachId, reactionType)` or the selected reaction model.
-- [ ] Add database check constraints for all rating ranges.
+- [x] Add a unique constraint/index for normalized user email.
+- [x] Add unique constraints/indexes for player and coach invite codes.
+- [x] Generate invite codes with a cryptographically secure random source.
+- [x] Ensure invite-code generation fails safely rather than returning a potentially duplicated code after retry exhaustion.
+- [x] Add a unique constraint for `(checkInId, coachId, reactionType)` or the selected reaction model.
+- [x] Add database check constraints for all rating ranges.
 - [ ] Make timestamps non-null where records must always have a timestamp.
 - [ ] Define explicit `onDelete` behavior for every foreign key.
 - [ ] Decide whether athlete records should be retained, anonymized, archived, or deleted when a user/team/organization is removed.
 - [ ] Use transactions for multi-step operations such as organization/team creation, roster import, and account reassignment.
 - [ ] Add indexes for common queries: team/date, player/date, session/player, organization/team, and check-in/reaction.
+  - Current team/date, player/date, organization/team, and reaction indexes are implemented; session indexes depend on the practice-session model.
 
 ### First-class practice sessions
 
@@ -111,7 +112,7 @@ This checklist turns the July 2026 application review into an actionable roadmap
 
 - [ ] Test that duplicate session check-ins are rejected.
 - [ ] Test that duplicate session reviews are rejected.
-- [ ] Test that ratings outside allowed ranges are rejected.
+- [x] Test that ratings outside allowed ranges are rejected.
 - [ ] Test maximum text lengths and malformed metadata.
 - [ ] Test role and team assignment for player and coach invites.
 - [ ] Test deletion, archival, and reassignment behavior.
