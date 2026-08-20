@@ -11,13 +11,7 @@ import {
   Cell,
   ZAxis
 } from "recharts";
-
-interface HeatmapData {
-  day: string;
-  hour: number;
-  value: number;
-  label: string;
-}
+import { cn } from "@/lib/utils";
 
 export function TeamHeatmap({ data }: { data: { date: string | Date, mental: number, physical: number, emotional: number }[] }) {
   // Process data for the last 7 days
@@ -25,9 +19,8 @@ export function TeamHeatmap({ data }: { data: { date: string | Date, mental: num
   // and days to X axis
   
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const metrics = ['Mental', 'Physical', 'Emotional'];
 
-  const processedData = data.flatMap((entry, i) => {
+  const processedData = data.flatMap((entry) => {
     const date = new Date(entry.date);
     const dayName = days[date.getDay()];
     
@@ -45,13 +38,13 @@ export function TeamHeatmap({ data }: { data: { date: string | Date, mental: num
   };
 
   return (
-    <div className="glass-card rounded-[2.5rem] p-8 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="glass-card min-w-0 space-y-6 overflow-hidden rounded-3xl p-5 sm:rounded-[2.5rem] sm:p-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-xl font-black uppercase tracking-widest text-foreground">Team Heatmap</h3>
           <p className="text-xs text-muted-foreground font-medium">Readiness intensity across metrics</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
            {['Low', 'Mid', 'Peak'].map((l, i) => (
              <div key={l} className="flex items-center gap-1.5">
                 <div className={cn(
@@ -64,9 +57,16 @@ export function TeamHeatmap({ data }: { data: { date: string | Date, mental: num
         </div>
       </div>
 
-      <div className="h-[250px] w-full mt-4">
-        <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+      <div className="mt-4 h-[250px] min-h-[250px] w-full min-w-0">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={260}
+          minHeight={230}
+          debounce={50}
+          initialDimension={{ width: 320, height: 250 }}
+        >
+          <ScatterChart margin={{ top: 20, right: 10, bottom: 20, left: 10 }}>
             <XAxis 
               dataKey="x" 
               type="category" 
@@ -110,5 +110,3 @@ export function TeamHeatmap({ data }: { data: { date: string | Date, mental: num
     </div>
   );
 }
-
-import { cn } from "@/lib/utils";

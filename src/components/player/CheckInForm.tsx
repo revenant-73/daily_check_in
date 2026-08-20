@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { EmojiRating } from "@/components/ui/EmojiRating";
 import { DictationButton } from "@/components/ui/DictationButton";
-import { CheckCircle2, ChevronRight, ChevronLeft, Zap, Target, Brain, Shield, Star, RotateCcw } from "lucide-react";
+import { CheckCircle2, ChevronRight, ChevronLeft, Zap, Target, Shield, Star, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { submitCheckIn } from "@/app/actions/entries";
@@ -145,24 +145,27 @@ export function CheckInForm({ previousGoal, latestReview, isPreview, autoRepeat 
             </div>
 
             {step === 0 && (
-              <div className="space-y-6 sm:space-y-10 py-2 sm:py-4">
+              <div className="space-y-3 sm:space-y-5 py-1 sm:py-2">
                 <EmojiRating 
                   label="Mental Edge" 
                   description="Focus, alertness, and cognitive readiness. Are you locked in?"
                   value={mental} 
                   onChange={(val) => setMental(val)} 
+                  variant="compact"
                 />
                 <EmojiRating 
                   label="Physical Power" 
                   description="Energy levels, recovery, and body health. How fueled is your engine?"
                   value={physical} 
                   onChange={(val) => setPhysical(val)} 
+                  variant="compact"
                 />
                 <EmojiRating 
                   label="Emotional Calm" 
                   description="Stress levels, mood, and composure. Are you centered and ready?"
                   value={emotional} 
                   onChange={(val) => setEmotional(val)} 
+                  variant="compact"
                 />
               </div>
             )}

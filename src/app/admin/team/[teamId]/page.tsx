@@ -74,19 +74,19 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
         </div>
       </div>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8 pb-28 md:pb-8">
         <div className="space-y-2">
           <Link href={organization ? `/admin/org/${organization.id}` : "/admin"} className="inline-flex items-center text-sm font-bold text-primary hover:underline gap-1 mb-2">
             <ChevronLeft className="w-4 h-4" /> Back to Organization
           </Link>
-          <div className="flex justify-between items-end">
-            <div>
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-end">
+            <div className="min-w-0">
               <h2 className="text-3xl font-black text-foreground flex items-center gap-3">
                 <Users className="w-8 h-8 text-primary" /> {team.name}
               </h2>
               <p className="text-muted-foreground">Team Analytics and Player Management</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto sm:justify-end">
               <DeleteTeamAndRedirect teamId={team.id} />
               <CopyInviteButton code={team.playerInviteCode || team.inviteCode} />
               <div className="bg-muted px-4 py-2 rounded-xl border border-border">
@@ -129,7 +129,7 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+          <div className="hidden lg:block lg:col-span-2">
             <TeamReadinessGraph data={trends} />
           </div>
           <div className="lg:col-span-1 space-y-6">
@@ -139,8 +139,8 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
             <RosterUpload teamId={team.id} />
             <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden divide-y divide-border">
               {players.map((player: typeof usersSchema.$inferSelect & { hasCheckedInToday: boolean }) => (
-                <div key={player.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
-                  <div className="flex items-center gap-3">
+                <div key={player.id} className="p-4 flex flex-col gap-3 hover:bg-muted/30 transition-colors sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-center gap-3">
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-bold text-sm text-foreground">{player.name || "Unknown"}</p>
@@ -154,7 +154,7 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
                       <p className="text-[10px] text-muted-foreground">{player.email}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
                     {player.role === "player" && (
                       <ActionButton 
                         id={player.id}
@@ -176,10 +176,11 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
                       }}
                       icon={<UserMinus className="w-4 h-4" />}
                       className="text-muted-foreground hover:text-red-500"
-                      label=""
+                      label="Remove"
                     />
-                    <Link href={`/coach/player/${player.id}`} className="text-primary p-2 hover:bg-primary/10 rounded-lg">
+                    <Link href={`/coach/player/${player.id}`} className="min-h-11 px-3 text-primary hover:bg-primary/10 rounded-lg flex items-center gap-2">
                       <ChevronRight className="w-4 h-4" />
+                      <span className="text-xs font-bold uppercase tracking-wider">View</span>
                     </Link>
                   </div>
                 </div>
@@ -259,6 +260,11 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
             </div>
           </section>
         </div>
+
+        <section className="space-y-4 lg:hidden">
+          <h3 className="text-xl font-bold text-foreground">Readiness Trend</h3>
+          <TeamReadinessGraph data={trends} />
+        </section>
       </main>
     </div>
   );

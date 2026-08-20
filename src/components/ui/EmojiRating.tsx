@@ -9,6 +9,7 @@ interface EmojiRatingProps {
   description?: string;
   value: number; // 1-10 scale
   onChange: (val: number) => void;
+  variant?: "default" | "compact";
 }
 
 const EMOJIS = [
@@ -19,7 +20,51 @@ const EMOJIS = [
   { char: "🔥", label: "Elite", value: 10 },
 ];
 
-export function EmojiRating({ label, description, value, onChange }: EmojiRatingProps) {
+export function EmojiRating({ label, description, value, onChange, variant = "default" }: EmojiRatingProps) {
+  const selected = EMOJIS.find((emoji) => emoji.value === value) || EMOJIS[2];
+
+  if (variant === "compact") {
+    return (
+      <div className="rounded-2xl border border-border bg-muted/20 p-3 sm:p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <label className="text-xs font-black text-foreground uppercase tracking-widest">{label}</label>
+          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-primary">
+            {selected.label}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+          {EMOJIS.map((emoji) => (
+            <button
+              key={emoji.value}
+              type="button"
+              aria-label={`${label}: ${emoji.label}`}
+              title={emoji.label}
+              onClick={() => {
+                hapticFeedback("light");
+                onChange(emoji.value);
+              }}
+              className={cn(
+                "flex min-h-12 items-center justify-center rounded-xl border-2 text-xl transition-all sm:min-h-14 sm:text-2xl",
+                value === emoji.value
+                  ? "scale-105 border-primary bg-primary/15 shadow-md shadow-primary/10"
+                  : "border-transparent bg-background/40 hover:bg-muted/60"
+              )}
+            >
+              <span aria-hidden="true">{emoji.char}</span>
+            </button>
+          ))}
+        </div>
+
+        {description && (
+          <p className="mt-2 hidden text-xs font-bold leading-tight text-muted-foreground/60 sm:block">
+            {description}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-1">

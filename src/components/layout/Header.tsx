@@ -46,7 +46,8 @@ export function Header({
           )}
           <Link
             href={feedbackUrl}
-            className="flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-full bg-vibrant/10 text-vibrant border border-vibrant/20 hover:bg-vibrant/20 transition-all font-black text-[10px] uppercase tracking-widest"
+            className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full bg-vibrant/10 px-3 py-2 text-vibrant border border-vibrant/20 hover:bg-vibrant/20 transition-all font-black text-[10px] uppercase tracking-widest"
+            aria-label="Give feedback"
             title="Give Feedback"
           >
             <MessageSquare className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
@@ -58,7 +59,8 @@ export function Header({
           </div>
           <Link 
             href="/api/auth/signout"
-            className="p-1.5 sm:p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-muted rounded-lg flex items-center gap-2"
+            className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg p-2 text-muted-foreground hover:text-foreground transition-colors hover:bg-muted"
+            aria-label="Sign out"
             title="Sign Out"
           >
             <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />

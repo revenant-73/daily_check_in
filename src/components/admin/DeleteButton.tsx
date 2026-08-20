@@ -39,8 +39,9 @@ export function DeleteButton({
     <button
       onClick={handleClick}
       disabled={isPending}
-      className={`p-2 text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50 ${size === "sm" ? "p-1.5" : "p-2"} ${className}`}
+      className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50 ${size === "sm" ? "p-2" : "p-2.5"} ${className}`}
       aria-label="Delete"
+      title="Delete"
     >
       {isPending ? (
         <Loader2 className={`${iconSize} animate-spin`} />

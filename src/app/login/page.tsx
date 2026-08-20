@@ -81,7 +81,7 @@ export default function LoginPage() {
                 type="text"
                 required
                 disabled={loading}
-                className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
+                className="min-h-11 w-full rounded-md border border-border bg-muted px-3 py-2 text-foreground disabled:opacity-50"
                 placeholder="John Doe"
               />
             </div>
@@ -93,7 +93,7 @@ export default function LoginPage() {
               type="email"
               required
               disabled={loading}
-              className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
+              className="min-h-11 w-full rounded-md border border-border bg-muted px-3 py-2 text-foreground disabled:opacity-50"
               placeholder="you@example.com"
             />
           </div>
@@ -104,7 +104,7 @@ export default function LoginPage() {
               type="password"
               required
               disabled={loading}
-              className="w-full p-2 rounded-md border border-border bg-muted text-foreground disabled:opacity-50"
+              className="min-h-11 w-full rounded-md border border-border bg-muted px-3 py-2 text-foreground disabled:opacity-50"
               placeholder="••••••••"
             />
           </div>
@@ -123,7 +123,7 @@ export default function LoginPage() {
               setIsLogin(!isLogin);
               setError("");
             }}
-            className="text-primary hover:underline text-sm"
+            className="min-h-11 rounded-lg px-3 text-sm text-primary hover:underline"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
           </button>

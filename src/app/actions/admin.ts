@@ -251,6 +251,49 @@ export async function deleteUser(userId: string) {
   revalidatePath("/admin", "layout");
 }
 
+export async function previewRosterImport(teamId: string, roster: { name: string, email: string }[]) {
+  try {
+    const session = await auth();
+    if (!session?.user || session.user.role !== "admin") throw new Error("Unauthorized");
+
+    const targetTeam = await db.select().from(teams).where(eq(teams.id, teamId)).get();
+    if (!targetTeam) throw new Error("Team not found");
+
+    const emails = Array.from(new Set(roster.map(u => u.email.toLowerCase().trim()).filter(Boolean)));
+    if (emails.length === 0) {
+      return {
+        targetTeamName: targetTeam.name,
+        existingUsers: [],
+      };
+    }
+
+    const existingUsers = await db.select().from(users).where(inArray(users.email, emails));
+    const existingTeamIds = Array.from(new Set(existingUsers.map(user => user.teamId).filter((id): id is string => !!id)));
+    const existingTeams = existingTeamIds.length > 0
+      ? await db.select().from(teams).where(inArray(teams.id, existingTeamIds))
+      : [];
+
+    return {
+      targetTeamName: targetTeam.name,
+      existingUsers: existingUsers.map(user => {
+        const currentTeam = existingTeams.find(team => team.id === user.teamId);
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          teamId: user.teamId,
+          teamName: currentTeam?.name || null,
+          willMoveTeams: user.teamId !== teamId,
+        };
+      }),
+    };
+  } catch (error) {
+    logError("previewRosterImport", error);
+    throw error;
+  }
+}
+
 export async function batchCreateUsers(teamId: string, roster: { name: string, email: string }[]) {
   try {
     const session = await auth();

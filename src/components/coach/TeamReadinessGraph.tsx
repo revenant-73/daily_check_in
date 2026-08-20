@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useId } from "react";
 
 interface TeamTrendData {
   date: string;
@@ -8,6 +8,8 @@ interface TeamTrendData {
 }
 
 export function TeamReadinessGraph({ data }: { data: TeamTrendData[] }) {
+  const gradientId = useId().replace(/:/g, "");
+
   if (data.length === 0) {
     return (
       <div className="h-48 flex items-center justify-center bg-card rounded-2xl border border-dashed border-border text-muted-foreground text-sm">
@@ -18,7 +20,7 @@ export function TeamReadinessGraph({ data }: { data: TeamTrendData[] }) {
 
   const height = 150;
   const width = 600;
-  const padding = 30;
+  const padding = 34;
   
   const maxValue = 10;
   const points = data.map((d, i) => {
@@ -28,10 +30,16 @@ export function TeamReadinessGraph({ data }: { data: TeamTrendData[] }) {
   }).join(" ");
 
   return (
-    <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
-      <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-6">Team Readiness Trend (Last 7 Sessions)</h3>
-      <div className="relative h-[180px] w-full">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+    <div className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
+      <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-muted-foreground sm:mb-6">Team Readiness Trend (Last 7 Sessions)</h3>
+      <div className="relative h-[200px] min-h-[200px] w-full min-w-0 sm:h-[180px] sm:min-h-[180px]">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          preserveAspectRatio="none"
+          className="h-full w-full overflow-visible"
+          role="img"
+          aria-label="Team readiness trend chart"
+        >
           {/* Grid lines */}
           {[0, 5, 10].map((v) => {
             const y = height - (v / maxValue) * (height - padding * 2) - padding;
@@ -46,12 +54,12 @@ export function TeamReadinessGraph({ data }: { data: TeamTrendData[] }) {
           {/* Area under line */}
           <path
             d={`M ${padding},${height - padding} L ${points} L ${width - padding},${height - padding} Z`}
-            fill="url(#gradient)"
+            fill={`url(#${gradientId})`}
             opacity="0.1"
           />
           
           <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="currentColor" className="text-primary" />
               <stop offset="100%" stopColor="currentColor" stopOpacity="0" className="text-primary" />
             </linearGradient>

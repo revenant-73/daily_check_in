@@ -110,12 +110,14 @@ export function DictationButton({ onResult, className }: DictationButtonProps) {
       type="button"
       onClick={toggleListening}
       className={cn(
-        "p-2 rounded-full transition-all flex items-center justify-center",
+        "min-h-11 min-w-11 rounded-full transition-all flex items-center justify-center",
         isListening 
           ? "bg-red-500 text-white animate-pulse" 
           : "bg-primary/10 text-primary hover:bg-primary/20",
         className
       )}
+      aria-pressed={isListening}
+      aria-label={isListening ? "Stop dictation" : "Start dictation"}
       title={isListening ? "Listening..." : "Dictate"}
     >
       {isListening ? (

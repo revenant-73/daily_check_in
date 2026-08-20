@@ -39,8 +39,9 @@ export function ActionButton({
     <button
       onClick={handleClick}
       disabled={isPending}
-      className={`p-2 flex items-center gap-2 transition-colors disabled:opacity-50 ${className}`}
+      className={`min-h-11 rounded-lg px-3 py-2 flex items-center gap-2 transition-colors disabled:opacity-50 ${className}`}
       aria-label={label || "Action"}
+      title={label || "Action"}
     >
       {isPending ? (
         <Loader2 className="w-4 h-4 animate-spin" />

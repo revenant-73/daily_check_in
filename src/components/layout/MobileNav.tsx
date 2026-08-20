@@ -23,6 +23,10 @@ export function MobileNav({ role }: MobileNavProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const view = searchParams.get("view") || "home";
+  const isFocusedPlayerFlow =
+    role === "player" &&
+    ((pathname === "/dashboard" && (view === "check-in" || view === "review")) ||
+      pathname === "/check-in");
 
   const getNavItems = () => {
     if (role === "admin") {
@@ -75,18 +79,24 @@ export function MobileNav({ role }: MobileNavProps) {
 
   const navItems = getNavItems();
 
+  if (isFocusedPlayerFlow) {
+    return null;
+  }
+
   return (
     <nav className={cn(
-      "md:hidden fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-t border-border px-6 py-2 z-50 flex items-center safe-area-bottom",
-      navItems.length > 1 ? "justify-between" : "justify-center"
+      "md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-lg border-t border-border px-4 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] min-h-20 z-50 flex items-center shadow-[0_-12px_30px_rgba(0,0,0,0.35)]",
+      navItems.length > 1 ? "justify-around" : "justify-center"
     )}>
       {navItems.map((item) => (
         <Link
           key={item.label}
           href={item.href}
+          aria-label={item.label}
+          aria-current={item.active ? "page" : undefined}
           className={cn(
-            "flex flex-col items-center transition-colors",
-            item.active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+            "flex min-h-12 min-w-12 flex-col items-center justify-center rounded-xl px-2 transition-colors",
+            item.active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
           )}
         >
           <item.icon className={cn("w-5 h-5 mb-0.5", item.active && "fill-primary/10")} />

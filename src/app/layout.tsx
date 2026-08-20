@@ -38,7 +38,7 @@ export default async function RootLayout({
       lang="en"
       className={`${inter.variable} ${plusJakarta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans relative pb-20 md:pb-0">
+      <body className="dark min-h-full flex flex-col font-sans relative bg-background text-foreground pb-28 md:pb-0">
         {children}
         {session?.user && (
           <Suspense fallback={null}>

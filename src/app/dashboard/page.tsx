@@ -77,8 +77,11 @@ export default async function PlayerDashboard(props: {
   const motivationalMessage = getDailyMotivationalMessage();
   const latestEntry = checkIns[0];
   const latestReview = reviews[0];
-  const hasCheckedInToday = latestEntry && latestEntry.createdAt && new Date(latestEntry.createdAt).toDateString() === new Date().toDateString();
-  const hasReviewedToday = latestReview && latestReview.createdAt && new Date(latestReview.createdAt).toDateString() === new Date().toDateString();
+  const latestEntryDate = latestEntry?.createdAt ? new Date(latestEntry.createdAt) : null;
+  const latestReviewDate = latestReview?.createdAt ? new Date(latestReview.createdAt) : null;
+  const today = new Date();
+  const hasCheckedInToday = latestEntryDate ? latestEntryDate.toDateString() === today.toDateString() : false;
+  const hasReviewedToday = latestReviewDate ? latestReviewDate.toDateString() === today.toDateString() : false;
   const latestGoal = latestEntry?.goal;
   const latestMetadata = latestEntry?.metadata ? JSON.parse(latestEntry.metadata) : {};
   const latestPillar = latestEntry?.pillar || latestMetadata.pillar;
@@ -88,6 +91,21 @@ export default async function PlayerDashboard(props: {
   const edgeScore = latestEntry 
     ? Math.round(((latestEntry.mentalRating + latestEntry.physicalRating + latestEntry.emotionalRating) / 30) * 100)
     : 0;
+  const readinessLabel = latestEntry
+    ? hasCheckedInToday ? "Current Readiness" : "Last Readiness"
+    : "No Readiness Yet";
+  const readinessContext = latestEntryDate
+    ? hasCheckedInToday
+      ? "Today"
+      : `Last check-in ${latestEntryDate.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })}`
+    : "Check in to unlock";
+  const scoreContext = latestEntry
+    ? hasCheckedInToday ? "Today's baseline" : "Previous check-in"
+    : "No score yet";
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
@@ -99,7 +117,7 @@ export default async function PlayerDashboard(props: {
         streak={streak}
       />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pb-24 sm:pb-6">
+      <main className="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pb-28 sm:pb-6">
         {view === "home" && (
           <div className="space-y-4 sm:space-y-6">
             {!hasCheckedInToday && (
@@ -198,7 +216,15 @@ export default async function PlayerDashboard(props: {
                   <Zap className="w-24 h-24 sm:w-32 sm:h-32" />
                 </div>
                 <div className="relative z-10">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-0.5">Current Readiness</p>
+                  <div className="flex flex-wrap items-center gap-2 mb-3 sm:mb-5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{readinessLabel}</p>
+                    <span className={cn(
+                      "rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-widest",
+                      hasCheckedInToday ? "bg-vibrant/10 text-vibrant" : "bg-muted/70 text-muted-foreground"
+                    )}>
+                      {readinessContext}
+                    </span>
+                  </div>
                   <h3 className="text-3xl sm:text-5xl font-black text-foreground tracking-tighter mb-4 sm:mb-6 uppercase">EDGE <span className="text-primary">SCORE</span></h3>
                   
                   <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-8">
@@ -206,7 +232,12 @@ export default async function PlayerDashboard(props: {
                       <div className="text-5xl sm:text-7xl font-black text-vibrant tabular-nums">{edgeScore}</div>
                       <div className="pb-1.5 sm:pb-2">
                         <div className="text-[9px] sm:text-xs font-black uppercase tracking-widest text-muted-foreground">Score</div>
-                        <div className="text-vibrant font-bold text-[10px] sm:text-base">Peak Potential</div>
+                        <div className={cn(
+                          "font-bold text-[10px] sm:text-base",
+                          hasCheckedInToday ? "text-vibrant" : "text-muted-foreground"
+                        )}>
+                          {scoreContext}
+                        </div>
                       </div>
                     </div>
 
@@ -445,7 +476,7 @@ export default async function PlayerDashboard(props: {
       </main>
 
       {/* Mobile Quick Action FAB */}
-      {!hasReviewedToday && (
+      {view === "home" && !hasReviewedToday && (
         <div className="fixed bottom-24 right-4 sm:hidden z-50">
           <Link 
             href={hasCheckedInToday 

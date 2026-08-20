@@ -38,11 +38,18 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
   }));
 
   return (
-    <div className="glass-card p-6 rounded-[2.5rem] border border-border shadow-sm">
-      <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-6 ml-2">7-Day Readiness Trend</h3>
-      <div className="h-[250px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+    <div className="glass-card min-w-0 overflow-hidden rounded-3xl border border-border p-4 shadow-sm sm:rounded-[2.5rem] sm:p-6">
+      <h3 className="mb-4 ml-1 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground sm:mb-6 sm:ml-2">7-Day Readiness Trend</h3>
+      <div className="h-[240px] min-h-[240px] w-full min-w-0 sm:h-[250px] sm:min-h-[250px]">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={260}
+          minHeight={220}
+          debounce={50}
+          initialDimension={{ width: 320, height: 240 }}
+        >
+          <LineChart data={chartData} margin={{ top: 5, right: 8, left: -26, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
             <XAxis 
               dataKey="name" 

@@ -102,7 +102,7 @@ export default async function CoachDashboard() {
         href="/coach/dashboard"
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8 pb-28 md:pb-8">
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-1">
             <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase">

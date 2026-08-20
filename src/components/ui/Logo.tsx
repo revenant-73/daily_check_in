@@ -4,12 +4,13 @@ import { cn } from "@/lib/utils";
 
 export function Logo({ className, href = "/" }: { className?: string, href?: string }) {
   return (
-    <Link href={href} className={cn("flex items-center gap-2 group", className)}>
+    <Link href={href} className={cn("flex min-h-11 items-center gap-2 group", className)}>
       <div className="relative w-8 h-8 sm:w-10 sm:h-10">
         <Image
           src="/logo.png"
           alt="Practice With Purpose Logo"
           fill
+          sizes="(max-width: 640px) 32px, 40px"
           className="object-contain"
           priority
         />

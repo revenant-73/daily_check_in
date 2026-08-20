@@ -17,9 +17,9 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
 
   if (variant === "condensed") {
     return (
-      <div className="bg-card rounded-xl border border-border shadow-sm p-3 sm:p-4 overflow-hidden">
-        <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar py-1">
-          <div className="flex items-center gap-2 pr-4 border-r border-border shrink-0">
+      <div className="min-w-0 overflow-hidden rounded-xl border border-border bg-card p-3 shadow-sm sm:p-4">
+        <div className="flex min-w-0 flex-wrap items-center gap-3 py-1 sm:gap-6">
+          <div className="flex min-w-0 items-center gap-2 pr-3 sm:border-r sm:border-border sm:pr-4">
             <h3 className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-muted-foreground whitespace-nowrap">
               Attendance
             </h3>
@@ -28,7 +28,7 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
             </span>
           </div>
           
-          <div className="flex items-center gap-x-4 shrink-0 pr-4">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2 pr-0 sm:pr-4">
             {players.map((player) => {
               const isCheckedIn = !!player.hasCheckedInToday;
               const isLowReadiness = isCheckedIn && player.latestReadiness !== null && player.latestReadiness < 4;
@@ -36,7 +36,7 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
                 <Link 
                   key={player.id} 
                   href={`/coach/player/${player.id}`}
-                  className="flex items-center gap-1.5 group hover:opacity-80 transition-opacity whitespace-nowrap"
+                  className="flex min-h-7 items-center gap-1.5 whitespace-nowrap transition-opacity hover:opacity-80"
                 >
                   <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${
                     isLowReadiness 
@@ -63,7 +63,7 @@ export function AttendanceList({ players, inviteCode, variant = "default" }: { p
           </div>
 
           {inviteCode && (
-            <div className="pl-4 border-l border-border shrink-0">
+            <div className="min-w-0 border-border sm:border-l sm:pl-4">
               <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mr-2">Code:</span>
               <code className="text-[10px] font-mono text-primary font-bold select-all bg-primary/5 px-1.5 py-0.5 rounded uppercase">{inviteCode}</code>
             </div>

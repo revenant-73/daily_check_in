@@ -50,7 +50,7 @@ export default async function OrganizationView(props: { params: Promise<{ orgId:
         </div>
       </div>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-8 pb-28 md:pb-8">
         <div className="space-y-2">
           <Link href="/admin" className="inline-flex items-center text-sm font-bold text-primary hover:underline gap-1 mb-2">
             <ChevronLeft className="w-4 h-4" /> Back to Dashboard

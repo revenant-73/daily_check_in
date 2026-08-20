@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Share2, Check, Copy } from "lucide-react";
+import { Share2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function CopyInviteButton({ code, className }: { code: string; className?: string }) {
@@ -24,12 +24,13 @@ export function CopyInviteButton({ code, className }: { code: string; className?
     <button
       onClick={copyToClipboard}
       className={cn(
-        "flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest",
+        "flex min-h-11 items-center gap-2 px-3 py-2 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest",
         copied 
           ? "bg-vibrant/20 text-vibrant" 
           : "bg-primary/10 text-primary hover:bg-primary/20",
         className
       )}
+      aria-label={`Copy invite link for ${code}`}
       title="Copy Direct Join Link"
     >
       {copied ? (

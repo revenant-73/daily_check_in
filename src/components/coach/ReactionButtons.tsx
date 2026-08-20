@@ -46,11 +46,14 @@ export function ReactionButtons({
             key={rt.type}
             onClick={() => handleReaction(rt.type)}
             disabled={isPending}
-            className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold transition-all border ${
+            className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-md border px-2 py-2 text-xs font-bold transition-all disabled:opacity-50 ${
               isActive 
                 ? 'bg-primary/20 border-primary/40 text-primary scale-105 shadow-sm' 
                 : 'bg-muted/50 border-border text-muted-foreground hover:bg-muted hover:border-border-hover'
             }`}
+            aria-pressed={isActive}
+            aria-label={`React with ${rt.type}`}
+            title={`React with ${rt.type}`}
           >
             <span>{rt.emoji}</span>
             {count > 0 && <span>{count}</span>}
