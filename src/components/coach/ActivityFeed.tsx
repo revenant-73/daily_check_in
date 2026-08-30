@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { User, Zap, MessageSquare, Heart, Target } from "lucide-react";
+import { Zap, Heart, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ActivityItem {
@@ -14,13 +14,23 @@ interface ActivityItem {
   timestamp: Date;
 }
 
-export function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
+export function ActivityFeed({
+  activities,
+  showHeader = true,
+  className,
+}: {
+  activities: ActivityItem[];
+  showHeader?: boolean;
+  className?: string;
+}) {
   return (
-    <div className="glass-card rounded-[2.5rem] p-8 space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-black uppercase tracking-widest text-foreground">Activity Feed</h3>
-        <div className="w-2 h-2 rounded-full bg-vibrant animate-pulse shadow-[0_0_8px_var(--vibrant)]" />
-      </div>
+    <div className={cn(showHeader ? "glass-card rounded-[2.5rem] p-8 space-y-6" : "space-y-6", className)}>
+      {showHeader && (
+        <div className="flex justify-between items-center">
+          <h3 className="text-xl font-black uppercase tracking-widest text-foreground">Activity Feed</h3>
+          <div className="w-2 h-2 rounded-full bg-vibrant animate-pulse shadow-[0_0_8px_var(--vibrant)]" />
+        </div>
+      )}
 
       <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
         {activities.map((activity, i) => (

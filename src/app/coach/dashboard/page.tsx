@@ -12,6 +12,7 @@ import { Activity, Target, AlertTriangle, Brain, Heart } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
+import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 
 export default async function CoachDashboard() {
   const session = await auth();
@@ -193,11 +194,13 @@ export default async function CoachDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-           <section className="lg:col-span-2 glass-card rounded-3xl sm:rounded-[2.5rem] overflow-hidden">
-                <div className="p-5 sm:p-8 border-b border-border/50 flex justify-between items-center">
-                  <h3 className="text-sm sm:text-xl font-black uppercase tracking-widest">Recent Check-Ins</h3>
-                </div>
-                
+           <CollapsibleSection
+             title="Recent Check-Ins"
+             count={checkIns.length}
+             description="Latest athlete goals and coach reactions"
+             className="lg:col-span-2 glass-card rounded-3xl sm:rounded-[2.5rem] overflow-hidden"
+             summaryClassName="p-5 sm:p-8 border-b border-border/50"
+           >
                 {/* Mobile Card View */}
                 <div className="md:hidden divide-y divide-border/50">
                   {checkIns.slice(0, 8).map((ci) => {
@@ -287,10 +290,22 @@ export default async function CoachDashboard() {
                     </tbody>
                   </table>
                 </div>
-              </section>
+              </CollapsibleSection>
 
            <aside className="space-y-8">
-              <ActivityFeed activities={feedActivities.slice(0, 15)} />
+              <CollapsibleSection
+                title="Activity Feed"
+                count={feedActivities.length}
+                description="Check-ins and reviews"
+                className="glass-card rounded-3xl sm:rounded-[2.5rem] overflow-hidden"
+                summaryClassName="p-5 sm:p-8 border-b border-border/50"
+                contentClassName="p-5 sm:p-8"
+              >
+                <ActivityFeed
+                  activities={feedActivities.slice(0, 15)}
+                  showHeader={false}
+                />
+              </CollapsibleSection>
            </aside>
         </div>
       </main>

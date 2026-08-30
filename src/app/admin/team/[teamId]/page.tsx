@@ -10,6 +10,7 @@ import { DeleteTeamAndRedirect } from "@/components/admin/DeleteTeamAndRedirect"
 import { RosterUpload } from "@/components/admin/RosterUpload";
 import { CopyInviteButton } from "@/components/admin/CopyInviteButton";
 import { Header } from "@/components/layout/Header";
+import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 
 export default async function TeamView(props: { params: Promise<{ teamId: string }> }) {
   const params = await props.params;
@@ -189,12 +190,16 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
           </section>
         </div>
 
-        <section className="space-y-6">
-          <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-            Players ({players.length})
-          </h3>
+        <CollapsibleSection
+          title="Players / Roster"
+          count={players.length}
+          description="Roster management and uploads"
+          className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+          summaryClassName="p-5 sm:p-6 border-b border-border"
+          contentClassName="space-y-6 p-5 sm:p-6"
+        >
           <RosterUpload teamId={team.id} />
-          <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden divide-y divide-border">
+          <div className="overflow-hidden rounded-xl border border-border divide-y divide-border">
             {players.map((player: typeof usersSchema.$inferSelect & { hasCheckedInToday: boolean }) => (
               <div key={player.id} className="p-4 flex flex-col gap-3 hover:bg-muted/30 transition-colors sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-3">
@@ -248,12 +253,16 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
               </div>
             )}
           </div>
-        </section>
+        </CollapsibleSection>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <section className="space-y-4">
-            <h3 className="text-xl font-bold text-foreground">Recent Check-Ins</h3>
-            <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+          <CollapsibleSection
+            title="Recent Check-Ins"
+            count={checkIns.length}
+            className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+            summaryClassName="p-5 sm:p-6 border-b border-border"
+          >
+            <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border">
@@ -287,15 +296,20 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
                 </tbody>
               </table>
             </div>
-          </section>
+          </CollapsibleSection>
 
-          <section className="space-y-4">
-            <h3 className="text-xl font-bold text-foreground">Recent Reviews</h3>
-            <div className="space-y-3">
+          <CollapsibleSection
+            title="Recent Reviews"
+            count={reviews.length}
+            className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+            summaryClassName="p-5 sm:p-6 border-b border-border"
+            contentClassName="p-5 sm:p-6"
+          >
+            <div className="overflow-hidden rounded-xl border border-border divide-y divide-border">
               {reviews.slice(0, 5).map((r: typeof reviewsSchema.$inferSelect) => {
                 const player = players.find((p: typeof usersSchema.$inferSelect) => p.id === r.playerId);
                 return (
-                  <div key={r.id} className="p-4 bg-card rounded-xl border border-border shadow-sm">
+                  <div key={r.id} className="p-4 transition-colors hover:bg-muted/30">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-bold text-sm text-foreground">{player?.name || "Unknown"}</span>
                       <div className="flex gap-0.5">
@@ -309,12 +323,12 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
                 );
               })}
               {reviews.length === 0 && (
-                <div className="p-8 text-center text-muted-foreground bg-card rounded-2xl border border-border shadow-sm italic text-sm">
+                <div className="p-8 text-center text-muted-foreground italic text-sm">
                   No reviews recorded
                 </div>
               )}
             </div>
-          </section>
+          </CollapsibleSection>
         </div>
       </main>
     </div>
