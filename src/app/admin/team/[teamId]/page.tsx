@@ -2,9 +2,10 @@ import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { getTeamDataForAdmin, getAdminData, assignToTeam, updateUserRole } from "@/app/actions/admin";
 import { checkIns as checkInsSchema, reviews as reviewsSchema, users as usersSchema, organizations as organizationsSchema } from "@/lib/db/schema";
-import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
+import { FlaggedCheckInsPanel } from "@/components/coach/FlaggedCheckInsPanel";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { DeleteTeamAndRedirect } from "@/components/admin/DeleteTeamAndRedirect";
 import { RosterUpload } from "@/components/admin/RosterUpload";
@@ -40,19 +41,16 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
   const avgPerformance = reviews.length > 0 
     ? (reviews.reduce((acc: number, r: typeof reviewsSchema.$inferSelect) => acc + r.rating, 0) / reviews.length).toFixed(1) 
     : "N/A";
+  const twentyFourHoursAgo = new Date();
+  twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
   const criticalCheckIns = checkIns
-    .filter((ci: typeof checkInsSchema.$inferSelect) => ci.mentalRating <= 3 || ci.physicalRating <= 3 || ci.emotionalRating <= 3)
+    .filter((ci: typeof checkInsSchema.$inferSelect) =>
+      ci.createdAt &&
+      new Date(ci.createdAt) >= twentyFourHoursAgo &&
+      (ci.mentalRating <= 3 || ci.physicalRating <= 3 || ci.emotionalRating <= 3)
+    )
     .slice(0, 5);
-
-  const getLowestReadiness = (ci: typeof checkInsSchema.$inferSelect) => {
-    const scores = [
-      { label: "Mental", value: ci.mentalRating },
-      { label: "Physical", value: ci.physicalRating },
-      { label: "Emotional", value: ci.emotionalRating },
-    ];
-
-    return scores.reduce((lowest, score) => score.value < lowest.value ? score : lowest, scores[0]);
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
@@ -147,47 +145,13 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
             <TeamReadinessGraph data={trends} />
           </section>
 
-          <section className="bg-card rounded-2xl border border-border shadow-sm p-5 sm:p-6 space-y-5">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-black uppercase tracking-widest text-foreground flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-red-500" />
-                Practice Alerts
-              </h3>
-              <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                {criticalCheckIns.length} flagged
-              </span>
-            </div>
-            <div className="space-y-3">
-              {criticalCheckIns.map((ci: typeof checkInsSchema.$inferSelect) => {
-                const player = players.find((p: typeof usersSchema.$inferSelect) => p.id === ci.playerId);
-                const lowest = getLowestReadiness(ci);
-
-                return (
-                  <Link
-                    key={ci.id}
-                    href={`/coach/player/${ci.playerId}`}
-                    className="block rounded-xl border border-red-500/10 bg-red-500/5 p-4 transition-colors hover:bg-red-500/10"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-foreground">{player?.name || "Unknown"}</p>
-                        <p className="mt-1 line-clamp-2 text-xs italic text-muted-foreground">&quot;{ci.goal}&quot;</p>
-                      </div>
-                      <div className="shrink-0 rounded-lg border border-red-500/20 bg-red-500/10 px-2 py-1 text-center">
-                        <p className="text-[9px] font-black uppercase tracking-wider text-red-400">{lowest.label}</p>
-                        <p className="text-lg font-black leading-none text-red-400">{lowest.value}</p>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-              {criticalCheckIns.length === 0 && (
-                <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center">
-                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">No low-readiness alerts today</p>
-                </div>
-              )}
-            </div>
-          </section>
+          <FlaggedCheckInsPanel
+            title="Practice Alerts"
+            checkIns={criticalCheckIns}
+            players={players}
+            emptyMessage="No low-readiness alerts today"
+            profileHref={(playerId) => `/coach/player/${playerId}`}
+          />
         </div>
 
         <CollapsibleSection

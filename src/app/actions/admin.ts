@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { organizations, teams, users, checkIns, reviews, reactions } from "@/lib/db/schema";
-import { eq, desc, inArray, or } from "drizzle-orm";
+import { and, eq, desc, gte, inArray, lte, or } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { logError } from "@/lib/logger";
@@ -17,6 +17,42 @@ export async function getAdminData() {
     const allOrganizations = await db.select().from(organizations);
     const allTeams = await db.select().from(teams);
     const allUsers = await db.select().from(users);
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
+    const recentFlaggedCheckIns = await db
+      .select()
+      .from(checkIns)
+      .where(
+        and(
+          gte(checkIns.createdAt, twentyFourHoursAgo),
+          or(
+            lte(checkIns.mentalRating, 3),
+            lte(checkIns.physicalRating, 3),
+            lte(checkIns.emotionalRating, 3)
+          )
+        )
+      )
+      .orderBy(desc(checkIns.createdAt))
+      .limit(20);
+
+    const flaggedCheckIns = recentFlaggedCheckIns.map((checkIn: typeof checkIns.$inferSelect) => {
+      const player = allUsers.find((user: typeof users.$inferSelect) => user.id === checkIn.playerId);
+      const team = allTeams.find((item: typeof teams.$inferSelect) => item.id === checkIn.teamId);
+
+      return {
+        id: checkIn.id,
+        playerId: checkIn.playerId,
+        playerName: player?.name || "Unknown athlete",
+        teamId: checkIn.teamId,
+        teamName: team?.name || "Unknown team",
+        goal: checkIn.goal,
+        mentalRating: checkIn.mentalRating,
+        physicalRating: checkIn.physicalRating,
+        emotionalRating: checkIn.emotionalRating,
+        createdAt: checkIn.createdAt,
+      };
+    });
 
     const teamsWithStats = await Promise.all(allTeams.map(async (team: typeof teams.$inferSelect) => {
       const teamPlayers = allUsers.filter((u: typeof users.$inferSelect) => u.teamId === team.id);
@@ -47,6 +83,7 @@ export async function getAdminData() {
       organizations: allOrganizations,
       teams: teamsWithStats,
       users: allUsers,
+      flaggedCheckIns,
     };
   } catch (error) {
     logError("getAdminData", error);

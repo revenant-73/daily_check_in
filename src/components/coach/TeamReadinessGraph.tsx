@@ -61,16 +61,16 @@ export function TeamReadinessGraph({ data }: { data: TeamTrendData[] }) {
   };
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
-      <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-muted-foreground sm:mb-6">
+    <div className="mb-6 min-w-0 overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-sm sm:mb-0 sm:p-6">
+      <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground sm:mb-6">
         Team Readiness Trend (Last 7 Sessions)
       </h3>
-      <div className="relative h-[220px] min-h-[220px] w-full min-w-0 sm:h-[210px] sm:min-h-[210px]">
+      <div className="relative h-[150px] min-h-[150px] w-full min-w-0 sm:h-[210px] sm:min-h-[210px]">
         <ResponsiveContainer
           width="100%"
           height="100%"
           minWidth={260}
-          minHeight={200}
+          minHeight={145}
           debounce={50}
           initialDimension={{ width: 320, height: 220 }}
         >

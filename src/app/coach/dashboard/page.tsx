@@ -8,7 +8,8 @@ import { TeamQRCode } from "@/components/coach/TeamQRCode";
 import { ReactionButtons } from "@/components/coach/ReactionButtons";
 import { ActivityFeed } from "@/components/coach/ActivityFeed";
 import { CoachNoteDialog } from "@/components/coach/CoachNoteDialog";
-import { Activity, Target, AlertTriangle, Brain, Heart } from "lucide-react";
+import { FlaggedCheckInsPanel } from "@/components/coach/FlaggedCheckInsPanel";
+import { Activity, Target, Brain, Heart } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
@@ -42,7 +43,7 @@ export default async function CoachDashboard() {
     );
   }
 
-  const { team, players, checkIns, reviews, reactions, prevAvg, criticalPlayers } = data;
+  const { team, players, checkIns, reviews, reactions, prevAvg } = data;
 
   // Simple stats
   const avgMental = checkIns.length > 0 ? (checkIns.reduce((acc: number, ci: typeof checkInsSchema.$inferSelect) => acc + ci.mentalRating, 0) / checkIns.length) : null;
@@ -64,6 +65,9 @@ export default async function CoachDashboard() {
   const mentalDelta = getDelta(avgMental, prevAvg?.mental);
   const physicalDelta = getDelta(avgPhysical, prevAvg?.physical);
   const emotionalDelta = getDelta(avgEmotional, prevAvg?.emotional);
+  const flaggedCheckIns = checkIns.filter((ci: typeof checkInsSchema.$inferSelect) =>
+    ci.mentalRating <= 3 || ci.physicalRating <= 3 || ci.emotionalRating <= 3
+  );
 
   // Combine for Activity Feed
   const feedActivities = [
@@ -151,46 +155,14 @@ export default async function CoachDashboard() {
               <TeamReadinessGraph data={trends} />
            </section>
 
-           <section className="glass-card rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-5">
-                  <AlertTriangle className="w-24 h-24" />
-                </div>
-                <h3 className="text-xl font-black uppercase tracking-widest mb-6 flex items-center gap-2">
-                  <AlertTriangle className="w-6 h-6 text-red-500" /> Critical Insights
-                </h3>
-                
-                <div className="grid grid-cols-1 gap-4">
-                  {criticalPlayers && criticalPlayers.length > 0 ? (
-                    criticalPlayers.map((player) => (
-                      <Link 
-                        key={player.id} 
-                        href={`/coach/player/${player.id}`}
-                        className="p-4 rounded-3xl bg-red-500/5 border border-red-500/10 hover:bg-red-500/10 transition-all group"
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <p className="font-black text-sm uppercase tracking-tight group-hover:text-red-500 transition-colors">{player.name}</p>
-                          <span className={cn(
-                            "text-[9px] font-black px-2 py-0.5 rounded-full border",
-                            player.status === 'LOW' ? "bg-red-500 text-white border-red-600" : "bg-amber-500/10 text-amber-500 border-amber-500/20"
-                          )}>
-                            {player.status}
-                          </span>
-                        </div>
-                        <div className="flex items-end gap-3">
-                          <div className="text-2xl font-black text-foreground">{(player.currentScore * 10).toFixed(0)}%</div>
-                          <div className="text-[10px] font-black text-muted-foreground uppercase mb-1">
-                            Down from {(player.prevScore * 10).toFixed(0)}%
-                          </div>
-                        </div>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="col-span-full p-8 text-center bg-muted/20 rounded-3xl border border-dashed border-border/50">
-                      <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">No critical alerts today</p>
-                    </div>
-                  )}
-                </div>
-              </section>
+           <FlaggedCheckInsPanel
+             title="Practice Alerts"
+             checkIns={flaggedCheckIns}
+             players={players}
+             emptyMessage="No low-readiness alerts today"
+             profileHref={(playerId) => `/coach/player/${playerId}`}
+             className="lg:col-span-1"
+           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

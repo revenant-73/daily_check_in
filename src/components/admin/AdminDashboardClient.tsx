@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { CopyInviteButton } from "@/components/admin/CopyInviteButton";
+import { AdminFlaggedAlertsPanel } from "@/components/admin/AdminFlaggedAlertsPanel";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 import { createOrganization, deleteOrganization, deleteUser, assignToTeam, deleteTeam } from "@/app/actions/admin";
@@ -31,6 +32,19 @@ type TeamWithStats = typeof teamsSchema.$inferSelect & {
 };
 
 type TeamFilter = "attention" | "recent" | "noToday" | "all";
+
+type AdminFlaggedCheckIn = {
+  id: string;
+  playerId: string;
+  playerName: string;
+  teamId: string;
+  teamName: string;
+  goal: string;
+  mentalRating: number;
+  physicalRating: number;
+  emotionalRating: number;
+  createdAt?: Date | string | number | null;
+};
 
 function getActivityDate(lastActivity: Date | string | null) {
   return lastActivity ? new Date(lastActivity) : null;
@@ -98,13 +112,18 @@ export default function AdminDashboardClient({
   initialData: { 
     organizations: (typeof organizationsSchema.$inferSelect)[], 
     teams: TeamWithStats[],
-    users: (typeof usersSchema.$inferSelect)[] 
+    users: (typeof usersSchema.$inferSelect)[],
+    flaggedCheckIns: AdminFlaggedCheckIn[],
   },
   userName?: string | null
 }) {
   const [search, setSearch] = useState("");
   const [teamFilter, setTeamFilter] = useState<TeamFilter>("attention");
-  const { organizations, teams, users } = initialData;
+  const { organizations, teams, users, flaggedCheckIns } = initialData;
+  const flaggedTeamIds = useMemo(
+    () => new Set(flaggedCheckIns.map((alert) => alert.teamId)),
+    [flaggedCheckIns]
+  );
 
   const teamCards = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -113,7 +132,8 @@ export default function AdminDashboardClient({
       const organization = organizations.find(o => o.id === team.orgId);
       const health = getHealthStatus(team);
       const lowReadiness = team.avgReadiness > 0 && team.avgReadiness <= 4;
-      const needsAttention = !health.checkedInToday || lowReadiness;
+      const hasFlaggedCheckIn = flaggedTeamIds.has(team.id);
+      const needsAttention = hasFlaggedCheckIn || !health.checkedInToday || lowReadiness;
       const recentlyActive = health.days !== null && health.days <= 7;
 
       return {
@@ -121,6 +141,7 @@ export default function AdminDashboardClient({
         organization,
         health,
         lowReadiness,
+        hasFlaggedCheckIn,
         needsAttention,
         recentlyActive,
       };
@@ -131,7 +152,7 @@ export default function AdminDashboardClient({
         value.toLowerCase().includes(query)
       );
     });
-  }, [organizations, teams, search]);
+  }, [flaggedTeamIds, organizations, teams, search]);
 
   const filteredTeams = useMemo(() => {
     return teamCards.filter((card) => {
@@ -218,6 +239,8 @@ export default function AdminDashboardClient({
            </div>
         </div>
 
+        <AdminFlaggedAlertsPanel alerts={flaggedCheckIns} />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
            <div className="lg:col-span-2 space-y-6">
               <div className="flex flex-col gap-4">
@@ -262,7 +285,7 @@ export default function AdminDashboardClient({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 {filteredTeams.map(({ team, organization, health, lowReadiness }) => {
+                 {filteredTeams.map(({ team, organization, health, lowReadiness, hasFlaggedCheckIn }) => {
                     return (
                       <Link 
                         key={team.id}
@@ -298,6 +321,11 @@ export default function AdminDashboardClient({
                             {lowReadiness && (
                               <span className="rounded-lg bg-red-500/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-red-500">
                                 Low readiness
+                              </span>
+                            )}
+                            {hasFlaggedCheckIn && (
+                              <span className="rounded-lg bg-red-500/15 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-red-400">
+                                Flagged check-in
                               </span>
                             )}
                          </div>
