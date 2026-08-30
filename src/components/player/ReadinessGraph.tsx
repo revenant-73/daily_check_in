@@ -13,7 +13,7 @@ import {
 } from "recharts";
 
 interface TrendData {
-  date: Date | null;
+  date: Date | string | number | null;
   mental: number;
   physical: number;
   emotional: number;
@@ -29,13 +29,39 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
     );
   }
 
-  const chartData = data.map((d) => ({
-    name: d.date ? new Date(d.date).toLocaleDateString(undefined, { weekday: 'short' }) : "??",
-    mental: d.mental,
-    physical: d.physical,
-    emotional: d.emotional,
-    average: parseFloat(d.average.toFixed(1)),
-  }));
+  const chartData = data.map((d, index) => {
+    const date = d.date ? new Date(d.date) : null;
+    const label = date && !Number.isNaN(date.getTime())
+      ? date.toLocaleDateString(undefined, { weekday: "short" })
+      : "??";
+    const shortDate = date && !Number.isNaN(date.getTime())
+      ? date.toLocaleDateString(undefined, { month: "numeric", day: "numeric" })
+      : "Unknown date";
+    const fullDate = date && !Number.isNaN(date.getTime())
+      ? date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
+      : "Unknown date";
+
+    return {
+      xKey: date && !Number.isNaN(date.getTime()) ? `${date.getTime()}-${index}` : `unknown-${index}`,
+      label,
+      shortDate,
+      fullDate,
+      mental: d.mental,
+      physical: d.physical,
+      emotional: d.emotional,
+      average: parseFloat(d.average.toFixed(1)),
+    };
+  });
+
+  const getChartLabel = (value: unknown) => {
+    const item = chartData.find((entry) => entry.xKey === value);
+    return item ? `${item.label} ${item.shortDate}` : "";
+  };
+
+  const getTooltipLabel = (value: unknown) => {
+    const item = chartData.find((entry) => entry.xKey === value);
+    return item?.fullDate ?? "";
+  };
 
   return (
     <div className="glass-card min-w-0 overflow-hidden rounded-3xl border border-border p-4 shadow-sm sm:rounded-[2.5rem] sm:p-6">
@@ -52,7 +78,8 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
           <LineChart data={chartData} margin={{ top: 5, right: 8, left: -26, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
             <XAxis 
-              dataKey="name" 
+              dataKey="xKey"
+              tickFormatter={getChartLabel}
               axisLine={false} 
               tickLine={false} 
               tick={{ fontSize: 10, fontWeight: 800, fill: "rgba(255,255,255,0.4)" }}
@@ -65,6 +92,7 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
               tick={{ fontSize: 10, fontWeight: 800, fill: "rgba(255,255,255,0.4)" }}
             />
             <Tooltip 
+              labelFormatter={getTooltipLabel}
               contentStyle={{ 
                 backgroundColor: "rgba(23, 23, 23, 0.9)", 
                 border: "1px solid rgba(255, 255, 255, 0.1)", 
@@ -82,7 +110,7 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
               wrapperStyle={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', paddingBottom: '20px' }}
             />
             <Line
-              type="monotone"
+              type="linear"
               dataKey="mental"
               stroke="#60a5fa"
               strokeWidth={3}
@@ -91,7 +119,7 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
               name="Mental"
             />
             <Line
-              type="monotone"
+              type="linear"
               dataKey="physical"
               stroke="#4ade80"
               strokeWidth={3}
@@ -100,7 +128,7 @@ export function ReadinessGraph({ data }: { data: TrendData[] }) {
               name="Physical"
             />
             <Line
-              type="monotone"
+              type="linear"
               dataKey="emotional"
               stroke="#c084fc"
               strokeWidth={3}

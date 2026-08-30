@@ -8,7 +8,7 @@ import { TeamQRCode } from "@/components/coach/TeamQRCode";
 import { ReactionButtons } from "@/components/coach/ReactionButtons";
 import { ActivityFeed } from "@/components/coach/ActivityFeed";
 import { CoachNoteDialog } from "@/components/coach/CoachNoteDialog";
-import { Activity, Target, AlertTriangle } from "lucide-react";
+import { Activity, Target, AlertTriangle, Brain, Heart } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
@@ -146,9 +146,11 @@ export default async function CoachDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-           <div className="lg:col-span-2 space-y-8">
-              {/* Critical Insights / Alarm Players */}
-              <section className="glass-card rounded-[2.5rem] p-8 relative overflow-hidden">
+           <section className="lg:col-span-2">
+              <TeamReadinessGraph data={trends} />
+           </section>
+
+           <section className="glass-card rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-5">
                   <AlertTriangle className="w-24 h-24" />
                 </div>
@@ -156,7 +158,7 @@ export default async function CoachDashboard() {
                   <AlertTriangle className="w-6 h-6 text-red-500" /> Critical Insights
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   {criticalPlayers && criticalPlayers.length > 0 ? (
                     criticalPlayers.map((player) => (
                       <Link 
@@ -188,8 +190,10 @@ export default async function CoachDashboard() {
                   )}
                 </div>
               </section>
-              
-              <section className="glass-card rounded-3xl sm:rounded-[2.5rem] overflow-hidden">
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+           <section className="lg:col-span-2 glass-card rounded-3xl sm:rounded-[2.5rem] overflow-hidden">
                 <div className="p-5 sm:p-8 border-b border-border/50 flex justify-between items-center">
                   <h3 className="text-sm sm:text-xl font-black uppercase tracking-widest">Recent Check-Ins</h3>
                 </div>
@@ -284,21 +288,12 @@ export default async function CoachDashboard() {
                   </table>
                 </div>
               </section>
-           </div>
 
-           <div className="space-y-8">
+           <aside className="space-y-8">
               <ActivityFeed activities={feedActivities.slice(0, 15)} />
-              
-              {/* Team Readiness Trends Summary */}
-              <div className="glass-card rounded-[2.5rem] p-8">
-                 <h3 className="text-lg font-black uppercase tracking-widest mb-6">Readiness Trends</h3>
-                 <TeamReadinessGraph data={trends} />
-              </div>
-           </div>
+           </aside>
         </div>
       </main>
     </div>
   );
 }
-
-import { Brain, Heart } from "lucide-react";

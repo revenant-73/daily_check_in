@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { getTeamDataForAdmin, getAdminData, assignToTeam, updateUserRole } from "@/app/actions/admin";
 import { checkIns as checkInsSchema, reviews as reviewsSchema, users as usersSchema, organizations as organizationsSchema } from "@/lib/db/schema";
-import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus, ShieldCheck } from "lucide-react";
+import { Users, Activity, TrendingUp, ChevronRight, ChevronLeft, UserMinus, ShieldCheck, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { TeamReadinessGraph } from "@/components/coach/TeamReadinessGraph";
 import { ActionButton } from "@/components/admin/ActionButton";
@@ -39,6 +39,19 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
   const avgPerformance = reviews.length > 0 
     ? (reviews.reduce((acc: number, r: typeof reviewsSchema.$inferSelect) => acc + r.rating, 0) / reviews.length).toFixed(1) 
     : "N/A";
+  const criticalCheckIns = checkIns
+    .filter((ci: typeof checkInsSchema.$inferSelect) => ci.mentalRating <= 3 || ci.physicalRating <= 3 || ci.emotionalRating <= 3)
+    .slice(0, 5);
+
+  const getLowestReadiness = (ci: typeof checkInsSchema.$inferSelect) => {
+    const scores = [
+      { label: "Mental", value: ci.mentalRating },
+      { label: "Physical", value: ci.physicalRating },
+      { label: "Emotional", value: ci.emotionalRating },
+    ];
+
+    return scores.reduce((lowest, score) => score.value < lowest.value ? score : lowest, scores[0]);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col dark">
@@ -129,70 +142,113 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="hidden lg:block lg:col-span-2">
+          <section className="lg:col-span-2">
             <TeamReadinessGraph data={trends} />
-          </div>
-          <div className="lg:col-span-1 space-y-6">
-            <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-              Players ({players.length})
-            </h3>
-            <RosterUpload teamId={team.id} />
-            <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden divide-y divide-border">
-              {players.map((player: typeof usersSchema.$inferSelect & { hasCheckedInToday: boolean }) => (
-                <div key={player.id} className="p-4 flex flex-col gap-3 hover:bg-muted/30 transition-colors sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-bold text-sm text-foreground">{player.name || "Unknown"}</p>
-                        {player.role === "coach" && (
-                          <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/20 text-primary rounded text-[8px] font-black uppercase tracking-widest">
-                            <ShieldCheck className="w-2 h-2" />
-                            Coach
-                          </span>
-                        )}
+          </section>
+
+          <section className="bg-card rounded-2xl border border-border shadow-sm p-5 sm:p-6 space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+                Practice Alerts
+              </h3>
+              <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                {criticalCheckIns.length} flagged
+              </span>
+            </div>
+            <div className="space-y-3">
+              {criticalCheckIns.map((ci: typeof checkInsSchema.$inferSelect) => {
+                const player = players.find((p: typeof usersSchema.$inferSelect) => p.id === ci.playerId);
+                const lowest = getLowestReadiness(ci);
+
+                return (
+                  <Link
+                    key={ci.id}
+                    href={`/coach/player/${ci.playerId}`}
+                    className="block rounded-xl border border-red-500/10 bg-red-500/5 p-4 transition-colors hover:bg-red-500/10"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-foreground">{player?.name || "Unknown"}</p>
+                        <p className="mt-1 line-clamp-2 text-xs italic text-muted-foreground">&quot;{ci.goal}&quot;</p>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">{player.email}</p>
+                      <div className="shrink-0 rounded-lg border border-red-500/20 bg-red-500/10 px-2 py-1 text-center">
+                        <p className="text-[9px] font-black uppercase tracking-wider text-red-400">{lowest.label}</p>
+                        <p className="text-lg font-black leading-none text-red-400">{lowest.value}</p>
+                      </div>
                     </div>
+                  </Link>
+                );
+              })}
+              {criticalCheckIns.length === 0 && (
+                <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center">
+                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">No low-readiness alerts today</p>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+
+        <section className="space-y-6">
+          <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+            Players ({players.length})
+          </h3>
+          <RosterUpload teamId={team.id} />
+          <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden divide-y divide-border">
+            {players.map((player: typeof usersSchema.$inferSelect & { hasCheckedInToday: boolean }) => (
+              <div key={player.id} className="p-4 flex flex-col gap-3 hover:bg-muted/30 transition-colors sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-sm text-foreground">{player.name || "Unknown"}</p>
+                      {player.role === "coach" && (
+                        <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/20 text-primary rounded text-[8px] font-black uppercase tracking-widest">
+                          <ShieldCheck className="w-2 h-2" />
+                          Coach
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">{player.email}</p>
                   </div>
-                  <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
-                    {player.role === "player" && (
-                      <ActionButton 
-                        id={player.id}
-                        action={async (id) => {
-                          "use server";
-                          await updateUserRole(id, "coach");
-                        }}
-                        icon={<ShieldCheck className="w-4 h-4" />}
-                        className="text-muted-foreground hover:text-primary"
-                        label="Promote"
-                        confirmMessage={`Make ${player.name || 'this user'} a coach? They will be able to view team stats and manage players.`}
-                      />
-                    )}
+                </div>
+                <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
+                  {player.role === "player" && (
                     <ActionButton 
                       id={player.id}
                       action={async (id) => {
                         "use server";
-                        await assignToTeam(id, null);
+                        await updateUserRole(id, "coach");
                       }}
-                      icon={<UserMinus className="w-4 h-4" />}
-                      className="text-muted-foreground hover:text-red-500"
-                      label="Remove"
+                      icon={<ShieldCheck className="w-4 h-4" />}
+                      className="text-muted-foreground hover:text-primary"
+                      label="Promote"
+                      confirmMessage={`Make ${player.name || 'this user'} a coach? They will be able to view team stats and manage players.`}
                     />
-                    <Link href={`/coach/player/${player.id}`} className="min-h-11 px-3 text-primary hover:bg-primary/10 rounded-lg flex items-center gap-2">
-                      <ChevronRight className="w-4 h-4" />
-                      <span className="text-xs font-bold uppercase tracking-wider">View</span>
-                    </Link>
-                  </div>
+                  )}
+                  <ActionButton
+                    id={player.id}
+                    action={async (id) => {
+                      "use server";
+                      await assignToTeam(id, null);
+                    }}
+                    icon={<UserMinus className="w-4 h-4" />}
+                    className="text-muted-foreground hover:text-red-500"
+                    label="Remove"
+                  />
+                  <Link href={`/coach/player/${player.id}`} className="min-h-11 px-3 text-primary hover:bg-primary/10 rounded-lg flex items-center gap-2">
+                    <ChevronRight className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">View</span>
+                  </Link>
                 </div>
-              ))}
-              {players.length === 0 && (
-                <div className="p-8 text-center text-muted-foreground text-sm italic">
-                  No players on this team.
-                </div>
-              )}
-            </div>
+              </div>
+            ))}
+            {players.length === 0 && (
+              <div className="p-8 text-center text-muted-foreground text-sm italic">
+                No players on this team.
+              </div>
+            )}
           </div>
-        </div>
+        </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <section className="space-y-4">
@@ -260,11 +316,6 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
             </div>
           </section>
         </div>
-
-        <section className="space-y-4 lg:hidden">
-          <h3 className="text-xl font-bold text-foreground">Readiness Trend</h3>
-          <TeamReadinessGraph data={trends} />
-        </section>
       </main>
     </div>
   );

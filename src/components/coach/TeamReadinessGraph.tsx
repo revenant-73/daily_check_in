@@ -1,15 +1,26 @@
 "use client";
 
-import React, { useId } from "react";
+import React from "react";
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 interface TeamTrendData {
   date: string;
+  mental: number;
+  physical: number;
+  emotional: number;
   average: number;
 }
 
 export function TeamReadinessGraph({ data }: { data: TeamTrendData[] }) {
-  const gradientId = useId().replace(/:/g, "");
-
   if (data.length === 0) {
     return (
       <div className="h-48 flex items-center justify-center bg-card rounded-2xl border border-dashed border-border text-muted-foreground text-sm">
@@ -18,83 +29,120 @@ export function TeamReadinessGraph({ data }: { data: TeamTrendData[] }) {
     );
   }
 
-  const height = 150;
-  const width = 600;
-  const padding = 34;
-  
-  const maxValue = 10;
-  const points = data.map((d, i) => {
-    const x = (i / (data.length - 1 || 1)) * (width - padding * 2) + padding;
-    const y = height - (d.average / maxValue) * (height - padding * 2) - padding;
-    return `${x},${y}`;
-  }).join(" ");
+  const chartData = data.map((d, index) => {
+    const date = new Date(d.date);
+    const hasValidDate = !Number.isNaN(date.getTime());
+    const shortDate = hasValidDate
+      ? date.toLocaleDateString(undefined, { month: "numeric", day: "numeric" })
+      : d.date;
+    const fullDate = hasValidDate
+      ? date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
+      : d.date;
+
+    return {
+      xKey: hasValidDate ? `${date.getTime()}-${index}` : `${d.date}-${index}`,
+      shortDate,
+      fullDate,
+      mental: Number(d.mental.toFixed(1)),
+      physical: Number(d.physical.toFixed(1)),
+      emotional: Number(d.emotional.toFixed(1)),
+      average: Number(d.average.toFixed(1)),
+    };
+  });
+
+  const getChartLabel = (value: unknown) => {
+    const item = chartData.find((entry) => entry.xKey === value);
+    return item?.shortDate ?? "";
+  };
+
+  const getTooltipLabel = (value: unknown) => {
+    const item = chartData.find((entry) => entry.xKey === value);
+    return item?.fullDate ?? "";
+  };
 
   return (
     <div className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
-      <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-muted-foreground sm:mb-6">Team Readiness Trend (Last 7 Sessions)</h3>
-      <div className="relative h-[200px] min-h-[200px] w-full min-w-0 sm:h-[180px] sm:min-h-[180px]">
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          preserveAspectRatio="none"
-          className="h-full w-full overflow-visible"
-          role="img"
-          aria-label="Team readiness trend chart"
+      <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-muted-foreground sm:mb-6">
+        Team Readiness Trend (Last 7 Sessions)
+      </h3>
+      <div className="relative h-[220px] min-h-[220px] w-full min-w-0 sm:h-[210px] sm:min-h-[210px]">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={260}
+          minHeight={200}
+          debounce={50}
+          initialDimension={{ width: 320, height: 220 }}
         >
-          {/* Grid lines */}
-          {[0, 5, 10].map((v) => {
-            const y = height - (v / maxValue) * (height - padding * 2) - padding;
-            return (
-              <g key={v}>
-                <line x1={padding} y1={y} x2={width - padding} y2={y} stroke="currentColor" strokeWidth="1" className="text-border/50" />
-                <text x={padding - 10} y={y + 4} textAnchor="end" className="text-[10px] fill-muted-foreground font-bold">{v}</text>
-              </g>
-            );
-          })}
-          
-          {/* Area under line */}
-          <path
-            d={`M ${padding},${height - padding} L ${points} L ${width - padding},${height - padding} Z`}
-            fill={`url(#${gradientId})`}
-            opacity="0.1"
-          />
-          
-          <defs>
-            <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="currentColor" className="text-primary" />
-              <stop offset="100%" stopColor="currentColor" stopOpacity="0" className="text-primary" />
-            </linearGradient>
-          </defs>
-
-          {/* Trend Line */}
-          <polyline
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            points={points}
-            className="text-primary"
-          />
-          
-          {/* Data Points */}
-          {data.map((d, i) => {
-            const x = (i / (data.length - 1 || 1)) * (width - padding * 2) + padding;
-            const y = height - (d.average / maxValue) * (height - padding * 2) - padding;
-            return (
-              <g key={i}>
-                <circle cx={x} cy={y} r="5" fill="currentColor" stroke="currentColor" strokeWidth="3" className="text-card stroke-primary" />
-                <text 
-                  x={x} 
-                  y={height - 5} 
-                  textAnchor="middle" 
-                  className="text-[8px] fill-muted-foreground font-black uppercase"
-                >
-                  {d.date.split('/')[0]}/{d.date.split('/')[1]}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
+          <LineChart data={chartData} margin={{ top: 5, right: 8, left: -26, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+            <XAxis
+              dataKey="xKey"
+              tickFormatter={getChartLabel}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 10, fontWeight: 800, fill: "rgba(255,255,255,0.4)" }}
+              dy={10}
+            />
+            <YAxis
+              domain={[0, 10]}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 10, fontWeight: 800, fill: "rgba(255,255,255,0.4)" }}
+            />
+            <Tooltip
+              labelFormatter={getTooltipLabel}
+              contentStyle={{
+                backgroundColor: "rgba(23, 23, 23, 0.9)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: "1rem",
+                fontSize: "12px",
+                fontWeight: "bold",
+                backdropFilter: "blur(8px)",
+              }}
+              itemStyle={{ padding: "2px 0" }}
+            />
+            <Legend
+              verticalAlign="top"
+              align="right"
+              iconType="circle"
+              wrapperStyle={{
+                fontSize: "10px",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+                paddingBottom: "20px",
+              }}
+            />
+            <Line
+              type="linear"
+              dataKey="mental"
+              stroke="#60a5fa"
+              strokeWidth={3}
+              dot={{ r: 4, fill: "#60a5fa" }}
+              activeDot={{ r: 6 }}
+              name="Mental"
+            />
+            <Line
+              type="linear"
+              dataKey="physical"
+              stroke="#4ade80"
+              strokeWidth={3}
+              dot={{ r: 4, fill: "#4ade80" }}
+              activeDot={{ r: 6 }}
+              name="Physical"
+            />
+            <Line
+              type="linear"
+              dataKey="emotional"
+              stroke="#c084fc"
+              strokeWidth={3}
+              dot={{ r: 4, fill: "#c084fc" }}
+              activeDot={{ r: 6 }}
+              name="Emotional"
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

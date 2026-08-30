@@ -247,31 +247,33 @@ export async function getTeamReadinessTrends() {
 
     if (!coach?.teamId) return [];
 
-    const teamPlayers = await db.select().from(users).where(eq(users.teamId, coach.teamId)).all();
-    
-    if (teamPlayers.length === 0) return [];
+    const checkInsData = await db.select()
+      .from(checkIns)
+      .where(eq(checkIns.teamId, coach.teamId))
+      .orderBy(desc(checkIns.createdAt))
+      .all();
 
-    const playerIds = teamPlayers.map((p: typeof users.$inferSelect) => p.id);
-
-    const checkInsData = await db.select().from(checkIns).where(inArray(checkIns.playerId, playerIds)).orderBy(desc(checkIns.createdAt)).all();
-
-    // Group by date and calculate average
-    const trends: Record<string, { total: number, count: number }> = {};
+    // Group by submission team so historical entries stay with the team they were submitted for.
+    const trends: Record<string, { mental: number, physical: number, emotional: number, count: number }> = {};
     
     checkInsData.forEach((ci: typeof checkIns.$inferSelect) => {
       if (!ci.createdAt) return;
       const date = new Date(ci.createdAt).toLocaleDateString();
-      const avg = (ci.mentalRating + ci.physicalRating + ci.emotionalRating) / 3;
       if (!trends[date]) {
-        trends[date] = { total: 0, count: 0 };
+        trends[date] = { mental: 0, physical: 0, emotional: 0, count: 0 };
       }
-      trends[date].total += avg;
+      trends[date].mental += ci.mentalRating;
+      trends[date].physical += ci.physicalRating;
+      trends[date].emotional += ci.emotionalRating;
       trends[date].count += 1;
     });
 
     return Object.entries(trends).map(([date, data]) => ({
       date,
-      average: data.total / data.count,
+      mental: data.mental / data.count,
+      physical: data.physical / data.count,
+      emotional: data.emotional / data.count,
+      average: (data.mental + data.physical + data.emotional) / (data.count * 3),
     })).slice(0, 7).reverse();
   } catch (error) {
     logError("getTeamReadinessTrends", error);
