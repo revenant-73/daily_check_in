@@ -59,7 +59,7 @@ export function ActivityFeed({
                   {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground line-clamp-1 font-medium">
+              <p className="whitespace-pre-wrap break-words text-xs text-muted-foreground font-medium leading-relaxed">
                 {activity.type === 'check-in' ? `Set goal: ${activity.goal}` :
                  activity.type === 'review' ? "Completed post-practice review" : "Received a reaction from coach"}
               </p>

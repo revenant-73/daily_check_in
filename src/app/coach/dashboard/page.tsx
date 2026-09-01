@@ -192,7 +192,7 @@ export default async function CoachDashboard() {
                             </div>
                           )}
                         </div>
-                        <p className="text-[11px] text-muted-foreground font-medium italic">&quot;{ci.goal}&quot;</p>
+                        <p className="whitespace-pre-wrap break-words text-[11px] text-muted-foreground font-medium italic">&quot;{ci.goal}&quot;</p>
                         <div className="flex justify-between items-center pt-1">
                           <div className="flex gap-1">
                             <div className={cn("w-1.5 h-1.5 rounded-full", ci.mentalRating <= 3 ? "bg-red-500" : "bg-blue-400/20")} />
@@ -227,15 +227,15 @@ export default async function CoachDashboard() {
                         const metadata = ci.metadata ? JSON.parse(ci.metadata as string) : {};
                         return (
                           <tr key={ci.id} className="hover:bg-muted/20 transition-colors group">
-                            <td className="p-6">
+                            <td className="p-6 align-top">
                               <Link href={`/coach/player/${ci.playerId}`} className="font-black text-sm text-foreground hover:text-primary transition-colors uppercase tracking-tight">
                                 {player?.name?.split(' ')[0] || "Unknown"}
                               </Link>
                             </td>
-                            <td className="p-6">
-                               <p className="text-xs text-muted-foreground font-medium line-clamp-1">{ci.goal}</p>
+                            <td className="p-6 align-top">
+                               <p className="whitespace-pre-wrap break-words text-xs text-muted-foreground font-medium leading-relaxed">{ci.goal}</p>
                             </td>
-                            <td className="p-6">
+                            <td className="p-6 align-top">
                               <div className="flex justify-center">
                                 {status ? (
                                   <div className={cn("px-3 py-1 rounded-full text-[9px] font-black border uppercase tracking-widest", status.color)}>
@@ -250,7 +250,7 @@ export default async function CoachDashboard() {
                                 )}
                               </div>
                             </td>
-                            <td className="p-6 text-right">
+                            <td className="p-6 align-top text-right">
                               <div className="flex justify-end gap-3 items-center">
                                 <CoachNoteDialog checkInId={ci.id} existingNote={metadata.coachNote} />
                                 <ReactionButtons checkInId={ci.id} currentReactions={ciReactions} />

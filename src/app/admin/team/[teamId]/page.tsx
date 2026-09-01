@@ -240,9 +240,11 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
                     const player = players.find((p: typeof usersSchema.$inferSelect) => p.id === ci.playerId);
                     return (
                       <tr key={ci.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="p-4 font-bold text-foreground">{player?.name?.split(' ')[0] || "Unknown"}</td>
-                        <td className="p-4 text-muted-foreground truncate max-w-[150px]">{ci.goal}</td>
-                        <td className="p-4 text-center">
+                        <td className="p-4 align-top font-bold text-foreground">{player?.name?.split(' ')[0] || "Unknown"}</td>
+                        <td className="min-w-0 p-4 align-top text-muted-foreground">
+                          <p className="whitespace-pre-wrap break-words leading-relaxed">{ci.goal}</p>
+                        </td>
+                        <td className="p-4 align-top text-center">
                           <div className="flex gap-1 justify-center">
                             <span className="w-5 h-5 flex items-center justify-center bg-blue-500/10 text-blue-500 rounded text-[10px] font-bold">{ci.mentalRating}</span>
                             <span className="w-5 h-5 flex items-center justify-center bg-green-500/10 text-green-500 rounded text-[10px] font-bold">{ci.physicalRating}</span>
@@ -282,7 +284,7 @@ export default async function TeamView(props: { params: Promise<{ teamId: string
                         ))}
                       </div>
                     </div>
-                    {r.notes && <p className="text-xs text-muted-foreground italic">&quot;{r.notes}&quot;</p>}
+                    {r.notes && <p className="whitespace-pre-wrap break-words text-xs leading-relaxed text-muted-foreground italic">&quot;{r.notes}&quot;</p>}
                   </div>
                 );
               })}

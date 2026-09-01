@@ -73,7 +73,7 @@ export default async function PlayerDetailedView(props: {
                         <span className="px-1.5 py-0.5 bg-purple-500/10 text-purple-500 rounded text-[10px] font-bold">E:{ci.emotionalRating}</span>
                       </div>
                     </div>
-                    <p className="font-bold text-foreground">&quot;{ci.goal}&quot;</p>
+                    <p className="whitespace-pre-wrap break-words font-bold leading-relaxed text-foreground">&quot;{ci.goal}&quot;</p>
                   </div>
                 ))}
               </div>
@@ -98,7 +98,7 @@ export default async function PlayerDetailedView(props: {
                     </div>
                   </div>
                   {r.notes ? (
-                    <p className="text-muted-foreground italic">&quot;{r.notes}&quot;</p>
+                    <p className="whitespace-pre-wrap break-words leading-relaxed text-muted-foreground italic">&quot;{r.notes}&quot;</p>
                   ) : (
                     <p className="text-muted-foreground/50 text-xs italic">No notes provided</p>
                   )}
